@@ -1,0 +1,279 @@
+/* master-brick
+ * Copyright (C) 2010-2011 Olaf Lüke <olaf@tinkerforge.com>
+ *
+ * config.h: Master-Brick specific configuration
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include "master.h"
+#include "communication.h"
+#include "extensions/chibi/chibi.h"
+#include "bricklib/drivers/board/sam3s/SAM3S.h"
+
+#define at91sam3s4c
+
+#define BOARD_VERSION "1.0"
+#define BOARD_NAME    "Master Brick"
+#define BRICK_CAN_BE_MASTER
+
+// ************** DEBUG SETTINGS **************
+#define DEBUG_SPI_STACK 1
+#define DEBUG_I2C_EEPROM 1
+#define DEBUG_STARTUP 1
+#define DEBUG_BRICKLET 1
+#define DEBUG_CHIBI 1
+//#define PROFILING
+//#define PROFILING_TIME 100 // After how many seconds profiling is printed
+
+#define DISABLE_JTAG_ON_STARTUP
+#define LOGGING_SERIAL
+#define LOGGING_LEVEL LOGGING_DEBUG
+//#define LOGGING_LEVEL LOGGING_NONE
+
+// ************** BRICK SETTINGS **************
+
+// Frequencies
+#define BOARD_MCK      64000000 // Frequency of brick
+#define BOARD_MAINOSC  16000000 // Frequency of oscillator
+#define BOARD_ADC_FREQ  6000000 // Frequency of ADC
+#define BOARD_OSC_EXTERNAL      // Use external oscillator
+
+
+// UART for console output (printf)
+#define PIN_CONSOLE_RXD  {1 << 21, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+#define PIN_CONSOLE_TXD  {1 << 22, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+
+#define CONSOLE_BAUDRATE 115200
+#define CONSOLE_USART    USART1
+#define CONSOLE_ID       ID_USART1
+#define CONSOLE_PINS     {PIN_CONSOLE_RXD, PIN_CONSOLE_TXD}
+
+#define PINS_UART        {PIN_CONSOLE_RXD, PIN_CONSOLE_TXD}
+
+// TWI
+// TWI version
+#define TWI_V3XX
+
+// TWI stack definitions (for reading of eeproms from Bricks in stack)
+#define TWI_STACK           TWI1
+#define PIN_TWI_TWD_STACK   {1 << 4, PIOB, ID_PIOB, PIO_PERIPH_A, PIO_DEFAULT}
+#define PIN_TWI_TWCK_STACK  {1 << 5, PIOB, ID_PIOB, PIO_PERIPH_A, PIO_DEFAULT}
+#define PINS_TWI_STACK      PIN_TWI_TWD_STACK, PIN_TWI_TWCK_STACK
+
+// TWI bricklet definitions (for bricklets, spi select and brick specific
+//                           functions)
+#define TWI_BRICKLET           TWI0
+#define PIN_TWI_TWD_BRICKLET   {1 << 3, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+#define PIN_TWI_TWCK_BRICKLET  {1 << 4, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+#define PINS_TWI_BRICKLET      PIN_TWI_TWD_BRICKLET, PIN_TWI_TWCK_BRICKLET
+
+// USB
+// USB VBUS monitoring pin for USB plug and play
+#define PIN_USB_DETECT  {1 << 17, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+// USB product descriptor (name of brick)
+#define PRODUCT_DESCRIPTOR { \
+	USBStringDescriptor_LENGTH(12), \
+    USBGenericDescriptor_STRING, \
+    USBStringDescriptor_UNICODE('M'), \
+    USBStringDescriptor_UNICODE('a'), \
+    USBStringDescriptor_UNICODE('s'), \
+    USBStringDescriptor_UNICODE('t'), \
+    USBStringDescriptor_UNICODE('e'), \
+    USBStringDescriptor_UNICODE('r'), \
+    USBStringDescriptor_UNICODE(' '), \
+    USBStringDescriptor_UNICODE('B'), \
+    USBStringDescriptor_UNICODE('r'), \
+    USBStringDescriptor_UNICODE('i'), \
+    USBStringDescriptor_UNICODE('c'), \
+    USBStringDescriptor_UNICODE('k') \
+}
+
+
+// SPI
+#define PIN_SPI_MISO        {1 << 12, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+#define PIN_SPI_MOSI        {1 << 13, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+#define PIN_SPI_SPCK        {1 << 14, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+
+#define PINS_SPI            PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SPCK
+
+#define PIN_SPI_SELECT_SLAVE  {1 << 11, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+
+#define PIN_SPI_SELECT_MASTER_0 {1 << 20, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_1 {1 << 21, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_2 {1 << 22, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_3 {1 << 23, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_4 {1 << 0, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_5 {1 << 1, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_6 {1 << 2, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_7 {1 << 3, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
+
+#define PINS_SPI_SELECT_MASTER   PIN_SPI_SELECT_MASTER_0, \
+                                 PIN_SPI_SELECT_MASTER_1, \
+                                 PIN_SPI_SELECT_MASTER_2, \
+                                 PIN_SPI_SELECT_MASTER_3, \
+                                 PIN_SPI_SELECT_MASTER_4, \
+                                 PIN_SPI_SELECT_MASTER_5, \
+                                 PIN_SPI_SELECT_MASTER_6, \
+                                 PIN_SPI_SELECT_MASTER_7
+
+
+// LED
+#define PIN_LED_STD_BLUE    {1 << 18, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_LED_STD_RED     {1 << 19, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PINS_STD_LED        PIN_LED_STD_BLUE, PIN_LED_STD_RED
+
+#define PIN_LED_EXT_BLUE_0  {1 << 24, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_LED_EXT_BLUE_1  {1 << 25, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_LED_EXT_BLUE_2  {1 << 26, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_LED_EXT_BLUE_3  {1 << 27, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PINS_EXT_LED        PIN_LED_EXT_BLUE_0, PIN_LED_EXT_BLUE_1, \
+                            PIN_LED_EXT_BLUE_2, PIN_LED_EXT_BLUE_3
+
+#define PINS_LED            PINS_STD_LED, PINS_EXT_LED
+
+#define LED_STD_BLUE        0
+#define LED_STD_RED         1
+#define LED_EXT_BLUE_0      2
+#define LED_EXT_BLUE_1      3
+#define LED_EXT_BLUE_2      4
+#define LED_EXT_BLUE_3      5
+
+// Brick Detect
+// Set low by master
+// TODO: Change name
+#define PIN_DETECT        {1 << 6, PIOB, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT}
+
+// If low, there is a master below (-> configure as stack participant)
+#define PIN_MASTER_DETECT {1 << 18, PIOA, ID_PIOA, PIO_INPUT, PIO_PULLUP}
+
+
+// ************** INTERRUPT PRIORITIES ***********
+#define PRIORITY_SERVO_TC0 0
+#define PRIORITY_MCP3008_USART0 0
+#define PRIORITY_PERIODIC_ADC_TC2 0
+#define PRIORITY_EEPROM_MASTER_TWI0 0
+#define PRIORITY_EEPROM_SLAVE_TWI1 0
+#define PRIORITY_STACK_SLAVE_SPI 0
+#define PRIORITY_PROFILING_TC0 0
+
+
+// ************** POWER MEASUREMENT **************
+#define PIN_STACK_VOLTAGE {1 << 19, PIOA, ID_PIOA, PIO_INPUT, PIO_PULLDOWN}
+#define PIN_STACK_CURRENT {1 << 20, PIOA, ID_PIOA, PIO_INPUT, PIO_PULLDOWN}
+
+#define VOLTAGE_MAX_VALUE 4095
+
+#define STACK_VOLTAGE_CHANNEL 2
+#define STACK_VOLTAGE_MULTIPLIER 11
+#define STACK_VOLTAGE_REFERENCE 3300
+
+#define STACK_CURRENT_CHANNEL 3
+#define STACK_CURRENT_MULTIPLIER 4
+#define STACK_CURRENT_REFERENCE 3300
+
+// ************** BRICKLET SETTINGS **************
+
+// Number of bricklet ports
+#define BRICKLET_NUM 4
+
+// BRICKLET A
+#define BRICKLET_A_ADDRESS 84
+#define BRICKLET_A_ADC_CHANNEL 12
+
+#define BRICKLET_A_PIN_1_AD   {1 << 12, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_A_PIN_2_DA   {1 << 25, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_A_PIN_3_PWM  {1 << 0, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_A_PIN_4_IO   {1 << 4, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_A_PIN_SELECT {1 << 8, PIOC, ID_PIOC, PIO_OUTPUT_0, PIO_DEFAULT}
+
+
+// BRICKLET B
+#define BRICKLET_B_ADDRESS 84
+#define BRICKLET_B_ADC_CHANNEL 10
+
+#define BRICKLET_B_PIN_1_AD   {1 << 13, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_B_PIN_2_DA   {1 << 26, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_B_PIN_3_PWM  {1 << 1, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_B_PIN_4_IO   {1 << 5, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_B_PIN_SELECT {1 << 9, PIOC, ID_PIOC, PIO_OUTPUT_0, PIO_DEFAULT}
+
+
+// BRICKLET C
+#define BRICKLET_C_ADDRESS 84
+#define BRICKLET_C_ADC_CHANNEL 13
+
+#define BRICKLET_C_PIN_1_AD   {1 << 29, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_C_PIN_2_DA   {1 << 13, PIOB, ID_PIOB, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_C_PIN_3_PWM  {1 << 2, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_C_PIN_4_IO   {1 << 6, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_C_PIN_SELECT {1 << 10, PIOC, ID_PIOC, PIO_OUTPUT_0, PIO_DEFAULT}
+
+
+// BRICKLET D
+#define BRICKLET_D_ADDRESS 84
+#define BRICKLET_D_ADC_CHANNEL 14
+
+#define BRICKLET_D_PIN_1_AD   {1 << 30, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_D_PIN_2_DA   {1 << 14, PIOB, ID_PIOB, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_D_PIN_3_PWM  {1 << 3, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_D_PIN_4_IO   {1 << 7, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define BRICKLET_D_PIN_SELECT {1 << 11, PIOC, ID_PIOC, PIO_OUTPUT_0, PIO_DEFAULT}
+
+
+
+// ************** EXTENSION SETTINGS **************
+#define PIN_EXT_0_SELECT  {1 << 28, PIOA, ID_PIOA, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_EXT_0_GP_0    {1 << 9, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}
+#define PIN_EXT_0_GP_1    {1 << 10, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PIN_EXT_0_GP_2    {1 << 27, PIOA, ID_PIOA, PIO_OUTPUT_1, PIO_DEFAULT}
+
+#define PIN_EXT_1_SELECT  {1 << 29, PIOA, ID_PIOA, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_EXT_1_GP_0    {1 << 1, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PIN_EXT_1_GP_1    {1 << 30, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PIN_EXT_1_GP_2    {1 << 31, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+
+#define PIN_EXT_RXD       {1 << 5, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+#define PIN_EXT_TXD       {1 << 6, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
+#define PIN_EXT_SCK       {1 << 2, PIOA, ID_PIOA, PIO_PERIPH_B, PIO_DEFAULT}
+
+
+// ************** CHIBI SETTINGS ******************
+#define PIN_CHIBI_RESET   PIN_EXT_0_GP_0
+#define PIN_CHIBI_INT     PIN_EXT_0_GP_1
+#define PIN_CHIBI_SLP_TR  PIN_EXT_0_GP_2
+#define PIN_CHIBI_MISO    PIN_EXT_RXD
+#define PIN_CHIBI_MOSI    PIN_EXT_TXD
+#define PIN_CHIBI_SCK     PIN_EXT_SCK
+#define PIN_CHIBI_SELECT  PIN_EXT_0_SELECT
+
+#define PINS_CHIBI        PIN_CHIBI_RESET,  \
+                          PIN_CHIBI_INT,    \
+                          PIN_CHIBI_SLP_TR, \
+                          PIN_CHIBI_MISO,   \
+                          PIN_CHIBI_MOSI,   \
+                          PIN_CHIBI_SCK,    \
+                          PIN_CHIBI_SELECT
+
+#define CHIBI_USART_SPI_CLOCK 8000000 // 8 Mhz
+
+
+
+
+#endif

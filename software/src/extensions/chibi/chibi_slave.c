@@ -1,0 +1,78 @@
+/* master-brick
+ * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
+ *
+ * chibi_slave.c: chibi protocol implementation for slave (no PC connection)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#include "chibi_slave.h"
+#include "chibi_low_level.h"
+#include "chibi.h"
+
+#include "config.h"
+#include "bricklib/logging/logging.h"
+
+#include "bricklib/com/com_common.h"
+#include "bricklib/com/com_messages.h"
+
+#include <FreeRTOS.h>
+#include <task.h>
+
+extern uint8_t com_stack_address;
+
+extern uint8_t chibi_address;
+extern uint8_t chibi_receiver_address;
+extern uint8_t chibi_type;
+
+void chibi_slave_init(void) {
+	logchibii("Configuring chibi extension as Slave\n\r");
+	chibi_type = CHIBI_TYPE_SLAVE;
+
+    // TODO: HACK -> FIXME
+    chibi_address = 23;
+    chibi_receiver_address = 42;
+
+    chibi_init();
+
+	xTaskCreate(chibi_slave_message_loop,
+				(signed char *)"chs_ml",
+				2000,
+				NULL,
+				1,
+				(xTaskHandle *)NULL);
+}
+
+void chibi_slave_message_loop(void *parameters) {
+	MessageLoopParameter mlp;
+	mlp.buffer_size = CHIBI_MAX_DATA_LENGTH;
+	mlp.com_type    = COM_CHIBI;
+	mlp.return_func = chibi_slave_message_loop_return;
+	com_message_loop(&mlp);
+}
+
+void chibi_slave_message_loop_return(char *data, uint16_t length) {
+	if(com_stack_address == 0 || data[0] <= com_stack_address) {
+		const ComMessage *com_message = get_com_from_data(data);
+
+		if(com_message->reply_func != NULL) {
+			com_stack_address = data[0];
+			com_message->reply_func(COM_CHIBI, (void*)data);
+		}
+	} else {
+		send_blocking_with_timeout(data, length, COM_SPI_STACK);
+	}
+}
