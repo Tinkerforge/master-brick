@@ -1,0 +1,436 @@
+EESchema Schematic File Version 2  date Do 25 Aug 2011 13:58:29 CEST
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:special
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:tinkerforge
+LIBS:master-cache
+EELAYER 25  0
+EELAYER END
+$Descr A4 11700 8267
+encoding utf-8
+Sheet 2 4
+Title ""
+Date "25 aug 2011"
+Rev ""
+Comp "Tinkerforge GmbH"
+Comment1 "Licensed under CERN OHL v.1.1"
+Comment2 "Copyright (©) 2011, B.Nordmeyer <bastian@tinkerforge.com>"
+Comment3 ""
+Comment4 ""
+$EndDescr
+Wire Wire Line
+	3350 2700 3350 2600
+Wire Wire Line
+	3050 2700 3050 2600
+Wire Wire Line
+	7700 5550 7700 5850
+Wire Wire Line
+	7700 5850 7800 5850
+Wire Wire Line
+	7800 5550 7800 5650
+Wire Wire Line
+	7700 3900 7700 4250
+Wire Wire Line
+	7700 4250 7800 4250
+Wire Wire Line
+	7800 2300 7800 2200
+Wire Wire Line
+	7800 2500 7700 2500
+Wire Wire Line
+	7700 2500 7700 2200
+Wire Wire Line
+	7800 1000 7700 1000
+Wire Wire Line
+	7700 1000 7700 700 
+Wire Wire Line
+	7800 1700 6550 1700
+Wire Wire Line
+	6550 1600 7800 1600
+Wire Wire Line
+	6550 1400 7800 1400
+Wire Wire Line
+	7800 1200 4900 1200
+Wire Wire Line
+	6550 2800 7800 2800
+Connection ~ 5000 2600
+Wire Wire Line
+	5000 5950 5000 1100
+Connection ~ 5000 4350
+Wire Wire Line
+	5000 5950 7800 5950
+Wire Wire Line
+	6550 6350 7800 6350
+Wire Wire Line
+	6550 6550 7800 6550
+Wire Wire Line
+	8250 6750 8250 6700
+Connection ~ 5000 3450
+Connection ~ 4900 3550
+Wire Wire Line
+	6550 3200 7800 3200
+Wire Wire Line
+	6550 3000 7800 3000
+Wire Wire Line
+	7800 4950 6550 4950
+Wire Wire Line
+	7800 4750 6550 4750
+Connection ~ 3350 3550
+Wire Wire Line
+	3350 3100 3350 3550
+Connection ~ 3200 2600
+Wire Wire Line
+	3200 2500 3200 2600
+Wire Wire Line
+	5000 3450 2450 3450
+Wire Wire Line
+	4900 4450 7800 4450
+Wire Wire Line
+	4900 2700 7800 2700
+Wire Wire Line
+	8250 5150 8250 5100
+Wire Wire Line
+	8250 3400 8250 3350
+Wire Wire Line
+	5000 2600 7800 2600
+Wire Wire Line
+	5000 4350 7800 4350
+Wire Wire Line
+	4900 3550 2450 3550
+Wire Wire Line
+	3050 2600 3350 2600
+Wire Wire Line
+	3050 3100 3050 3450
+Connection ~ 3050 3450
+Wire Wire Line
+	7800 4650 6550 4650
+Wire Wire Line
+	7800 4850 6550 4850
+Wire Wire Line
+	6550 2900 7800 2900
+Wire Wire Line
+	6550 3100 7800 3100
+Wire Wire Line
+	8250 1900 8250 1850
+Wire Wire Line
+	6550 6450 7800 6450
+Wire Wire Line
+	6550 6250 7800 6250
+Wire Wire Line
+	7800 6050 4900 6050
+Connection ~ 4900 4450
+Wire Wire Line
+	4900 6050 4900 1200
+Connection ~ 4900 2700
+Wire Wire Line
+	6550 6150 7800 6150
+Wire Wire Line
+	6550 4550 7800 4550
+Wire Wire Line
+	5000 1100 7800 1100
+Wire Wire Line
+	7800 1300 6550 1300
+Wire Wire Line
+	7800 1500 6550 1500
+Wire Wire Line
+	7800 900  7550 900 
+Wire Wire Line
+	7550 900  7550 950 
+Wire Wire Line
+	7800 700  7800 800 
+Wire Wire Line
+	7800 2400 7550 2400
+Wire Wire Line
+	7550 2400 7550 2450
+Wire Wire Line
+	7800 4150 7550 4150
+Wire Wire Line
+	7550 4150 7550 4200
+Wire Wire Line
+	7800 3900 7800 4050
+Wire Wire Line
+	7800 5750 7550 5750
+Wire Wire Line
+	7550 5750 7550 5800
+Wire Wire Line
+	3150 2700 3150 2600
+Connection ~ 3150 2600
+Wire Wire Line
+	3250 2700 3250 2600
+Connection ~ 3250 2600
+NoConn ~ 3250 3100
+NoConn ~ 3150 3100
+$Comp
+L R_PACK4 RP3
+U 1 1 4D9D8B29
+P 3000 2900
+F 0 "RP3" H 3000 3350 40  0000 C CNN
+F 1 "1k" H 3000 2850 40  0000 C CNN
+F 2 "741X083" H 3000 2900 60  0001 C CNN
+	1    3000 2900
+	0    1    1    0   
+$EndComp
+$Comp
+L 3V3 #PWR18
+U 1 1 4D2301E2
+P 7700 5550
+F 0 "#PWR18" H 7700 5650 40  0001 C CNN
+F 1 "3V3" H 7700 5675 40  0000 C CNN
+	1    7700 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR22
+U 1 1 4D2301DE
+P 7800 5550
+F 0 "#PWR22" H 7800 5640 20  0001 C CNN
+F 1 "+5V" H 7800 5640 30  0000 C CNN
+	1    7800 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR14
+U 1 1 4D2301DA
+P 7550 5800
+F 0 "#PWR14" H 7550 5800 30  0001 C CNN
+F 1 "GND" H 7550 5730 30  0001 C CNN
+	1    7550 5800
+	1    0    0    -1  
+$EndComp
+Text GLabel 6550 6150 0    60   Input ~ 0
+BRICKLET-SEL-3
+Text GLabel 6550 4550 0    60   Input ~ 0
+BRICKLET-SEL-2
+Text GLabel 6550 2800 0    60   Input ~ 0
+BRICKLET-SEL-1
+Text GLabel 6550 1300 0    60   Input ~ 0
+BRICKLET-SEL-0
+$Comp
+L GND #PWR11
+U 1 1 4D23019C
+P 7550 950
+F 0 "#PWR11" H 7550 950 30  0001 C CNN
+F 1 "GND" H 7550 880 30  0001 C CNN
+	1    7550 950 
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR19
+U 1 1 4D230198
+P 7800 700
+F 0 "#PWR19" H 7800 790 20  0001 C CNN
+F 1 "+5V" H 7800 790 30  0000 C CNN
+	1    7800 700 
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR15
+U 1 1 4D230194
+P 7700 700
+F 0 "#PWR15" H 7700 800 40  0001 C CNN
+F 1 "3V3" H 7700 825 40  0000 C CNN
+	1    7700 700 
+	1    0    0    -1  
+$EndComp
+Text GLabel 6550 6250 0    60   Input ~ 0
+BRICKLET-IO3_0/AD3
+Text GLabel 6550 6450 0    60   Input ~ 0
+BRICKLET-IO3_2/PWM3
+Text GLabel 6550 6550 0    60   Input ~ 0
+BRICKLET-IO3_3
+Text GLabel 6550 6350 0    60   Input ~ 0
+BRICKLET-IO3_1/DA1
+Text GLabel 6550 1400 0    60   Input ~ 0
+BRICKLET-IO0_0/AD0
+Text GLabel 6550 1600 0    60   Input ~ 0
+BRICKLET-IO0_2/PWM0
+Text GLabel 6550 1700 0    60   Input ~ 0
+BRICKLET-IO0_3
+Text GLabel 6550 1500 0    60   Input ~ 0
+BRICKLET-IO0_1
+$Comp
+L GND #PWR23
+U 1 1 4D2300AF
+P 8250 1900
+F 0 "#PWR23" H 8250 1900 30  0001 C CNN
+F 1 "GND" H 8250 1830 30  0001 C CNN
+	1    8250 1900
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR26
+U 1 1 4D23009D
+P 8250 6750
+F 0 "#PWR26" H 8250 6750 30  0001 C CNN
+F 1 "GND" H 8250 6680 30  0001 C CNN
+	1    8250 6750
+	1    0    0    -1  
+$EndComp
+$Comp
+L CON-SENSOR P4
+U 1 1 4D230096
+P 8250 6100
+F 0 "P4" H 8000 6650 60  0000 C CNN
+F 1 "CON-SENSOR" V 8450 6100 60  0000 C CNN
+F 2 "CON-SENSOR" H 8250 6100 60  0001 C CNN
+	1    8250 6100
+	1    0    0    -1  
+$EndComp
+$Comp
+L CON-SENSOR P1
+U 1 1 4D230090
+P 8250 1250
+F 0 "P1" H 8000 1800 60  0000 C CNN
+F 1 "CON-SENSOR" V 8450 1250 60  0000 C CNN
+F 2 "CON-SENSOR" H 8250 1250 60  0001 C CNN
+	1    8250 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR10
+U 1 1 4CAC8AB4
+P 3200 2500
+F 0 "#PWR10" H 3200 2600 40  0001 C CNN
+F 1 "3V3" H 3200 2625 40  0000 C CNN
+	1    3200 2500
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR20
+U 1 1 4CAC88B4
+P 7800 2200
+F 0 "#PWR20" H 7800 2290 20  0001 C CNN
+F 1 "+5V" H 7800 2290 30  0000 C CNN
+	1    7800 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR21
+U 1 1 4CAC88AE
+P 7800 3900
+F 0 "#PWR21" H 7800 3990 20  0001 C CNN
+F 1 "+5V" H 7800 3990 30  0000 C CNN
+	1    7800 3900
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR17
+U 1 1 4CAC87D9
+P 7700 3900
+F 0 "#PWR17" H 7700 4000 40  0001 C CNN
+F 1 "3V3" H 7700 4025 40  0000 C CNN
+	1    7700 3900
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR16
+U 1 1 4CAC87D4
+P 7700 2200
+F 0 "#PWR16" H 7700 2300 40  0001 C CNN
+F 1 "3V3" H 7700 2325 40  0000 C CNN
+	1    7700 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR12
+U 1 1 4CAC87AD
+P 7550 2450
+F 0 "#PWR12" H 7550 2450 30  0001 C CNN
+F 1 "GND" H 7550 2380 30  0001 C CNN
+	1    7550 2450
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR13
+U 1 1 4CAC87A9
+P 7550 4200
+F 0 "#PWR13" H 7550 4200 30  0001 C CNN
+F 1 "GND" H 7550 4130 30  0001 C CNN
+	1    7550 4200
+	1    0    0    -1  
+$EndComp
+Text GLabel 6550 4750 0    60   Input ~ 0
+BRICKLET-IO2_1/DA0
+Text GLabel 6550 3000 0    60   Input ~ 0
+BRICKLET-IO1_1
+Text GLabel 6550 3200 0    60   Input ~ 0
+BRICKLET-IO1_3
+Text GLabel 6550 4950 0    60   Input ~ 0
+BRICKLET-IO2_3
+Text GLabel 6550 4850 0    60   Input ~ 0
+BRICKLET-IO2_2/PWM2
+Text GLabel 6550 3100 0    60   Input ~ 0
+BRICKLET-IO1_2/PWM1
+Text GLabel 6550 4650 0    60   Input ~ 0
+BRICKLET-IO2_0/AD2
+Text GLabel 6550 2900 0    60   Input ~ 0
+BRICKLET-IO1_0/AD1
+Text GLabel 2450 3450 0    60   Input ~ 0
+BRICKLET-I2C-SCL
+Text GLabel 2450 3550 0    60   Input ~ 0
+BRICKLET-I2C-SDA
+$Comp
+L GND #PWR25
+U 1 1 4CAC33F4
+P 8250 5150
+F 0 "#PWR25" H 8250 5150 30  0001 C CNN
+F 1 "GND" H 8250 5080 30  0001 C CNN
+	1    8250 5150
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR24
+U 1 1 4CAC33ED
+P 8250 3400
+F 0 "#PWR24" H 8250 3400 30  0001 C CNN
+F 1 "GND" H 8250 3330 30  0001 C CNN
+	1    8250 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L CON-SENSOR P3
+U 1 1 4CAC3392
+P 8250 4500
+F 0 "P3" H 8000 5050 60  0000 C CNN
+F 1 "CON-SENSOR" V 8450 4500 60  0000 C CNN
+F 2 "CON-SENSOR" H 8250 4500 60  0001 C CNN
+	1    8250 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L CON-SENSOR P2
+U 1 1 4CAC338E
+P 8250 2750
+F 0 "P2" H 8000 3300 60  0000 C CNN
+F 1 "CON-SENSOR" V 8450 2750 60  0000 C CNN
+F 2 "CON-SENSOR" H 8250 2750 60  0001 C CNN
+	1    8250 2750
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC
