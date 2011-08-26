@@ -30,10 +30,16 @@ void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	gsvr.stack_address = data->stack_address;
 	gsvr.type          = data->type;
 	gsvr.length        = sizeof(GetStackVoltageReturn);
-	gsvr.voltage       = adc_channel_get_data(STACK_VOLTAGE_CHANNEL) *
-	                     STACK_VOLTAGE_REFERENCE *
-	                     STACK_VOLTAGE_MULTIPLIER /
-	                     VOLTAGE_MAX_VALUE;
+
+	const uint16_t value = adc_channel_get_data(STACK_VOLTAGE_CHANNEL);
+	if(adc_channel_get_data(STACK_VOLTAGE_CHANNEL) < VOLTAGE_EPSILON) {
+		gsvr.voltage = 0;
+	} else {
+		gsvr.voltage = value *
+	                   STACK_VOLTAGE_REFERENCE *
+	                   STACK_VOLTAGE_MULTIPLIER /
+	                   VOLTAGE_MAX_VALUE;
+	}
 
 	send_blocking_with_timeout(&gsvr, sizeof(GetStackVoltageReturn), com);
 }
@@ -45,10 +51,14 @@ void get_stack_current(uint8_t com, const GetStackCurrent *data) {
 	gscr.type          = data->type;
 	gscr.length        = sizeof(GetStackCurrentReturn);
 
-	gscr.current       = adc_channel_get_data(STACK_CURRENT_CHANNEL) *
-                         STACK_CURRENT_REFERENCE *
-                         STACK_CURRENT_MULTIPLIER /
-                         VOLTAGE_MAX_VALUE;
+	if(adc_channel_get_data(STACK_VOLTAGE_CHANNEL) < VOLTAGE_EPSILON) {
+		gscr.current = 0;
+	} else {
+		gscr.current = adc_channel_get_data(STACK_CURRENT_CHANNEL) *
+		               STACK_CURRENT_REFERENCE *
+		               STACK_CURRENT_MULTIPLIER /
+		               VOLTAGE_MAX_VALUE;
+	}
 
 	send_blocking_with_timeout(&gscr, sizeof(GetStackCurrentReturn), com);
 }

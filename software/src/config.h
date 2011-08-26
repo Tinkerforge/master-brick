@@ -187,6 +187,8 @@
 #define STACK_CURRENT_MULTIPLIER 4
 #define STACK_CURRENT_REFERENCE 3300
 
+#define VOLTAGE_EPSILON (1000*VOLTAGE_MAX_VALUE/STACK_VOLTAGE_REFERENCE)
+
 // ************** BRICKLET SETTINGS **************
 
 // Number of bricklet ports
