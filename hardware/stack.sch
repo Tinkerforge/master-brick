@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Do 25 Aug 2011 13:58:29 CEST
+EESchema Schematic File Version 2  date Fr 26 Aug 2011 15:51:06 CEST
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -30,14 +30,13 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:tinkerforge
-LIBS:master-cache
 EELAYER 25  0
 EELAYER END
 $Descr A4 11700 8267
 encoding utf-8
 Sheet 3 4
 Title ""
-Date "25 aug 2011"
+Date "26 aug 2011"
 Rev ""
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
@@ -46,7 +45,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 Text Notes 9450 6600 0    60   ~ 0
-Missing 10k pulldown for VOLTAGE\nAdded externally at stack connector
+Missing 100k pulldown for VOLTAGE\nAdded externally at stack connector
 NoConn ~ 6950 3400
 NoConn ~ 6950 3500
 NoConn ~ 7350 3400
