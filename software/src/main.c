@@ -119,7 +119,7 @@ int main() {
     if(PIO_Get(&pin_master_detect)) {
     	// If we are a Master in the Stack, we have to wait again, so
     	// other Bricks can enumerate there Bricklets
-    	blinkenlights(2);
+    	blinkenlights(4);
     	logsi("Configuring as Stack-Master\n\r");
 
         spi_stack_master_init();
