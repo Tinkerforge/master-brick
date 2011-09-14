@@ -9,10 +9,13 @@ public class ExampleStackStatus {
 	// Note: To make the example code cleaner we do not handle exceptions. Exceptions you
 	//       might normally want to catch are described in the commnents below
 	public static void main(String args[]) throws Exception {
-		IPConnection ipcon = new IPConnection(host, port); // Create connection to brickd (Can throw IOException)
+		// Create connection to brickd
+		IPConnection ipcon = new IPConnection(host, port); // Can throw IOException
 
 		BrickMaster master = new BrickMaster(UID); // Create device object
-		ipcon.addDevice(master); // Add device to ip connection (Can throw IPConnection.TimeoutException)
+
+		// Add device to ip connection
+		ipcon.addDevice(master); // Can throw IPConnection.TimeoutException
 		// Don't use device before it is added to a connection
 		
 		// Get voltage and current from stack (in mV/mA)
