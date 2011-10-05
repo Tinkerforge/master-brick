@@ -5,8 +5,8 @@ HOST = "localhost"
 PORT = 4223
 UID = "aySDPZAhvvd" # Change to your UID
 
-from ip_connection import IPConnection
-from brick_master import Master
+from tinkerforge.ip_connection import IPConnection
+from tinkerforge.brick_master import Master
 
 if __name__ == "__main__":
     ipcon = IPConnection(HOST, PORT) # Create ip connection to brickd
