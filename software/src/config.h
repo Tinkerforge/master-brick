@@ -29,8 +29,10 @@
 
 #define at91sam3s4c
 
-#define BOARD_VERSION "1.0"
-#define BOARD_NAME    "Master Brick"
+#define BRICK_HARDWARE_NAME "Master Brick 1.0"
+#define BRICK_FIRMWARE_VERSION_MAJOR 1
+#define BRICK_FIRMWARE_VERSION_MINOR 0
+#define BRICK_FIRMWARE_VERSION_REVISION 0
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
