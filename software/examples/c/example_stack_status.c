@@ -1,7 +1,3 @@
-// tested with 
-// gcc -lpthread -lrt -o example_stack_status brick_master.c 
-//     ip_connection.c example_stack_status.c
-// on Ubuntu
 
 #include <stdio.h>
 
