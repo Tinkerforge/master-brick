@@ -32,6 +32,7 @@
 #include "bricklib/logging/logging.h"
 #include "bricklib/utility/util_definitions.h"
 
+#include "extensions/extension_i2c.h"
 #include "extensions/chibi/chibi_master.h"
 #include "extensions/chibi/chibi_slave.h"
 
@@ -39,9 +40,18 @@
 
 extern uint8_t com_stack_id;
 extern uint8_t com_last_stack_address;
+extern uint8_t com_last_ext_id[];
+extern ComType com_ext[];
 extern uint16_t spi_stack_buffer_size_send;
 extern uint8_t com_last_spi_stack_id;
+
 uint8_t master_routing_table[MAX_STACK_IDS] = {0};
+uint8_t master_mode = MASTER_MODE_NONE;
+
+extern uint8_t chibi_address;
+extern uint8_t chibi_receiver_address;
+
+extern uint16_t spi_stack_buffer_size_recv;
 
 void master_init(void) {
 	Pin power_pins[] = {PIN_STACK_VOLTAGE, PIN_STACK_CURRENT};
@@ -49,14 +59,86 @@ void master_init(void) {
 
 	adc_channel_enable(STACK_VOLTAGE_CHANNEL);
 	adc_channel_enable(STACK_CURRENT_CHANNEL);
-	/*if(usb_is_connected()) {
-		chibi_master_init();
-	} else {
-		chibi_slave_init();
-	}*/
+
+	extension_i2c_clear_eeproms();
 }
 
-void master_create_routing_table(void) {
+void master_create_routing_table_rs485(uint8_t extension) {
+	// TODO
+}
+
+void master_create_routing_table_chibi(uint8_t extension) {
+	uint8_t tries = 0;
+
+	StackEnumerate se = {
+		0,
+		TYPE_STACK_ENUMERATE,
+		sizeof(StackEnumerate),
+		com_last_spi_stack_id + 1
+	};
+
+	tries = 0;
+	while(!chibi_send(&se, sizeof(StackEnumerate)) && tries < 10) {
+		tries++;
+	}
+
+	if(tries == 10) {
+		logspise("Could not send Stack Enumerate message (chibi)\n\r");
+		return;
+	}
+
+	StackEnumerateReturn ser;
+	tries = 0;
+	while(tries < 100) {
+		SLEEP_MS(50);
+		if(chibi_recv(&ser, sizeof(StackEnumerateReturn))) {
+			break;
+		}
+		tries++;
+	}
+
+	if(tries == 100) {
+		logspise("Did not receive answer for Stack Enumerate (chibi)\n\r");
+		return;
+	}
+
+	for(uint8_t i = com_last_spi_stack_id + 1; i <= ser.stack_id_upto; i++) {
+		master_routing_table[i] = chibi_receiver_address;
+	}
+
+	com_last_ext_id[0] = ser.stack_id_upto;
+}
+
+void master_create_routing_table_extensions(void) {
+	// TODO: find extensions
+	for(uint8_t i = 0; i < 2; i++) {
+		switch(com_ext[i]) {
+			case COM_CHIBI: {
+				master_create_routing_table_chibi(i);
+
+				break;
+			}
+
+			case COM_RS485: {
+				master_create_routing_table_rs485(i);
+
+				break;
+			}
+
+			case COM_NONE:
+			default: {
+
+				break;
+			}
+		}
+	}
+}
+
+void master_create_routing_table_stack(void) {
+	for(uint16_t i = 0; i < MAX_STACK_IDS; i++) {
+		master_routing_table[i] = 0;
+	}
+
 	uint8_t stack_address = 0;
 	uint8_t tries = 0;
 	while(stack_address <= 8) {
@@ -72,6 +154,7 @@ void master_create_routing_table(void) {
 
 			tries = 0;
 			while(!spi_stack_master_transceive() && tries < 10) {
+				SLEEP_MS(10);
 				tries++;
 			}
 			if(tries == 10) {
@@ -79,6 +162,8 @@ void master_create_routing_table(void) {
 			}
 
 			spi_stack_deselect();
+
+			spi_stack_buffer_size_recv = 0;
 		}
 
 		StackEnumerateReturn ser;
@@ -99,6 +184,9 @@ void master_create_routing_table(void) {
 			break;
 		}
 
+		logspisi("New Stack participant (from, to): %d, %d\n\r",
+		        com_last_spi_stack_id + 1,
+		        ser.stack_id_upto);
 		stack_address++;
 		for(uint8_t i = com_last_spi_stack_id + 1; i <= ser.stack_id_upto; i++) {
 			master_routing_table[i] = stack_address;

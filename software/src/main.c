@@ -45,10 +45,13 @@
 #include "bricklib/logging/logging.h"
 
 #include "config.h"
+#include "master.h"
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
+#include "extensions/extension_init.h"
 
 extern uint8_t com_last_stack_address;
+extern uint8_t master_mode;
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
 	logf("Stack Overflow");
@@ -74,6 +77,8 @@ void blinkenlights(const uint8_t length) {
 #include "extensions/chibi/chibi_master.h"
 
 int main() {
+	Pin twi_stack_pullup_master_pins[] = {PINS_TWI_PULLUP_MASTER};
+	Pin twi_stack_pullup_slave_pins[] = {PINS_TWI_PULLUP_SLAVE};
 	Pin chibi_select_pin = PIN_CHIBI_SELECT;
 	PIO_Clear(&chibi_select_pin);
     Pin pin_master_detect = PIN_MASTER_DETECT;
@@ -86,23 +91,6 @@ int main() {
 #ifdef PROFILING
     profiling_init();
 #endif
-/*
-#if 1
-    chibi_master_init();
-    while(true) {
-    	printf("sending...\n\r");
-    	chibi_send("Hello Olaf\n\r", 14);
-    }
-#else
-    chibi_slave_init();
-    char data[50] = {0};
-    while(true) {
-    	printf("receiving...\n\r");
-    	chibi_recv(data, 15);
-    	printf("data: %s", data);
-    }
-#endif
-*/
 
     // Here we have to wait for other potential masters in the stack to set
     // pin_detect, we can use this time to do some blinkenlights instead
@@ -117,6 +105,9 @@ int main() {
     master_init();
 
     if(PIO_Get(&pin_master_detect)) {
+		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));
+
+    	master_mode |= MASTER_MODE_MASTER;
     	// If we are a Master in the Stack, we have to wait again, so
     	// other Bricks can enumerate there Bricklets
     	blinkenlights(4);
@@ -125,20 +116,23 @@ int main() {
         spi_stack_master_init();
     	logsi("SPI Stack for Master initialized\n\r");
 
-        i2c_eeprom_master_init(TWI_STACK);
-
-        master_create_routing_table();
+        master_create_routing_table_stack();
         logsi("Master Routing table created\n\r");
 
-    	usb_init();
-    	logsi("USB initialized\n\r");
+        extension_init();
+    	if(usb_init()) {
+    		master_create_routing_table_extensions();
 
-    	xTaskCreate(usb_message_loop,
-    				(signed char *)"usb_ml",
-    				2000,
-    				NULL,
-    				1,
-    				(xTaskHandle *)NULL);
+			xTaskCreate(usb_message_loop,
+						(signed char *)"usb_ml",
+						2000,
+						NULL,
+						1,
+						(xTaskHandle *)NULL);
+			logsi("USB initialized\n\r");
+    	} else {
+    		logsi("No USB connection\n\r");
+    	}
 
     	if(com_last_stack_address > 0) {
 			xTaskCreate(spi_stack_master_state_machine_loop,
@@ -156,6 +150,9 @@ int main() {
 						(xTaskHandle *)NULL);
     	}
     } else {
+    	PIO_Configure(twi_stack_pullup_slave_pins,
+    	              PIO_LISTSIZE(twi_stack_pullup_slave_pins));
+    	master_mode |= MASTER_MODE_SLAVE;
     	logsi("Configuring as Stack-Slave\n\r");
         spi_stack_slave_init();
         logsi("SPI Stack for Slave initialized\n\r");

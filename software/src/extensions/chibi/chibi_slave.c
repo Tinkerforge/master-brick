@@ -26,25 +26,27 @@
 #include "config.h"
 #include "bricklib/logging/logging.h"
 
+#include "bricklib/bricklet/bricklet_config.h"
 #include "bricklib/com/com_common.h"
 #include "bricklib/com/com_messages.h"
 
 #include <FreeRTOS.h>
 #include <task.h>
 
-extern uint8_t com_stack_address;
+extern uint8_t com_stack_id;
 
 extern uint8_t chibi_address;
 extern uint8_t chibi_receiver_address;
 extern uint8_t chibi_type;
+extern uint8_t com_last_spi_stack_id;
+
+extern uint8_t com_stack_id;
+extern BrickletSettings bs[];
+extern const BrickletAddress baddr[];
 
 void chibi_slave_init(void) {
 	logchibii("Configuring chibi extension as Slave\n\r");
 	chibi_type = CHIBI_TYPE_SLAVE;
-
-    // TODO: HACK -> FIXME
-    chibi_address = 23;
-    chibi_receiver_address = 42;
 
     chibi_init();
 
@@ -65,14 +67,25 @@ void chibi_slave_message_loop(void *parameters) {
 }
 
 void chibi_slave_message_loop_return(char *data, uint16_t length) {
-	if(com_stack_address == 0 || data[0] <= com_stack_address) {
-		const ComMessage *com_message = get_com_from_data(data);
+	const uint8_t stack_id = get_stack_id_from_data(data);
 
+	if(stack_id == com_stack_id || stack_id == 0) {
+		const ComMessage *com_message = get_com_from_data(data);
 		if(com_message->reply_func != NULL) {
-			com_stack_address = data[0];
 			com_message->reply_func(COM_CHIBI, (void*)data);
+			return;
 		}
-	} else {
-		send_blocking_with_timeout(data, length, COM_SPI_STACK);
 	}
+	for(uint8_t i = 0; i < BRICKLET_NUM; i++) {
+		if(bs[i].stack_id == stack_id) {
+			baddr[i].entry(BRICKLET_TYPE_INVOCATION, COM_CHIBI, (void*)data);
+			return;
+		}
+	}
+
+	if(stack_id <= com_last_spi_stack_id) {
+		send_blocking_with_timeout(data, length, COM_SPI_STACK);
+		return;
+	}
+
 }

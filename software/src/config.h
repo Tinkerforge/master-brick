@@ -41,13 +41,14 @@
 #define DEBUG_STARTUP 1
 #define DEBUG_BRICKLET 1
 #define DEBUG_CHIBI 1
+#define DEBUG_MASTER 1
 //#define PROFILING
 //#define PROFILING_TIME 100 // After how many seconds profiling is printed
 
 #define DISABLE_JTAG_ON_STARTUP
-//#define LOGGING_SERIAL
-//#define LOGGING_LEVEL LOGGING_DEBUG
-#define LOGGING_LEVEL LOGGING_NONE
+#define LOGGING_SERIAL
+#define LOGGING_LEVEL LOGGING_DEBUG
+//#define LOGGING_LEVEL LOGGING_NONE
 
 // ************** BRICK SETTINGS **************
 
@@ -78,6 +79,14 @@
 #define PIN_TWI_TWD_STACK   {1 << 4, PIOB, ID_PIOB, PIO_PERIPH_A, PIO_DEFAULT}
 #define PIN_TWI_TWCK_STACK  {1 << 5, PIOB, ID_PIOB, PIO_PERIPH_A, PIO_DEFAULT}
 #define PINS_TWI_STACK      PIN_TWI_TWD_STACK, PIN_TWI_TWCK_STACK
+
+#define PIN_SCL_PULLUP_MASTER   {1 << 17, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SDA_PULLUP_MASTER   {1 << 0, PIOA, ID_PIOA, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PINS_TWI_PULLUP_MASTER  PIN_SCL_PULLUP_MASTER, PIN_SDA_PULLUP_MASTER
+
+#define PIN_SCL_PULLUP_SLAVE    {1 << 17, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define PIN_SDA_PULLUP_SLAVE    {1 << 0, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PINS_TWI_PULLUP_SLAVE   PIN_SCL_PULLUP_SLAVE, PIN_SDA_PULLUP_SLAVE
 
 // TWI bricklet definitions (for bricklets, spi select and brick specific
 //                           functions)
@@ -167,9 +176,8 @@
 
 
 // ************** INTERRUPT PRIORITIES ***********
-#define PRIORITY_SERVO_TC0 0
-#define PRIORITY_MCP3008_USART0 0
 #define PRIORITY_EEPROM_MASTER_TWI0 0
+#define PRIORITY_EEPROM_MASTER_TWI1 0
 #define PRIORITY_EEPROM_SLAVE_TWI1 0
 #define PRIORITY_STACK_SLAVE_SPI 0
 #define PRIORITY_PROFILING_TC0 0
@@ -242,12 +250,12 @@
 
 
 // ************** EXTENSION SETTINGS **************
-#define PIN_EXT_0_SELECT  {1 << 28, PIOA, ID_PIOA, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_EXT_0_SELECT  {1 << 28, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}
 #define PIN_EXT_0_GP_0    {1 << 9, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}
 #define PIN_EXT_0_GP_1    {1 << 10, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
 #define PIN_EXT_0_GP_2    {1 << 27, PIOA, ID_PIOA, PIO_OUTPUT_1, PIO_DEFAULT}
 
-#define PIN_EXT_1_SELECT  {1 << 29, PIOA, ID_PIOA, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_EXT_1_SELECT  {1 << 29, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}
 #define PIN_EXT_1_GP_0    {1 << 1, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
 #define PIN_EXT_1_GP_1    {1 << 30, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
 #define PIN_EXT_1_GP_2    {1 << 31, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
@@ -277,6 +285,20 @@
 #define CHIBI_USART_SPI_CLOCK 8000000 // 8 Mhz
 
 
+// ************** MASTER DEBUGGING **************
+#if(DEBUG_MASTER)
+#define logmasterd(str, ...) do{logd("master: " str, ##__VA_ARGS__);}while(0)
+#define logmasteri(str, ...) do{logi("master: " str, ##__VA_ARGS__);}while(0)
+#define logmasterw(str, ...) do{logw("master: " str, ##__VA_ARGS__);}while(0)
+#define logmastere(str, ...) do{loge("master: " str, ##__VA_ARGS__);}while(0)
+#define logmasterf(str, ...) do{logf("master: " str, ##__VA_ARGS__);}while(0)
+#else
+#define logmasterd(str, ...) {}
+#define logmasteri(str, ...) {}
+#define logmasterw(str, ...) {}
+#define logmastere(str, ...) {}
+#define logmasterf(str, ...) {}
+#endif
 
 
 #endif

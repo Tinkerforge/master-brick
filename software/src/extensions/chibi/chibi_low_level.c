@@ -55,7 +55,7 @@ uint8_t chibi_buffer_size_recv = 0;
 uint16_t chibi_wait_for_recv = 0;
 
 bool chibi_transfer_status = CHIBI_ERROR_OK;
-bool chibi_transfer_end = true;
+volatile bool chibi_transfer_end = true;
 Pin chibi_reset_pin = PIN_CHIBI_RESET;
 Pin chibi_sleep_pin = PIN_CHIBI_SLP_TR;
 Pin chibi_interrupt_pin = PIN_CHIBI_INT;
@@ -364,6 +364,7 @@ uint8_t chibi_set_state(const uint8_t state) {
     return CHIBI_ERROR_TIMEOUT;
 }
 
+extern volatile signed portBASE_TYPE xSchedulerRunning;
 uint8_t chibi_transfer(const uint8_t *header,
                        const uint8_t *data,
                        const uint8_t length) {
@@ -373,6 +374,10 @@ uint8_t chibi_transfer(const uint8_t *header,
 	if(chibi_wait_for_recv) {
 		chibi_wait_for_recv--;
 		return CHIBI_ERROR_NO_ACK;
+	}
+
+	if(!chibi_transfer_end) {
+		return CHIBI_ERROR_WRONG_STATE;
 	}
 
     // Transition to off state, then go to tx_aret_on
@@ -388,7 +393,9 @@ uint8_t chibi_transfer(const uint8_t *header,
 
     // Wait for transfer to end
     while(!chibi_transfer_end) {
-    	//taskYIELD();
+    	if(xSchedulerRunning) {
+    		taskYIELD();
+    	}
     }
 
     return chibi_transfer_status;
@@ -425,7 +432,6 @@ void chibi_read_frame(void) {
     	}
 
     	chibi_buffer_size_recv = data_length;
-
 
     	/*logchibid("header: %d %d %d %d %d\n\r",
     	          chibi_read_header.frame_control_field,
@@ -474,8 +480,10 @@ void chibi_interrupt(const Pin *pin) {
 			// Check CRC
 			if(chibi_buffer_size_recv > 0) {
 				chibi_overflow++;
+				chibi_buffer_size_recv = 0;
 				logchibie("Buffer Overflow: %d\n\r", chibi_overflow);
-			} else if((crc & CHIBI_PHY_RSSI_RX_CRC_VALID) != 0) {
+			}
+			if((crc & CHIBI_PHY_RSSI_RX_CRC_VALID) != 0) {
 				chibi_read_frame();
 				chibi_wait_for_recv = 0;
 			} else {
@@ -500,14 +508,14 @@ void chibi_interrupt(const Pin *pin) {
 					chibi_no_ack++;
 					if(chibi_type == CHIBI_TYPE_SLAVE) {
 						chibi_transfer_status = CHIBI_ERROR_NO_ACK;
-						chibi_wait_for_recv = 1000;
-					} else if(chibi_type == CHIBI_TYPE_MASTER) {
 						chibi_start_tx();
 						return;
+					} else if(chibi_type == CHIBI_TYPE_MASTER) {
+						chibi_transfer_status = CHIBI_ERROR_NO_ACK;
+						chibi_wait_for_recv = 5000;
 					} else {
 						logchibie("Unexpected chibi type: %d\n\r", chibi_type);
 					}
-					//logchibii("Did not receieve ACK: %d\n\r", chibi_no_ack);
 					break;
 
 				case CHIBI_TRAC_STATUS_SUCCESS_WAIT_FOR_ACK:
@@ -551,14 +559,8 @@ void chibi_low_level_init(void) {
     PIO_ConfigureIt(&chibi_interrupt_pin, chibi_interrupt);
 
 	// Disable chibi Interrupts
-    uint32_t test = 0;
 	chibi_write_register(CHIBI_REGISTER_IRQ_MASK, 0);
-	test = chibi_read_register(CHIBI_REGISTER_IRQ_MASK);
-	printf("irq: %d\n\r", test);
-	test = chibi_read_register(CHIBI_REGISTER_IRQ_MASK);
-	printf("irq: %d\n\r", test);
-	test = chibi_read_register(CHIBI_REGISTER_IRQ_MASK);
-	printf("irq: %d\n\r", test);
+	while(chibi_read_register(CHIBI_REGISTER_IRQ_MASK) != 0);
 
 	// Turn transceiver off
 	chibi_write_register_mask(CHIBI_REGISTER_TRX_STATE,
@@ -566,15 +568,8 @@ void chibi_low_level_init(void) {
 	                          CHIBI_STATE_MASK);
 
 	// Wait for transceiver to turn off
-    printf("before write\n\r");
-
-	/*while(chibi_read_register_mask(CHIBI_REGISTER_TRX_STATUS,
-	                               CHIBI_STATUS_MASK) != CHIBI_STATUS_TRX_OFF);*/
-    while(test != CHIBI_STATUS_TRX_OFF) {
-    	test = chibi_read_register_mask(CHIBI_REGISTER_TRX_STATUS, CHIBI_STATUS_MASK);
-    	printf("test: %d\n\r", test);
-    }
-	printf("after write\n\r");
+	while(chibi_read_register_mask(CHIBI_REGISTER_TRX_STATUS,
+	                               CHIBI_STATUS_MASK) != CHIBI_STATUS_TRX_OFF);
 
 	// Accept 802.15.4 frames ver 0 or 1
 	chibi_write_register_mask(CHIBI_REGISTER_CSMA_SEED_1,
@@ -582,9 +577,15 @@ void chibi_low_level_init(void) {
 	                          CHIBI_CSMA_SEED_1_AACK_FVN_MODE_MASK);
 
 	// Write CSMA and frame retries
-	chibi_write_register(CHIBI_REGISTER_XAH_CTRL_0,
-	                     CHIBI_XAH_CTRL_0_CSMA_RETRIES(CHIBI_CSMA_RETRIES) |
-	                     CHIBI_XAH_CTRL_0_FRAME_RETRIES(CHIBI_FRAME_RETRIES));
+	if(chibi_type & CHIBI_TYPE_MASTER) {
+		chibi_write_register(CHIBI_REGISTER_XAH_CTRL_0,
+							 CHIBI_XAH_CTRL_0_CSMA_RETRIES(CHIBI_CSMA_RETRIES_MASTER) |
+							 CHIBI_XAH_CTRL_0_FRAME_RETRIES(CHIBI_FRAME_RETRIES_MASTER));
+	} else {
+		chibi_write_register(CHIBI_REGISTER_XAH_CTRL_0,
+							 CHIBI_XAH_CTRL_0_CSMA_RETRIES(CHIBI_CSMA_RETRIES_SLAVE) |
+							 CHIBI_XAH_CTRL_0_FRAME_RETRIES(CHIBI_FRAME_RETRIES_SLAVE));
+	}
 
 	// Set mode and channel
 	chibi_set_mode(OQPSK_868MHZ_EUROPE);

@@ -1,7 +1,7 @@
 /* master-brick
  * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
  *
- * chibi_config.h: Configuration of chibi protocol implementation
+ * extension_init.h: Implementation of Extension initialization
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,15 +19,24 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef CHIBI_CONFIG_H
-#define CHIBI_CONFIG_H
 
-#define CHIBI_PAN_ID               0x1234
-#define CHIBI_CSMA_RETRIES_SLAVE   5   // Retries for CSMA (max 5)
-#define CHIBI_FRAME_RETRIES_SLAVE  15  // Retries if no ACK (max 15)
-#define CHIBI_CSMA_RETRIES_MASTER  0
-#define CHIBI_FRAME_RETRIES_MASTER 0
-#define CHIBI_USE_CRC
-//#define CHIBI_USE_PROMISCUOUS_MODE
+#ifndef EXTENSION_INIT_H
+#define EXTENSION_INIT_H
+
+#include <stdint.h>
+#include <stdbool.h>
+
+uint8_t extension_get_receiver_address(const uint8_t extension,
+                                       const uint8_t num);
+void extension_set_receiver_address(const uint8_t extension,
+                                    const uint8_t num,
+                                    uint8_t address);
+uint8_t extension_get_address(const uint8_t extension);
+void extension_set_address(const uint8_t extension, uint8_t address);
+
+uint32_t extension_get_type(const uint8_t extension);
+void extension_set_type(const uint8_t extension, uint32_t type);
+bool extension_is_present(const uint8_t extension);
+uint8_t extension_init(void);
 
 #endif

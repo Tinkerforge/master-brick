@@ -30,31 +30,17 @@
 
 #include <FreeRTOS.h>
 #include <task.h>
+
 extern uint8_t chibi_type;
 extern uint8_t chibi_address;
 extern uint8_t chibi_receiver_address;
 extern uint8_t com_last_stack_address;
 extern uint8_t com_stack_address;
-
-void chibi_master_find_slaves(void) {
-	uint8_t slave_address = com_last_stack_address + 1 + com_stack_address;
-	logchibii("Trying to find chibi Slave with address %d\n\r", slave_address);
-	/*GetStackParticipant gsp = {
-		slave_address,
-		TYPE_STACK_PARTICIPANT,
-		sizeof(GetStackParticipant),
-	};
-
-	chibi_send(&gsp, sizeof(GetStackParticipant));*/
-}
+extern ComType com_current;
 
 void chibi_master_init(void) {
 	chibi_type = CHIBI_TYPE_MASTER;
 	logchibii("Configuring chibi extension as Master\n\r");
-
-    // TODO: HACK -> FIXME
-    chibi_address = 42;
-    chibi_receiver_address = 23;
 
     chibi_init();
 
@@ -75,5 +61,5 @@ void chibi_master_message_loop(void *parameters) {
 }
 
 void chibi_master_message_loop_return(char *data, uint16_t length) {
-	send_blocking_with_timeout(data, length, COM_USB);
+	send_blocking_with_timeout(data, length, com_current);
 }

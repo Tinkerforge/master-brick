@@ -22,9 +22,18 @@
 #ifndef MASTER_H
 #define MASTER_H
 
+#include <stdint.h>
+
 #define MAX_STACK_IDS 256
 
-void master_create_routing_table(void);
+#define MASTER_MODE_NONE 0
+#define MASTER_MODE_SLAVE 1
+#define MASTER_MODE_MASTER 2
+
+void master_create_routing_table_rs485(uint8_t extension);
+void master_create_routing_table_chibi(uint8_t extension);
+void master_create_routing_table_stack(void);
+void master_create_routing_table_extensions(void);
 void master_init(void);
 void new_connection(void);
 void spi_connection_established(void);
