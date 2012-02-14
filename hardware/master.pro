@@ -1,8 +1,6 @@
-update=Do 25 Aug 2011 08:32:41 CEST
+update=Do 19 Jan 2012 16:08:31 CET
 version=1
 last_client=pcbnew
-[general]
-version=1
 [cvpcb]
 version=1
 NetIExt=net
@@ -71,22 +69,24 @@ LibName28=atmel
 LibName29=contrib
 LibName30=valves
 LibName31=tinkerforge
+[general]
+version=1
 [pcbnew]
 version=1
 PadDrlX=0
-PadDimH=551
-PadDimV=453
+PadDimH=118
+PadDimV=118
 BoardThickness=630
 TxtPcbV=118
 TxtPcbH=118
 TxtModV=236
 TxtModH=236
 TxtModW=49
-VEgarde=100
+VEgarde=0
 DrawLar=39
 EdgeLar=39
 TxtLar=30
-MSegLar=157
+MSegLar=4
 LastNetListRead=master.net
 [pcbnew/libraries]
 LibDir=kicad-libraries
