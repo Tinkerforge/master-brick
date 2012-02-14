@@ -27,6 +27,7 @@
 #include "bricklib/drivers/pio/pio_it.h"
 
 #include "bricklib/utility/util_definitions.h"
+#include "bricklib/logging/logging.h"
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -37,10 +38,24 @@
 extern uint8_t chibi_buffer_recv[];
 extern uint8_t chibi_buffer_size_recv;
 extern bool chibi_transfer_end;
+extern uint8_t master_routing_table[];
 
 static uint8_t chibi_sequence_number = 0;
 uint8_t chibi_address = 0;
-uint8_t chibi_receiver_address = 0;
+uint8_t chibi_slave_address[CHIBI_NUM_SLAVE_ADDRESS] = {0};
+uint8_t chibi_master_address = 0;
+extern uint8_t chibi_type;
+
+
+uint8_t chibi_get_receiver_address(uint8_t stack_id) {
+	if(chibi_type == CHIBI_TYPE_MASTER) {
+		return master_routing_table[stack_id];
+	} else if(chibi_type == CHIBI_TYPE_SLAVE) {
+		return chibi_master_address;
+	}
+
+	return 0;
+}
 
 bool chibi_init(void) {
 	Pin chibi_pins[] = {PINS_CHIBI};
@@ -73,6 +88,10 @@ bool chibi_init(void) {
 
 uint16_t chibi_send(const void *data, const uint16_t length) {
 	uint8_t send_length = MIN(length, CHIBI_MAX_DATA_LENGTH);
+
+	const uint8_t stack_id = ((uint8_t*)data)[0];
+	uint8_t receiver_address = chibi_get_receiver_address(stack_id);
+
 	ChibiHeaderMPDU ch = {
 		CHIBI_MDPU_DATA               |
 		CHIBI_MDPU_ACK_REQUEST        |
@@ -82,7 +101,7 @@ uint16_t chibi_send(const void *data, const uint16_t length) {
 		CHIBI_MDPU_SRC_SHORT_ADDRESS,
 		chibi_sequence_number++,
 		CHIBI_PAN_ID,
-		chibi_receiver_address,
+		receiver_address,
 		chibi_address
 	};
 

@@ -32,10 +32,6 @@
 #include <task.h>
 
 extern uint8_t chibi_type;
-extern uint8_t chibi_address;
-extern uint8_t chibi_receiver_address;
-extern uint8_t com_last_stack_address;
-extern uint8_t com_stack_address;
 extern ComType com_current;
 
 void chibi_master_init(void) {

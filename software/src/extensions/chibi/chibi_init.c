@@ -22,15 +22,26 @@
 
 #include "chibi_slave.h"
 #include "chibi_master.h"
+#include "chibi_config.h"
 #include "extensions/extension_init.h"
+#include "bricklib/com/usb/usb.h"
+#include "bricklib/utility/util_definitions.h"
+#include "bricklib/logging/logging.h"
 
 extern uint8_t chibi_address;
-extern uint8_t chibi_receiver_address;
+extern uint8_t chibi_slave_address[];
+extern uint8_t chibi_master_address;
 
 void chibi_init_masterslave(uint8_t extension) {
 	chibi_address = extension_get_address(extension);
-	// TODO: More than one receiver
-	chibi_receiver_address = extension_get_receiver_address(0, extension);
+	chibi_master_address = extension_get_master_address(extension);
+	for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
+		chibi_slave_address[i] = extension_get_slave_address(extension, i);
+		logi("chibi: For slave %d found address %d\n\r", i, chibi_slave_address[i]);
+		if(chibi_slave_address[i] == 0) {
+			break;
+		}
+	}
 
 	// TODO: initialize chibi pins according to extension
 

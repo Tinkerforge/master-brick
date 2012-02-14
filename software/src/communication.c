@@ -23,10 +23,16 @@
 
 #include "bricklib/drivers/adc/adc.h"
 #include "bricklib/com/com_common.h"
+#include "extensions/chibi/chibi_config.h"
 
 #include "extensions/extension_init.h"
 
 extern ComType com_ext[];
+extern uint8_t chibi_receiver_input_power;
+extern uint16_t chibi_underrun;
+extern uint16_t chibi_crc_error;
+extern uint16_t chibi_no_ack;
+extern uint16_t chibi_overflow;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -98,7 +104,7 @@ void is_chibi_present(uint8_t com, const IsChibiPresent *data) {
 	icpr.present       = com_ext[0] == COM_CHIBI || com_ext[1] == COM_CHIBI;
 
 	send_blocking_with_timeout(&icpr, sizeof(IsChibiPresentReturn), com);
-	logmasteri("is_chibi_present: %d\n\r", icpr.present);
+	logchibii("is_chibi_present: %d\n\r", icpr.present);
 }
 
 void set_chibi_address(uint8_t com, const SetChibiAddress *data) {
@@ -113,7 +119,7 @@ void set_chibi_address(uint8_t com, const SetChibiAddress *data) {
 	}
 
 	extension_set_address(extension, data->address);
-	logmasteri("set_chibi_address: %d\n\r", data->address);
+	logchibii("set_chibi_address: %d\n\r", data->address);
 }
 
 void get_chibi_address(uint8_t com, const GetChibiAddress *data) {
@@ -131,14 +137,14 @@ void get_chibi_address(uint8_t com, const GetChibiAddress *data) {
 
 	gcar.stack_id      = data->stack_id;
 	gcar.type          = data->type;
-	gcar.length        = sizeof(GetExtensionTypeReturn);
+	gcar.length        = sizeof(GetChibiAddressReturn);
 	gcar.address       = extension_get_address(extension);
 
-	send_blocking_with_timeout(&gcar, sizeof(GetExtensionTypeReturn), com);
-	logmasteri("get_chibi_address: %d\n\r", gcar.address);
+	send_blocking_with_timeout(&gcar, sizeof(GetChibiAddressReturn), com);
+	logchibii("get_chibi_address: %d\n\r", gcar.address);
 }
 
-void set_chibi_receiver_address(uint8_t com, const SetChibiReceiverAddress *data) {
+void set_chibi_master_address(uint8_t com, const SetChibiMasterAddress *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_CHIBI) {
 		extension = 0;
@@ -149,12 +155,12 @@ void set_chibi_receiver_address(uint8_t com, const SetChibiReceiverAddress *data
 		return;
 	}
 
-	extension_set_receiver_address(extension, data->num, data->address);
-	logmasteri("set_chibi_receiver_address: %d, %d\n\r", data->num, data->address);
+	extension_set_master_address(extension, data->address);
+	logchibii("set_chibi_address: %d\n\r", data->address);
 }
 
-void get_chibi_receiver_address(uint8_t com, const GetChibiReceiverAddress *data) {
-	GetChibiReceiverAddressReturn gcrar;
+void get_chibi_master_address(uint8_t com, const GetChibiMasterAddress *data) {
+	GetChibiMasterAddressReturn gcmar;
 
 	uint8_t extension;
 	if(com_ext[0] == COM_CHIBI) {
@@ -166,11 +172,78 @@ void get_chibi_receiver_address(uint8_t com, const GetChibiReceiverAddress *data
 		return;
 	}
 
-	gcrar.stack_id      = data->stack_id;
-	gcrar.type          = data->type;
-	gcrar.length        = sizeof(GetChibiReceiverAddressReturn);
-	gcrar.address       = extension_get_receiver_address(extension, data->num);
+	gcmar.stack_id      = data->stack_id;
+	gcmar.type          = data->type;
+	gcmar.length        = sizeof(GetChibiMasterAddressReturn);
+	gcmar.address       = extension_get_master_address(extension);
 
-	send_blocking_with_timeout(&gcrar, sizeof(GetChibiReceiverAddressReturn), com);
-	logmasteri("get_chibi_receiver_address: %d, %d\n\r", data->num, gcrar.address);
+	send_blocking_with_timeout(&gcmar, sizeof(GetChibiMasterAddressReturn), com);
+	logchibii("get_chibi_master_address: %d\n\r", gcmar.address);
+}
+
+void set_chibi_slave_address(uint8_t com, const SetChibiSlaveAddress *data) {
+	uint8_t extension;
+	if(com_ext[0] == COM_CHIBI) {
+		extension = 0;
+	} else if(com_ext[1] == COM_CHIBI) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	extension_set_slave_address(extension, data->num, data->address);
+	logchibii("set_chibi_slave_address: %d, %d\n\r", data->num, data->address);
+}
+
+void get_chibi_slave_address(uint8_t com, const GetChibiSlaveAddress *data) {
+	GetChibiSlaveAddressReturn gcsar;
+
+	uint8_t extension;
+	if(com_ext[0] == COM_CHIBI) {
+		extension = 0;
+	} else if(com_ext[1] == COM_CHIBI) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	gcsar.stack_id      = data->stack_id;
+	gcsar.type          = data->type;
+	gcsar.length        = sizeof(GetChibiSlaveAddressReturn);
+	gcsar.address       = extension_get_slave_address(extension, data->num);
+
+	send_blocking_with_timeout(&gcsar, sizeof(GetChibiSlaveAddressReturn), com);
+	logchibii("get_chibi_slave_address: %d, %d\n\r", data->num, gcsar.address);
+}
+
+void get_chibi_signal_strength(uint8_t com, const GetChibiSignalStrength *data) {
+	GetChibiSignalStrengthReturn gcssr;
+
+	gcssr.stack_id        = data->stack_id;
+	gcssr.type            = data->type;
+	gcssr.length          = sizeof(GetChibiSignalStrengthReturn);
+	gcssr.signal_strength = chibi_receiver_input_power;
+
+	send_blocking_with_timeout(&gcssr, sizeof(GetChibiSignalStrengthReturn), com);
+	logchibii("get_chibi_signal_strength: %d\n\r", gcssr.signal_strength);
+}
+
+void get_chibi_error_log(uint8_t com, const GetChibiErrorLog *data) {
+	GetChibiErrorLogReturn gcelr;
+
+	gcelr.stack_id        = data->stack_id;
+	gcelr.type            = data->type;
+	gcelr.length          = sizeof(GetChibiErrorLogReturn);
+	gcelr.underrun        = chibi_underrun;
+	gcelr.crc_error       = chibi_crc_error;
+	gcelr.no_ack          = chibi_no_ack;
+	gcelr.overflow        = chibi_overflow;
+
+	send_blocking_with_timeout(&gcelr, sizeof(GetChibiErrorLogReturn), com);
+	logchibii("get_chibi_error_log: %d, %d %d %d\n\r", gcelr.underrun,
+	                                                   gcelr.crc_error,
+	                                                   gcelr.no_ack,
+	                                                   gcelr.overflow);
 }

@@ -37,6 +37,6 @@ void master_create_routing_table_extensions(void);
 void master_init(void);
 void new_connection(void);
 void spi_connection_established(void);
-void tick_task(void);
+void tick_task(uint8_t tick_type);
 
 #endif

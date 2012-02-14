@@ -30,4 +30,23 @@
 #define CHIBI_USE_CRC
 //#define CHIBI_USE_PROMISCUOUS_MODE
 
+#define CHIBI_NUM_SLAVE_ADDRESS 32
+#define CHIBI_MAX_WAIT_FOR_RECV 5000
+
+
+
+#if(DEBUG_CHIBI)
+#define logchibid(str, ...) do{logd("chibi: " str, ##__VA_ARGS__);}while(0)
+#define logchibii(str, ...) do{logi("chibi: " str, ##__VA_ARGS__);}while(0)
+#define logchibiw(str, ...) do{logw("chibi: " str, ##__VA_ARGS__);}while(0)
+#define logchibie(str, ...) do{loge("chibi: " str, ##__VA_ARGS__);}while(0)
+#define logchibif(str, ...) do{logf("chibi: " str, ##__VA_ARGS__);}while(0)
+#else
+#define logchibid(str, ...) {}
+#define logchibii(str, ...) {}
+#define logchibiw(str, ...) {}
+#define logchibie(str, ...) {}
+#define logchibif(str, ...) {}
+#endif
+
 #endif

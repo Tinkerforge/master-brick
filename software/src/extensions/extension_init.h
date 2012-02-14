@@ -25,12 +25,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "bricklib/com/com_messages.h"
 
-uint8_t extension_get_receiver_address(const uint8_t extension,
+uint8_t extension_get_slave_address(const uint8_t extension,
                                        const uint8_t num);
-void extension_set_receiver_address(const uint8_t extension,
+void extension_set_slave_address(const uint8_t extension,
                                     const uint8_t num,
                                     uint8_t address);
+uint8_t extension_get_master_address(const uint8_t extension);
+void extension_set_master_address(const uint8_t extension, uint8_t address);
 uint8_t extension_get_address(const uint8_t extension);
 void extension_set_address(const uint8_t extension, uint8_t address);
 
@@ -38,5 +41,8 @@ uint32_t extension_get_type(const uint8_t extension);
 void extension_set_type(const uint8_t extension, uint32_t type);
 bool extension_is_present(const uint8_t extension);
 uint8_t extension_init(void);
+
+void extension_enumerate(uint8_t com, const Enumerate *data);
+void extension_stack_id(uint8_t com, const GetStackID *data);
 
 #endif

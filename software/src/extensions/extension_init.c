@@ -27,17 +27,20 @@
 #include "bricklib/com/i2c/i2c_eeprom/i2c_eeprom_common.h"
 #include "bricklib/com/i2c/i2c_clear_bus.h"
 #include "bricklib/com/com.h"
+#include "bricklib/com/com_common.h"
 #include "extensions/chibi/chibi_init.h"
+#include "extensions/chibi/chibi_config.h"
+#include "extensions/chibi/chibi_low_level.h"
 
 #include <stdio.h>
 
 extern ComType com_ext[];
 
-uint8_t extension_get_receiver_address(const uint8_t extension,
-                                       const uint8_t num) {
+uint8_t extension_get_slave_address(const uint8_t extension,
+                                    const uint8_t num) {
 	uint8_t address;
 	if(extension_i2c_read(extension,
-	                      EXTENSION_POS_RECEIVER_ADDRESS_START + num*4,
+	                      EXTENSION_POS_SLAVE_ADDRESS_START + num*4,
 	                      (char*)&address, 1)) {
 		return address;
 	}
@@ -45,11 +48,28 @@ uint8_t extension_get_receiver_address(const uint8_t extension,
 	return 0;
 }
 
-void extension_set_receiver_address(const uint8_t extension,
-                                    const uint8_t num,
-                                    uint8_t address) {
+void extension_set_slave_address(const uint8_t extension,
+                                 const uint8_t num,
+                                 uint8_t address) {
 	extension_i2c_write(extension,
-	                    EXTENSION_POS_RECEIVER_ADDRESS_START + num*4,
+	                    EXTENSION_POS_SLAVE_ADDRESS_START + num*4,
+	                    (char*)&address, 1);
+}
+
+uint8_t extension_get_master_address(const uint8_t extension) {
+	uint8_t address;
+	if(extension_i2c_read(extension,
+	                      EXTENSION_POS_MASTER_ADDRESS,
+	                      (char*)&address, 1)) {
+		return address;
+	}
+
+	return 0;
+}
+
+void extension_set_master_address(const uint8_t extension, uint8_t address) {
+	extension_i2c_write(extension,
+	                    EXTENSION_POS_MASTER_ADDRESS,
 	                    (char*)&address, 1);
 }
 
@@ -130,4 +150,81 @@ uint8_t extension_init(void) {
 bool extension_is_present(const uint8_t extension) {
 	char tmp;
 	return extension_i2c_read(extension, 0, &tmp, 1);
+}
+
+extern uint8_t com_last_ext_id[];
+extern uint8_t com_last_spi_stack_id;
+extern uint8_t master_routing_table[];
+extern uint8_t chibi_slave_address[];
+extern uint8_t chibi_type;
+
+void extension_enumerate(uint8_t com, const Enumerate *data) {
+	if(!(chibi_type & CHIBI_TYPE_MASTER)) {
+		return;
+	}
+
+	for(uint8_t com_num = 0; com_num < 2; com_num++) {
+		if(com_ext[com_num] != COM_NONE) {
+			// TODO other extension than chibi
+			for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
+				uint8_t slave_address = chibi_slave_address[i];
+				logchibii("Extension Enumerate %d\n\r", slave_address);
+				if(slave_address == 0) {
+					return;
+				}
+
+				uint16_t id;
+				for(id = com_last_spi_stack_id+1; id <= com_last_ext_id[com_num]; id++) {
+					if(master_routing_table[id] == slave_address) {
+						break;
+					}
+				}
+				logchibii("Extension Enumerate id %d %d\n\r", id, com_last_ext_id[com_num]+1);
+
+				if(id <= com_last_ext_id[com_num]) {
+					Enumerate e = {
+						id,
+						TYPE_ENUMERATE,
+						sizeof(Enumerate),
+					};
+					send_blocking_with_timeout(&e, sizeof(Enumerate), com_ext[com_num]);
+				}
+			}
+		}
+	}
+}
+
+void extension_stack_id(uint8_t com, const GetStackID *data) {
+	if(!(chibi_type & CHIBI_TYPE_MASTER)) {
+		return;
+	}
+
+	for(uint8_t com_num = 0; com_num < 2; com_num++) {
+		if(com_ext[com_num] != COM_NONE) {
+			for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
+				uint8_t slave_address = chibi_slave_address[i];
+				if(slave_address == 0) {
+					return;
+				}
+
+				uint16_t id;
+				// TODO: if com_num = 2: from com_last_ext_id[1] to com_last_ext_id[2]
+				for(id = com_last_spi_stack_id+1; id <= com_last_ext_id[com_num]; id++) {
+					if(master_routing_table[id] == slave_address) {
+						break;
+					}
+				}
+
+				if(id <= com_last_ext_id[com_num]) {
+					GetStackID gsid = {
+						id,
+						TYPE_GET_STACK_ID,
+						sizeof(GetStackID),
+						data->uid
+					};
+					send_blocking_with_timeout(&gsid, sizeof(GetStackID), com_ext[com_num]);
+				}
+			}
+		}
+	}
 }

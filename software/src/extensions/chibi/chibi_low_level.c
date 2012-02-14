@@ -41,7 +41,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+extern uint8_t chibi_type;
 extern uint8_t chibi_address;
+extern uint8_t chibi_slave_address[];
+extern uint8_t chibi_master_address;
 
 uint16_t chibi_underrun = 0;
 uint16_t chibi_crc_error = 0;
@@ -512,7 +515,7 @@ void chibi_interrupt(const Pin *pin) {
 						return;
 					} else if(chibi_type == CHIBI_TYPE_MASTER) {
 						chibi_transfer_status = CHIBI_ERROR_NO_ACK;
-						chibi_wait_for_recv = 5000;
+						chibi_wait_for_recv = CHIBI_MAX_WAIT_FOR_RECV;
 					} else {
 						logchibie("Unexpected chibi type: %d\n\r", chibi_type);
 					}

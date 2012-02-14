@@ -293,21 +293,6 @@ typedef struct {
 #define CHIBI_XAH_CTRL_0_CSMA_RETRIES(v)    ((v) << 1) // 0..5 allowed
 #define CHIBI_XAH_CTRL_0_FRAME_RETRIES(v)   ((v) << 4)
 
-#if(DEBUG_CHIBI)
-#define logchibid(str, ...) do{logd("chibi: " str, ##__VA_ARGS__);}while(0)
-#define logchibii(str, ...) do{logi("chibi: " str, ##__VA_ARGS__);}while(0)
-#define logchibiw(str, ...) do{logw("chibi: " str, ##__VA_ARGS__);}while(0)
-#define logchibie(str, ...) do{loge("chibi: " str, ##__VA_ARGS__);}while(0)
-#define logchibif(str, ...) do{logf("chibi: " str, ##__VA_ARGS__);}while(0)
-#else
-#define logchibid(str, ...) {}
-#define logchibii(str, ...) {}
-#define logchibiw(str, ...) {}
-#define logchibie(str, ...) {}
-#define logchibif(str, ...) {}
-#endif
-
-
 void chibi_select(void);
 void chibi_deselect(void);
 uint8_t chibi_transceive_byte(const uint8_t value);

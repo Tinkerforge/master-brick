@@ -34,13 +34,9 @@
 #include <task.h>
 
 extern uint8_t com_stack_id;
-
-extern uint8_t chibi_address;
-extern uint8_t chibi_receiver_address;
 extern uint8_t chibi_type;
 extern uint8_t com_last_spi_stack_id;
 
-extern uint8_t com_stack_id;
 extern BrickletSettings bs[];
 extern const BrickletAddress baddr[];
 

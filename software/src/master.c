@@ -35,6 +35,7 @@
 #include "extensions/extension_i2c.h"
 #include "extensions/chibi/chibi_master.h"
 #include "extensions/chibi/chibi_slave.h"
+#include "extensions/chibi/chibi_low_level.h"
 
 #include "config.h"
 
@@ -49,7 +50,7 @@ uint8_t master_routing_table[MAX_STACK_IDS] = {0};
 uint8_t master_mode = MASTER_MODE_NONE;
 
 extern uint8_t chibi_address;
-extern uint8_t chibi_receiver_address;
+extern uint8_t chibi_slave_address[];
 
 extern uint16_t spi_stack_buffer_size_recv;
 
@@ -68,49 +69,62 @@ void master_create_routing_table_rs485(uint8_t extension) {
 }
 
 void master_create_routing_table_chibi(uint8_t extension) {
-	uint8_t tries = 0;
+	com_last_ext_id[extension] = com_last_spi_stack_id;
 
-	StackEnumerate se = {
-		0,
-		TYPE_STACK_ENUMERATE,
-		sizeof(StackEnumerate),
-		com_last_spi_stack_id + 1
-	};
-
-	tries = 0;
-	while(!chibi_send(&se, sizeof(StackEnumerate)) && tries < 10) {
-		tries++;
-	}
-
-	if(tries == 10) {
-		logspise("Could not send Stack Enumerate message (chibi)\n\r");
-		return;
-	}
-
-	StackEnumerateReturn ser;
-	tries = 0;
-	while(tries < 100) {
-		SLEEP_MS(50);
-		if(chibi_recv(&ser, sizeof(StackEnumerateReturn))) {
-			break;
+	for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
+		uint8_t slave_address = chibi_slave_address[i];
+		if(slave_address == 0) {
+			return;
 		}
-		tries++;
-	}
 
-	if(tries == 100) {
-		logspise("Did not receive answer for Stack Enumerate (chibi)\n\r");
-		return;
-	}
+		uint8_t tries = 0;
 
-	for(uint8_t i = com_last_spi_stack_id + 1; i <= ser.stack_id_upto; i++) {
-		master_routing_table[i] = chibi_receiver_address;
-	}
+		StackEnumerate se = {
+			0,
+			TYPE_STACK_ENUMERATE,
+			sizeof(StackEnumerate),
+			com_last_ext_id[extension] + 1
+		};
 
-	com_last_ext_id[0] = ser.stack_id_upto;
+		tries = 0;
+		master_routing_table[0] = slave_address;
+		while(!chibi_send(&se, sizeof(StackEnumerate)) && tries < 10) {
+			tries++;
+		}
+
+		master_routing_table[0] = 0;
+
+		if(tries == 10) {
+			logspisw("Could not send Stack Enumerate message (chibi)\n\r");
+			continue;
+		}
+
+		StackEnumerateReturn ser;
+		tries = 0;
+		while(tries < 100) {
+			SLEEP_MS(50);
+			if(chibi_recv(&ser, sizeof(StackEnumerateReturn))) {
+				break;
+			}
+			tries++;
+		}
+
+		if(tries == 100) {
+			logspisw("Did not receive answer for Stack Enumerate (chibi)\n\r");
+			continue;
+		}
+
+		for(uint8_t i = com_last_ext_id[extension] + 1; i <= ser.stack_id_upto; i++) {
+			master_routing_table[i] = slave_address;
+		}
+
+		com_last_ext_id[extension] = ser.stack_id_upto;
+
+		logchibii("last ext id %d for slave/ext %d/%d\n\r", ser.stack_id_upto, slave_address, extension);
+	}
 }
 
 void master_create_routing_table_extensions(void) {
-	// TODO: find extensions
 	for(uint8_t i = 0; i < 2; i++) {
 		switch(com_ext[i]) {
 			case COM_CHIBI: {
@@ -154,7 +168,7 @@ void master_create_routing_table_stack(void) {
 
 			tries = 0;
 			while(!spi_stack_master_transceive() && tries < 10) {
-				SLEEP_MS(10);
+				SLEEP_MS(50);
 				tries++;
 			}
 			if(tries == 10) {
@@ -198,6 +212,6 @@ void master_create_routing_table_stack(void) {
 	com_last_stack_address = stack_address;
 }
 
-void tick_task(void) {
+void tick_task(uint8_t tick_type) {
 
 }
