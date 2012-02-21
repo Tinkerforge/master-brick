@@ -24,7 +24,8 @@
 #include "bricklib/drivers/adc/adc.h"
 #include "bricklib/com/com_common.h"
 #include "extensions/chibi/chibi_config.h"
-
+#include "extensions/chibi/chibi_low_level.h"
+#include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
 
 extern ComType com_ext[];
@@ -33,6 +34,8 @@ extern uint16_t chibi_underrun;
 extern uint16_t chibi_crc_error;
 extern uint16_t chibi_no_ack;
 extern uint16_t chibi_overflow;
+extern uint8_t chibi_frequency_mode;
+extern uint8_t chibi_channel;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -246,4 +249,82 @@ void get_chibi_error_log(uint8_t com, const GetChibiErrorLog *data) {
 	                                                   gcelr.crc_error,
 	                                                   gcelr.no_ack,
 	                                                   gcelr.overflow);
+}
+
+void set_chibi_frequency(uint8_t com, const SetChibiFrequency *data) {
+	if(data->frequency > 3) {
+		return;
+	}
+
+	uint8_t extension;
+	if(com_ext[0] == COM_CHIBI) {
+		extension = 0;
+	} else if(com_ext[1] == COM_CHIBI) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	chibi_frequency_mode = data->frequency;
+
+	extension_i2c_write(extension,
+	                    CHIBI_ADDRESS_FREQUENCY,
+	                    (char*)&chibi_frequency_mode,
+	                    1);
+
+	chibi_set_mode(chibi_frequency_mode);
+
+	logchibii("set_chibi_frequency: %d\n\r", data->frequency);
+}
+
+void get_chibi_frequency(uint8_t com, const GetChibiFrequency *data) {
+	GetChibiFrequencyReturn gcfr;
+
+	gcfr.stack_id        = data->stack_id;
+	gcfr.type            = data->type;
+	gcfr.length          = sizeof(GetChibiFrequencyReturn);
+	gcfr.frequency       = chibi_frequency_mode;
+
+	send_blocking_with_timeout(&gcfr, sizeof(GetChibiFrequencyReturn), com);
+	logchibii("get_chibi_frequency: %d\n\r", gcfr.frequency);
+}
+
+void set_chibi_channel(uint8_t com, const SetChibiChannel *data) {
+	if(data->channel > 10) {
+		return;
+	}
+
+	uint8_t extension;
+	if(com_ext[0] == COM_CHIBI) {
+		extension = 0;
+	} else if(com_ext[1] == COM_CHIBI) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	chibi_channel = data->channel;
+
+	extension_i2c_write(extension,
+	                    CHIBI_ADDRESS_CHANNEL,
+	                    (char*)&chibi_channel,
+	                    1);
+
+	chibi_set_channel(chibi_channel);
+
+	logchibii("set_chibi_channel: %d\n\r", data->channel);
+}
+
+void get_chibi_channel(uint8_t com, const GetChibiChannel *data) {
+	GetChibiChannelReturn gccr;
+
+	gccr.stack_id        = data->stack_id;
+	gccr.type            = data->type;
+	gccr.length          = sizeof(GetChibiChannelReturn);
+	gccr.channel         = chibi_channel;
+
+	send_blocking_with_timeout(&gccr, sizeof(GetChibiChannelReturn), com);
+	logchibii("get_chibi_channel: %d\n\r", gccr.channel);
 }

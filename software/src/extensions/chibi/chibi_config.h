@@ -22,6 +22,8 @@
 #ifndef CHIBI_CONFIG_H
 #define CHIBI_CONFIG_H
 
+#include "extensions/extension_config.h"
+
 #define CHIBI_PAN_ID               0x1234
 #define CHIBI_CSMA_RETRIES_SLAVE   5   // Retries for CSMA (max 5)
 #define CHIBI_FRAME_RETRIES_SLAVE  15  // Retries if no ACK (max 15)
@@ -32,6 +34,9 @@
 
 #define CHIBI_NUM_SLAVE_ADDRESS 32
 #define CHIBI_MAX_WAIT_FOR_RECV 5000
+
+#define CHIBI_ADDRESS_FREQUENCY (EXTENSION_POS_DATA_START + 0)
+#define CHIBI_ADDRESS_CHANNEL (EXTENSION_POS_DATA_START + 1)
 
 
 

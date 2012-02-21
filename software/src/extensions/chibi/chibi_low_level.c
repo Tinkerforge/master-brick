@@ -52,6 +52,8 @@ uint16_t chibi_no_ack = 0;
 uint16_t chibi_overflow = 0;
 uint8_t chibi_receiver_input_power = 0;
 
+uint8_t chibi_channel = CHIBI_PHY_CC_CCA_CHANNEL_868;
+uint8_t chibi_frequency_mode = OQPSK_868MHZ_EUROPE;
 uint8_t chibi_type = CHIBI_TYPE_NONE;
 uint8_t chibi_buffer_recv[CHIBI_MAX_DATA_LENGTH] = {0};
 uint8_t chibi_buffer_size_recv = 0;
@@ -273,12 +275,26 @@ void chibi_set_mode(const uint8_t mode) {
 }
 
 void chibi_set_channel(const uint8_t channel) {
-	// TODO: china only stuff
+	if(chibi_frequency_mode == OQPSK_780MHZ_CHINA) {
+		// Set frequency band for China
+		if(chibi_read_register_mask(CHIBI_REGISTER_TRX_CTRL_2,
+		                            0x3F) != 0x1C) {
+			chibi_write_register_mask(CHIBI_REGISTER_TRX_CTRL_2,
+			                          0x1C,
+			                          0x3F);
+		}
 
-
-    chibi_write_register_mask(CHIBI_REGISTER_PHY_CC_CCA,
-                              channel,
-                              CHIBI_PHY_CC_CCA_CHANNEL_MASK);
+		// Set frequency for China
+		chibi_write_register_mask(CHIBI_REGISTER_CC_CTRL_1,
+		                          0x4,
+		                          0x7);
+		chibi_write_register(CHIBI_REGISTER_CC_CTRL_0,
+		                     channel > 3 ? (0 << 1) + 11 : (channel << 1) + 11);
+	} else {
+		chibi_write_register_mask(CHIBI_REGISTER_PHY_CC_CCA,
+								  channel,
+								  CHIBI_PHY_CC_CCA_CHANNEL_MASK);
+	}
 
     // Add delay to allow the PLL to lock if in active mode.
     const uint8_t status = chibi_read_register_mask(CHIBI_REGISTER_TRX_STATUS,
@@ -591,8 +607,8 @@ void chibi_low_level_init(void) {
 	}
 
 	// Set mode and channel
-	chibi_set_mode(OQPSK_868MHZ_EUROPE);
-	chibi_set_channel(CHIBI_PHY_CC_CCA_CHANNEL_868);
+	chibi_set_mode(chibi_frequency_mode);
+	chibi_set_channel(chibi_channel);
 
 	// Enable auto crc mode
 	chibi_write_register_mask(CHIBI_REGISTER_TRX_CTRL_1,

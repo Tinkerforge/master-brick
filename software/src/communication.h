@@ -39,6 +39,10 @@
 #define TYPE_GET_CHIBI_SLAVE_ADDRESS 11
 #define TYPE_GET_CHIBI_SIGNAL_STRENGTH 12
 #define TYPE_GET_CHIBI_ERROR_LOG 13
+#define TYPE_SET_CHIBI_FREQUENCY 14
+#define TYPE_GET_CHIBI_FREQUENCY 15
+#define TYPE_SET_CHIBI_CHANNEL 16
+#define TYPE_GET_CHIBI_CHANNEL 17
 
 #define COM_MESSAGES_USER \
 	{TYPE_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -54,6 +58,10 @@
 	{TYPE_GET_CHIBI_SLAVE_ADDRESS, (message_handler_func_t)get_chibi_slave_address}, \
 	{TYPE_GET_CHIBI_SIGNAL_STRENGTH, (message_handler_func_t)get_chibi_signal_strength}, \
 	{TYPE_GET_CHIBI_ERROR_LOG, (message_handler_func_t)get_chibi_error_log}, \
+	{TYPE_SET_CHIBI_FREQUENCY, (message_handler_func_t)set_chibi_frequency}, \
+	{TYPE_GET_CHIBI_FREQUENCY, (message_handler_func_t)get_chibi_frequency}, \
+	{TYPE_SET_CHIBI_CHANNEL, (message_handler_func_t)set_chibi_channel}, \
+	{TYPE_GET_CHIBI_CHANNEL, (message_handler_func_t)get_chibi_channel}, \
 
 
 typedef struct {
@@ -208,9 +216,48 @@ typedef struct {
 	uint16_t overflow;
 } __attribute__((__packed__)) GetChibiErrorLogReturn;
 
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t frequency;
+} __attribute__((__packed__)) SetChibiFrequency;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetChibiFrequency;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t frequency;
+} __attribute__((__packed__)) GetChibiFrequencyReturn;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t channel;
+} __attribute__((__packed__)) SetChibiChannel;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetChibiChannel;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t channel;
+} __attribute__((__packed__)) GetChibiChannelReturn;
+
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data);
 void get_stack_current(uint8_t com, const GetStackCurrent *data);
-
 void set_extension_type(uint8_t com, const SetExtensionType *data);
 void get_extension_type(uint8_t com, const GetExtensionType *data);
 void is_chibi_present(uint8_t com, const IsChibiPresent *data);
@@ -222,5 +269,9 @@ void set_chibi_slave_address(uint8_t com, const SetChibiSlaveAddress *data);
 void get_chibi_slave_address(uint8_t com, const GetChibiSlaveAddress *data);
 void get_chibi_signal_strength(uint8_t com, const GetChibiSignalStrength *data);
 void get_chibi_error_log(uint8_t com, const GetChibiErrorLog *data);
+void set_chibi_frequency(uint8_t com, const SetChibiFrequency *data);
+void get_chibi_frequency(uint8_t com, const GetChibiFrequency *data);
+void set_chibi_channel(uint8_t com, const SetChibiChannel *data);
+void get_chibi_channel(uint8_t com, const GetChibiChannel *data);
 
 #endif

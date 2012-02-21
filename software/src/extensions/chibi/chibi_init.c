@@ -24,6 +24,7 @@
 #include "chibi_master.h"
 #include "chibi_config.h"
 #include "extensions/extension_init.h"
+#include "extensions/extension_i2c.h"
 #include "bricklib/com/usb/usb.h"
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/logging/logging.h"
@@ -31,8 +32,26 @@
 extern uint8_t chibi_address;
 extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_master_address;
+extern uint8_t chibi_frequency_mode;
+extern uint8_t chibi_channel;
 
 void chibi_init_masterslave(uint8_t extension) {
+	extension_i2c_read(extension,
+	                   CHIBI_ADDRESS_FREQUENCY,
+	                   (char*)&chibi_frequency_mode,
+	                   1);
+	extension_i2c_read(extension,
+	                   CHIBI_ADDRESS_CHANNEL,
+	                   (char*)&chibi_channel,
+	                   1);
+	if(chibi_frequency_mode > 3) {
+		chibi_frequency_mode = 0;
+	}
+
+	if(chibi_channel > 10) {
+		chibi_channel = 0;
+	}
+
 	chibi_address = extension_get_address(extension);
 	chibi_master_address = extension_get_master_address(extension);
 	for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
