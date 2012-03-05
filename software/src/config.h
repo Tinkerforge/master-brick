@@ -32,7 +32,7 @@
 #define BRICK_HARDWARE_NAME "Master Brick 1.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
 #define BRICK_FIRMWARE_VERSION_MINOR 1
-#define BRICK_FIRMWARE_VERSION_REVISION 0
+#define BRICK_FIRMWARE_VERSION_REVISION 1
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
@@ -283,6 +283,13 @@
                           PIN_CHIBI_SELECT
 
 #define CHIBI_USART_SPI_CLOCK 8000000 // 8 Mhz
+
+
+// ************** RS485 SETTINGS ******************
+#define PIN_RS485_DRIVER_ENABLE
+#define PIN_RS485_RECEIVER_ENABLE
+#define PIN_RS485_DRIVER_INPUT
+#define PIN_RS485_RECEIVER_OUTPUT
 
 
 // ************** MASTER DEBUGGING **************
