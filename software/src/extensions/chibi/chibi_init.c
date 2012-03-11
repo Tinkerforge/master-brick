@@ -64,7 +64,7 @@ void chibi_init_masterslave(uint8_t extension) {
 
 	// TODO: initialize chibi pins according to extension
 
-	if(usb_is_connected()) {
+	if(usb_request_is_received()) {
 		chibi_master_init();
 	} else {
 		chibi_slave_init();

@@ -1,3 +1,4 @@
 1.0.0: Initial version
 1.1.0: Add support for tick types
 1.1.1: Fix bug with timeouts on windows (through bricklib)
+1.1.2: Add USB request detection to allow Chibi Slave stack to be powered over USB

@@ -38,6 +38,7 @@
 #include "bricklib/bricklet/bricklet_init.h"
 #include "bricklib/drivers/uid/uid.h"
 #include "bricklib/drivers/adc/adc.h"
+#include "bricklib/drivers/usart/usart.h"
 #include "bricklib/utility/init.h"
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/utility/profiling.h"
@@ -72,9 +73,6 @@ void blinkenlights(const uint8_t length) {
     }
 }
 
-#include "extensions/chibi/chibi.h"
-#include "extensions/chibi/chibi_slave.h"
-#include "extensions/chibi/chibi_master.h"
 
 int main() {
 	Pin twi_stack_pullup_master_pins[] = {PINS_TWI_PULLUP_MASTER};
@@ -86,7 +84,12 @@ int main() {
     PIO_Configure(&pin_detect, 1);
     PIO_Configure(&pin_master_detect, 1);
 
+    // try to initialize USB as fast as possible, so we have a request before
+    // we have to decide if we are connected to a PC!
+    bool usb_init_value = usb_init();
+
 	brick_init();
+    led_on(LED_EXT_BLUE_0);
 
 #ifdef PROFILING
     profiling_init();
@@ -104,10 +107,12 @@ int main() {
     logsi("Bricklets initialized\n\r");
     master_init();
 
+
     if(PIO_Get(&pin_master_detect)) {
 		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));
 
     	master_mode |= MASTER_MODE_MASTER;
+
     	// If we are a Master in the Stack, we have to wait again, so
     	// other Bricks can enumerate there Bricklets
     	blinkenlights(4);
@@ -120,7 +125,7 @@ int main() {
         logsi("Master Routing table created\n\r");
 
         extension_init();
-    	if(usb_init()) {
+    	if(usb_init_value) {
     		master_create_routing_table_extensions();
 
 			xTaskCreate(usb_message_loop,
