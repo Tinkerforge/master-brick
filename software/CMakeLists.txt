@@ -99,6 +99,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/extensions/chibi/chibi_slave.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/chibi/chibi_init.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/chibi/chibi.c"
+#	"${PROJECT_SOURCE_DIR}/src/extensions/rs485/rs485_init.c"
 	"${PROJECT_SOURCE_DIR}/src/main.c"
 	"${PROJECT_SOURCE_DIR}/src/master.c"
 )

@@ -77,16 +77,10 @@ void blinkenlights(const uint8_t length) {
 int main() {
 	Pin twi_stack_pullup_master_pins[] = {PINS_TWI_PULLUP_MASTER};
 	Pin twi_stack_pullup_slave_pins[] = {PINS_TWI_PULLUP_SLAVE};
-	Pin chibi_select_pin = PIN_CHIBI_SELECT;
-	PIO_Clear(&chibi_select_pin);
     Pin pin_master_detect = PIN_MASTER_DETECT;
     Pin pin_detect        = PIN_DETECT;
     PIO_Configure(&pin_detect, 1);
     PIO_Configure(&pin_master_detect, 1);
-
-    // try to initialize USB as fast as possible, so we have a request before
-    // we have to decide if we are connected to a PC!
-    bool usb_init_value = usb_init();
 
 	brick_init();
     led_on(LED_EXT_BLUE_0);
@@ -125,7 +119,7 @@ int main() {
         logsi("Master Routing table created\n\r");
 
         extension_init();
-    	if(usb_init_value) {
+    	if(usb_init()) {
     		master_create_routing_table_extensions();
 
 			xTaskCreate(usb_message_loop,

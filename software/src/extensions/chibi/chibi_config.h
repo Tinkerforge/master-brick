@@ -24,6 +24,26 @@
 
 #include "extensions/extension_config.h"
 
+#define PIN_CHIBI_RESET   PIN_EXT_0_GP_0
+#define PIN_CHIBI_INT     PIN_EXT_0_GP_1
+#define PIN_CHIBI_SLP_TR  PIN_EXT_0_GP_2
+#define PIN_CHIBI_MISO    PIN_EXT_RXD
+#define PIN_CHIBI_MOSI    PIN_EXT_TXD
+#define PIN_CHIBI_SCK     PIN_EXT_SCK
+#define PIN_CHIBI_SELECT  PIN_EXT_0_SELECT
+
+#define PINS_CHIBI        PIN_CHIBI_RESET,  \
+                          PIN_CHIBI_INT,    \
+                          PIN_CHIBI_SLP_TR, \
+                          PIN_CHIBI_MISO,   \
+                          PIN_CHIBI_MOSI,   \
+                          PIN_CHIBI_SCK,    \
+                          PIN_CHIBI_SELECT
+
+#define CHIBI_USART_SPI_CLOCK 8000000 // 8 Mhz
+
+
+
 #define CHIBI_PAN_ID               0x1234
 #define CHIBI_CSMA_RETRIES_SLAVE   5   // Retries for CSMA (max 5)
 #define CHIBI_FRAME_RETRIES_SLAVE  15  // Retries if no ACK (max 15)

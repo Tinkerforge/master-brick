@@ -32,7 +32,7 @@
 #define BRICK_HARDWARE_NAME "Master Brick 1.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
 #define BRICK_FIRMWARE_VERSION_MINOR 1
-#define BRICK_FIRMWARE_VERSION_REVISION 3
+#define BRICK_FIRMWARE_VERSION_REVISION 4
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
@@ -263,33 +263,6 @@
 #define PIN_EXT_RXD       {1 << 5, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 #define PIN_EXT_TXD       {1 << 6, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 #define PIN_EXT_SCK       {1 << 2, PIOA, ID_PIOA, PIO_PERIPH_B, PIO_DEFAULT}
-
-
-// ************** CHIBI SETTINGS ******************
-#define PIN_CHIBI_RESET   PIN_EXT_0_GP_0
-#define PIN_CHIBI_INT     PIN_EXT_0_GP_1
-#define PIN_CHIBI_SLP_TR  PIN_EXT_0_GP_2
-#define PIN_CHIBI_MISO    PIN_EXT_RXD
-#define PIN_CHIBI_MOSI    PIN_EXT_TXD
-#define PIN_CHIBI_SCK     PIN_EXT_SCK
-#define PIN_CHIBI_SELECT  PIN_EXT_0_SELECT
-
-#define PINS_CHIBI        PIN_CHIBI_RESET,  \
-                          PIN_CHIBI_INT,    \
-                          PIN_CHIBI_SLP_TR, \
-                          PIN_CHIBI_MISO,   \
-                          PIN_CHIBI_MOSI,   \
-                          PIN_CHIBI_SCK,    \
-                          PIN_CHIBI_SELECT
-
-#define CHIBI_USART_SPI_CLOCK 8000000 // 8 Mhz
-
-
-// ************** RS485 SETTINGS ******************
-#define PIN_RS485_DRIVER_ENABLE
-#define PIN_RS485_RECEIVER_ENABLE
-#define PIN_RS485_DRIVER_INPUT
-#define PIN_RS485_RECEIVER_OUTPUT
 
 
 // ************** MASTER DEBUGGING **************

@@ -36,6 +36,9 @@ extern uint8_t chibi_frequency_mode;
 extern uint8_t chibi_channel;
 
 void chibi_init_masterslave(uint8_t extension) {
+	Pin chibi_select_pin = PIN_CHIBI_SELECT;
+	PIO_Clear(&chibi_select_pin);
+
 	extension_i2c_read(extension,
 	                   CHIBI_ADDRESS_FREQUENCY,
 	                   (char*)&chibi_frequency_mode,
@@ -64,7 +67,7 @@ void chibi_init_masterslave(uint8_t extension) {
 
 	// TODO: initialize chibi pins according to extension
 
-	if(usb_request_is_received()) {
+	if(chibi_address == chibi_master_address) {
 		chibi_master_init();
 	} else {
 		chibi_slave_init();

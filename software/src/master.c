@@ -51,6 +51,7 @@ uint8_t master_mode = MASTER_MODE_NONE;
 
 extern uint8_t chibi_address;
 extern uint8_t chibi_slave_address[];
+extern uint8_t chibi_type;
 
 extern uint16_t spi_stack_buffer_size_recv;
 
@@ -128,7 +129,9 @@ void master_create_routing_table_extensions(void) {
 	for(uint8_t i = 0; i < 2; i++) {
 		switch(com_ext[i]) {
 			case COM_CHIBI: {
-				master_create_routing_table_chibi(i);
+				if(chibi_type == CHIBI_TYPE_MASTER) {
+					master_create_routing_table_chibi(i);
+				}
 
 				break;
 			}
