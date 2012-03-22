@@ -78,7 +78,7 @@ void master_create_routing_table_chibi(uint8_t extension) {
 			return;
 		}
 
-		uint8_t tries = 0;
+		uint16_t tries = 0;
 
 		StackEnumerate se = {
 			0,
@@ -90,6 +90,7 @@ void master_create_routing_table_chibi(uint8_t extension) {
 		tries = 0;
 		master_routing_table[0] = slave_address;
 		while(!chibi_send(&se, sizeof(StackEnumerate)) && tries < 10) {
+			SLEEP_US(10);
 			tries++;
 		}
 
@@ -100,28 +101,32 @@ void master_create_routing_table_chibi(uint8_t extension) {
 			continue;
 		}
 
-		StackEnumerateReturn ser;
+		uint8_t data[64];
+		StackEnumerateReturn *ser = (StackEnumerateReturn*)data;
+
 		tries = 0;
-		while(tries < 100) {
-			SLEEP_MS(50);
-			if(chibi_recv(&ser, sizeof(StackEnumerateReturn))) {
-				break;
+		while(tries < 2000) {
+			SLEEP_US(10);
+			if(chibi_recv(ser, 64)) {
+				if(ser->type == TYPE_STACK_ENUMERATE) {
+					break;
+				}
 			}
 			tries++;
 		}
 
-		if(tries == 100) {
+		if(tries == 200) {
 			logspisw("Did not receive answer for Stack Enumerate (chibi)\n\r");
 			continue;
 		}
 
-		for(uint8_t i = com_last_ext_id[extension] + 1; i <= ser.stack_id_upto; i++) {
+		for(uint8_t i = com_last_ext_id[extension] + 1; i <= ser->stack_id_upto; i++) {
 			master_routing_table[i] = slave_address;
 		}
 
-		com_last_ext_id[extension] = ser.stack_id_upto;
+		com_last_ext_id[extension] = ser->stack_id_upto;
 
-		logchibii("last ext id %d for slave/ext %d/%d\n\r", ser.stack_id_upto, slave_address, extension);
+		logchibii("last ext id %d for slave/ext %d/%d\n\r", ser->stack_id_upto, slave_address, extension);
 	}
 }
 

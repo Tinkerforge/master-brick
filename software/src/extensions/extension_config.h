@@ -22,6 +22,10 @@
 #ifndef EXTENSION_CONFIG_H
 #define EXTENSION_CONFIG_H
 
+#define COM_EXTENSIONS \
+	{COM_CHIBI, chibi_init, chibi_send, chibi_recv}, \
+	{COM_RS485, rs485_init, rs485_send, rs485_recv},
+
 #define EXTENSION_TYPE_NONE 0
 #define EXTENSION_TYPE_CHIBI 1
 #define EXTENSION_TYPE_RS485 2

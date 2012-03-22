@@ -494,14 +494,13 @@ void chibi_interrupt(const Pin *pin) {
 			chibi_receiver_input_power = chibi_transceive_byte(0);
 			chibi_deselect();
 
-			//logchibid("power: %d\n\r", chibi_receiver_input_power);
-
-			// Check CRC
 			if(chibi_buffer_size_recv > 0) {
 				chibi_overflow++;
 				chibi_buffer_size_recv = 0;
 				logchibie("Buffer Overflow: %d\n\r", chibi_overflow);
 			}
+
+			// Check CRC
 			if((crc & CHIBI_PHY_RSSI_RX_CRC_VALID) != 0) {
 				chibi_read_frame();
 				chibi_wait_for_recv = 0;
@@ -527,11 +526,11 @@ void chibi_interrupt(const Pin *pin) {
 					chibi_no_ack++;
 					if(chibi_type == CHIBI_TYPE_SLAVE) {
 						chibi_transfer_status = CHIBI_ERROR_NO_ACK;
-						chibi_start_tx();
-						return;
+						chibi_wait_for_recv = CHIBI_MAX_WAIT_FOR_RECV;
 					} else if(chibi_type == CHIBI_TYPE_MASTER) {
 						chibi_transfer_status = CHIBI_ERROR_NO_ACK;
-						chibi_wait_for_recv = CHIBI_MAX_WAIT_FOR_RECV;
+						chibi_start_tx();
+						return;
 					} else {
 						logchibie("Unexpected chibi type: %d\n\r", chibi_type);
 					}
@@ -549,14 +548,17 @@ void chibi_interrupt(const Pin *pin) {
 			chibi_transfer_end = true;
 		}
 
-		uint8_t error;
-		do {
+
+		if(chibi_buffer_size_recv == 0) {
+			uint8_t error;
+			do {
 #ifdef CHIBI_USE_PROMISCUOUS_MODE
-				error = chibi_set_state(CHIBI_STATE_RX_ON);
+					error = chibi_set_state(CHIBI_STATE_RX_ON);
 #else
-				error = chibi_set_state(CHIBI_STATE_RX_AACK_ON);
+					error = chibi_set_state(CHIBI_STATE_RX_AACK_ON);
 #endif
-		} while(error != CHIBI_ERROR_OK);
+			} while(error != CHIBI_ERROR_OK);
+		}
 	}
 
 	// Frame buffer access conflict or trying to send more then 127 bytes

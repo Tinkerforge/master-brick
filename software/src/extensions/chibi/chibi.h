@@ -25,9 +25,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define COM_EXTENSIONS \
-	{COM_CHIBI, chibi_init, chibi_send, chibi_recv},
-
 uint8_t chibi_get_receiver_address(uint8_t stack_id);
 bool chibi_init(void);
 uint16_t chibi_send(const void *data, const uint16_t length);

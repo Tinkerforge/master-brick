@@ -49,6 +49,7 @@
 #include "master.h"
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
+#include "extensions/rs485/rs485.h"
 #include "extensions/extension_init.h"
 
 extern uint8_t com_last_stack_address;
@@ -83,7 +84,6 @@ int main() {
     PIO_Configure(&pin_master_detect, 1);
 
 	brick_init();
-    led_on(LED_EXT_BLUE_0);
 
 #ifdef PROFILING
     profiling_init();

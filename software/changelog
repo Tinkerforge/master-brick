@@ -5,3 +5,7 @@
 1.1.3: Fix bug with ADC calibration readout (through bricklib)
 1.1.4: Use new heuristic for chibi slave detection (master address == address)
 1.1.5: Disable IRQs in SPI Master communication, otherwise Stepper Brick doesn't work over Chibi (through bricklib)
+1.1.6: Fix several Chibi bugs:
+ - sanity check on chibi participants discovery
+ - if no ack: slave recvs, master sends
+ - no rx_aack_on state if chibi recv buffer not empty

@@ -25,6 +25,8 @@
 #include "master.h"
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
+#include "extensions/rs485/rs485.h"
+#include "extensions/extension_config.h"
 #include "bricklib/drivers/board/sam3s/SAM3S.h"
 
 #define at91sam3s4c
@@ -32,7 +34,7 @@
 #define BRICK_HARDWARE_NAME "Master Brick 1.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
 #define BRICK_FIRMWARE_VERSION_MINOR 1
-#define BRICK_FIRMWARE_VERSION_REVISION 5
+#define BRICK_FIRMWARE_VERSION_REVISION 6
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
