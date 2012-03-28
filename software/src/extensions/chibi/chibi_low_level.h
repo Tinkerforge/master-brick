@@ -293,6 +293,13 @@ typedef struct {
 #define CHIBI_XAH_CTRL_0_CSMA_RETRIES(v)    ((v) << 1) // 0..5 allowed
 #define CHIBI_XAH_CTRL_0_FRAME_RETRIES(v)   ((v) << 4)
 
+// AT86RF212 xah ctrl 1
+#define CHIBI_XAH_CTRL_1_AACK_PROM_MODE     (1 << 1)
+#define CHIBI_XAH_CTRL_1_AACK_ACK_TIME      (1 << 2)
+#define CHIBI_XAH_CTRL_1_AACK_UPLD_RES_FT   (1 << 4)
+#define CHIBI_XAH_CTRL_1_AACK_FLTR_RES_FT   (1 << 5)
+#define CHIBI_XAH_CTRL_1_CSMA_LBT_MODE      (1 << 6)
+
 void chibi_select(void);
 void chibi_deselect(void);
 uint8_t chibi_transceive_byte(const uint8_t value);

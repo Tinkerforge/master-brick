@@ -9,3 +9,6 @@
  - sanity check on chibi participants discovery
  - if no ack: slave recvs, master sends
  - no rx_aack_on state if chibi recv buffer not empty
+1.1.7: Fix several Chibi bugs:
+ - check sequence number to eliminate duplicates
+ - different negotiation of send and recv states (now more messages from master to slave possible shoud be possible)

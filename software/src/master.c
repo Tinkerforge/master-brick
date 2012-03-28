@@ -53,7 +53,10 @@ extern uint8_t chibi_address;
 extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_type;
 
+extern uint16_t chibi_wait_for_recv;
 extern uint16_t spi_stack_buffer_size_recv;
+
+bool chibi_enumerate_ready = false;
 
 void master_init(void) {
 	Pin power_pins[] = {PIN_STACK_VOLTAGE, PIN_STACK_CURRENT};
@@ -78,7 +81,7 @@ void master_create_routing_table_chibi(uint8_t extension) {
 			return;
 		}
 
-		uint16_t tries = 0;
+		uint32_t tries = 0;
 
 		StackEnumerate se = {
 			0,
@@ -90,10 +93,11 @@ void master_create_routing_table_chibi(uint8_t extension) {
 		tries = 0;
 		master_routing_table[0] = slave_address;
 		while(!chibi_send(&se, sizeof(StackEnumerate)) && tries < 10) {
-			SLEEP_US(10);
+			SLEEP_MS(10);
 			tries++;
 		}
 
+		chibi_enumerate_ready = true;
 		master_routing_table[0] = 0;
 
 		if(tries == 10) {
@@ -115,7 +119,7 @@ void master_create_routing_table_chibi(uint8_t extension) {
 			tries++;
 		}
 
-		if(tries == 200) {
+		if(tries == 2000) {
 			logspisw("Did not receive answer for Stack Enumerate (chibi)\n\r");
 			continue;
 		}

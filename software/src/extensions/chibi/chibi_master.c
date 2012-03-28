@@ -56,6 +56,7 @@ void chibi_master_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
+
 void chibi_master_message_loop_return(char *data, uint16_t length) {
 	send_blocking_with_timeout(data, length, com_current);
 }

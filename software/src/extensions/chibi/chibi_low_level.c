@@ -45,6 +45,7 @@ extern uint8_t chibi_type;
 extern uint8_t chibi_address;
 extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_master_address;
+extern bool chibi_enumerate_ready;
 
 uint16_t chibi_underrun = 0;
 uint16_t chibi_crc_error = 0;
@@ -59,8 +60,11 @@ uint8_t chibi_buffer_recv[CHIBI_MAX_DATA_LENGTH] = {0};
 uint8_t chibi_buffer_size_recv = 0;
 uint16_t chibi_wait_for_recv = 0;
 
-bool chibi_transfer_status = CHIBI_ERROR_OK;
-volatile bool chibi_transfer_end = true;
+uint8_t chibi_last_sequence = 0;
+uint16_t chibi_last_destination_address = 0;
+
+uint8_t chibi_transfer_status = CHIBI_ERROR_OK;
+volatile uint16_t chibi_send_counter = 0;
 Pin chibi_reset_pin = PIN_CHIBI_RESET;
 Pin chibi_sleep_pin = PIN_CHIBI_SLP_TR;
 Pin chibi_interrupt_pin = PIN_CHIBI_INT;
@@ -390,12 +394,19 @@ uint8_t chibi_transfer(const uint8_t *header,
 	// If we are currently waiting for a receive (i.e. we are chibi slave,
 	// received a no ack and are waiting that the master sends data) don't
 	// interfere with a transfer
-	if(chibi_wait_for_recv) {
+	__disable_irq();
+	if(chibi_wait_for_recv > 0) {
 		chibi_wait_for_recv--;
+
+		if(chibi_wait_for_recv == 0) {
+			chibi_send_counter = 0;
+		}
+		__enable_irq();
 		return CHIBI_ERROR_NO_ACK;
 	}
+	__enable_irq();
 
-	if(!chibi_transfer_end) {
+	if(chibi_send_counter > 0) {
 		return CHIBI_ERROR_WRONG_STATE;
 	}
 
@@ -407,11 +418,11 @@ uint8_t chibi_transfer(const uint8_t *header,
     chibi_write_frame(header, data, length);
 
     // Do frame transmission
-    chibi_transfer_end = false;
+    chibi_send_counter = CHIBI_MAX_WAIT_FOR_SEND;
     chibi_start_tx();
 
     // Wait for transfer to end
-    while(!chibi_transfer_end) {
+    while(chibi_send_counter > 0) {
     	if(xSchedulerRunning) {
     		taskYIELD();
     	}
@@ -450,22 +461,18 @@ void chibi_read_frame(void) {
     		((uint8_t*)&chibi_read_fcs)[i] = chibi_transceive_byte(0);
     	}
 
-    	chibi_buffer_size_recv = data_length;
-
-    	/*logchibid("header: %d %d %d %d %d\n\r",
-    	          chibi_read_header.frame_control_field,
-    	          chibi_read_header.sequence,
-    	          chibi_read_header.pan_id,
-    	          chibi_read_header.short_destination_address,
-    	          chibi_read_header.short_source_address);
-    	logchibid("data: %d %d %d %d %d %d\n\r",
-    			  chibi_buffer_recv[0],
-    			  chibi_buffer_recv[1],
-    			  chibi_buffer_recv[2],
-    			  chibi_buffer_recv[3],
-    			  chibi_buffer_recv[4],
-    			  chibi_buffer_recv[5]);
-    	logchibid("fcs: %d\n\r", chibi_read_fcs);*/
+    	if(chibi_last_sequence == chibi_read_header.sequence &&
+    		chibi_last_destination_address == chibi_read_header.short_destination_address) {
+    		chibi_buffer_size_recv = 0;
+    	} else {
+    		chibi_last_sequence = chibi_read_header.sequence;
+    		chibi_last_destination_address = chibi_read_header.short_destination_address;
+       		if(xSchedulerRunning || chibi_enumerate_ready) {
+       			chibi_buffer_size_recv = data_length;
+       		} else {
+       			chibi_buffer_size_recv = 0;
+       		}
+    	}
     }
 
     chibi_deselect();
@@ -526,11 +533,9 @@ void chibi_interrupt(const Pin *pin) {
 					chibi_no_ack++;
 					if(chibi_type == CHIBI_TYPE_SLAVE) {
 						chibi_transfer_status = CHIBI_ERROR_NO_ACK;
-						chibi_wait_for_recv = CHIBI_MAX_WAIT_FOR_RECV;
 					} else if(chibi_type == CHIBI_TYPE_MASTER) {
 						chibi_transfer_status = CHIBI_ERROR_NO_ACK;
-						chibi_start_tx();
-						return;
+						chibi_wait_for_recv = CHIBI_MAX_WAIT_FOR_RECV;
 					} else {
 						logchibie("Unexpected chibi type: %d\n\r", chibi_type);
 					}
@@ -545,7 +550,7 @@ void chibi_interrupt(const Pin *pin) {
 			}
 
 			// Chibi transfer ended, chibi_transfer can be called again
-			chibi_transfer_end = true;
+			chibi_send_counter = 0;
 		}
 
 
@@ -639,7 +644,7 @@ void chibi_low_level_init(void) {
 
 	// Interrupts on tx end
 	chibi_write_register(CHIBI_REGISTER_IRQ_MASK, CHIBI_IRQ_MASK_TRX_END);
-    PIO_EnableIt(&chibi_interrupt_pin);
+	PIO_EnableIt(&chibi_interrupt_pin);
 
 	// Set state according to usage of CRC
 #ifdef CHIBI_USE_PROMISCUOUS_MODE
