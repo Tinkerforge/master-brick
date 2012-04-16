@@ -36,6 +36,8 @@
 #include "extensions/chibi/chibi_master.h"
 #include "extensions/chibi/chibi_slave.h"
 #include "extensions/chibi/chibi_low_level.h"
+#include "extensions/rs485/rs485_config.h"
+#include "extensions/rs485/rs485_master.h"
 
 #include "config.h"
 
@@ -53,6 +55,9 @@ extern uint8_t chibi_address;
 extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_type;
 
+extern uint8_t rs485_slave_address[];
+extern uint8_t rs485_type;
+
 extern uint16_t chibi_wait_for_recv;
 extern uint16_t spi_stack_buffer_size_recv;
 
@@ -69,7 +74,61 @@ void master_init(void) {
 }
 
 void master_create_routing_table_rs485(uint8_t extension) {
-	// TODO
+	logrsi("Start routing table creation\n\r");
+	com_last_ext_id[extension] = com_last_spi_stack_id;
+
+	for(uint8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
+		uint8_t slave_address = rs485_slave_address[i];
+		if(slave_address == 0) {
+			return;
+		}
+
+		uint32_t tries = 0;
+
+		StackEnumerate se = {
+			0,
+			TYPE_STACK_ENUMERATE,
+			sizeof(StackEnumerate),
+			com_last_ext_id[extension] + 1
+		};
+
+		tries = 0;
+		master_routing_table[0] = slave_address;
+
+		rs485_send(&se, sizeof(StackEnumerate));
+		rs485_set_mode_send();
+		rs485_master_send(1);
+
+		master_routing_table[0] = 0;
+
+		uint8_t data[64];
+		StackEnumerateReturn *ser = (StackEnumerateReturn*)data;
+
+		tries = 0;
+		while(tries < 2000) {
+			SLEEP_US(10);
+			if(rs485_recv(ser, 64)) {
+				if(ser->type == TYPE_STACK_ENUMERATE) {
+					break;
+				}
+				rs485_set_mode_send();
+				rs485_master_send(1);
+				tries++;
+			}
+		}
+
+		if(tries == 2000) {
+			continue;
+		}
+
+		for(uint8_t i = com_last_ext_id[extension] + 1; i <= ser->stack_id_upto; i++) {
+			master_routing_table[i] = slave_address;
+		}
+
+		com_last_ext_id[extension] = ser->stack_id_upto;
+		logrsi("last ext id %d for slave/ext %d/%d\n\r", ser->stack_id_upto, slave_address, extension);
+	}
+
 }
 
 void master_create_routing_table_chibi(uint8_t extension) {
@@ -146,7 +205,9 @@ void master_create_routing_table_extensions(void) {
 			}
 
 			case COM_RS485: {
-				master_create_routing_table_rs485(i);
+				if(rs485_type == RS485_TYPE_MASTER) {
+					master_create_routing_table_rs485(i);
+				}
 
 				break;
 			}

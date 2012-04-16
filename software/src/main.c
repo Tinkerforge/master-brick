@@ -50,6 +50,9 @@
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
 #include "extensions/rs485/rs485.h"
+#include "extensions/rs485/rs485_config.h"
+#include "extensions/rs485/rs485_slave.h"
+#include "extensions/rs485/rs485_master.h"
 #include "extensions/extension_init.h"
 
 extern uint8_t com_last_stack_address;
