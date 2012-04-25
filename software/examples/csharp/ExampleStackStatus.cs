@@ -10,9 +10,8 @@ class Example
 	{
 		IPConnection ipcon = new IPConnection(HOST, PORT); // Create connection to brickd
 		BrickMaster master = new BrickMaster(UID); // Create device object
-		ipcon.AddDevice(master); // Add device to ip connection
+		ipcon.AddDevice(master); // Add device to IP connection
 		// Don't use device before it is added to a connection
-
 
 		// Get voltage and current from stack (in mV/mA)
 		ushort voltage;
@@ -25,5 +24,5 @@ class Example
 
 		System.Console.WriteLine("Press ctrl+c to exit");
 		ipcon.JoinThread();
-    }
+	}
 }
