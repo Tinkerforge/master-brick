@@ -14,10 +14,8 @@ class Example
 		// Don't use device before it is added to a connection
 
 		// Get voltage and current from stack (in mV/mA)
-		ushort voltage;
-		ushort current;
-		master.GetStackVoltage(out voltage);
-		master.GetStackCurrent(out current);
+		ushort voltage = master.GetStackVoltage();
+		ushort current = master.GetStackCurrent();
 
 		System.Console.WriteLine("Stack Voltage: " + voltage/1000.0 + " V");
 		System.Console.WriteLine("Stack Current: " + current/1000.0 + " A");
