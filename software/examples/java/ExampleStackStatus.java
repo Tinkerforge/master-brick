@@ -2,10 +2,10 @@ import com.tinkerforge.BrickMaster;
 import com.tinkerforge.IPConnection;
 
 public class ExampleStackStatus {
-	private static final String host = new String("localhost");
+	private static final String host = "localhost";
 	private static final int port = 4223;
-	private static final String UID = new String("apaYPbNgTw3"); // Change to your UID
-	
+	private static final String UID = "apaYPbNgTw3"; // Change to your UID
+
 	// Note: To make the example code cleaner we do not handle exceptions. Exceptions you
 	//       might normally want to catch are described in the commnents below
 	public static void main(String args[]) throws Exception {
