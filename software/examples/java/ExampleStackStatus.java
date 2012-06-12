@@ -24,7 +24,7 @@ public class ExampleStackStatus {
 		System.out.println("Stack Voltage: " + voltage/1000.0 + " V");
 		System.out.println("Stack Current: " + current/1000.0 + " A");
 
-		System.out.println("Press ctrl+c to exit");
-		ipcon.joinThread();
+		System.console().readLine("Press key to exit\n");
+		ipcon.destroy();
 	}
 }

@@ -27,7 +27,6 @@ int main() {
 	}
 	// Don't use device before it is added to a connection
 
-
 	// Get voltage and current from stack (in mV/mA)
 	uint16_t voltage; 
 	master_get_stack_voltage(&master, &voltage);
@@ -37,6 +36,7 @@ int main() {
 	printf("Stack Voltage: %f V\n", voltage/1000.0);
 	printf("Stack Current: %f V\n", current/1000.0);
 
-	printf("Press ctrl+c to close\n");
-	ipcon_join_thread(&ipcon); // Join mainloop of IP connection
+	printf("Press key to exit\n");
+	getchar();
+	ipcon_destroy(&ipcon);
 }
