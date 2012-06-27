@@ -144,11 +144,7 @@ uint8_t extension_init(void) {
 
 				case EXTENSION_TYPE_RS485: {
 					com_ext[i] = COM_RS485;
-					if(usb_is_connected()) {
-						rs485_master_init();
-					} else {
-						rs485_slave_init();
-					}
+					rs485_init_masterslave(i);
 
 					break;
 				}
@@ -320,7 +316,6 @@ void extension_stack_id(uint8_t com, const GetStackID *data) {
 				break;
 			}
 			case COM_RS485: {
-				led_on(LED_STD_RED);
 				extension_stack_id_rs485(com, data, com_num);
 				break;
 			}

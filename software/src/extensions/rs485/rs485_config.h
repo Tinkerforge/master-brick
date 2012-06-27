@@ -22,7 +22,11 @@
 #ifndef RS485_CONFIG_H
 #define RS485_CONFIG_H
 
-#define BAUDRATE_RS485 256000
+#include "bricklib/logging/logging.h"
+
+#define DEBUG_RS485 1
+
+#define RS485_BAUDRATE 2000000
 #define RS485_MAX_DATA_LENGTH 64
 #define RS485_BUFFER_SIZE RS485_MAX_DATA_LENGTH
 
@@ -30,7 +34,7 @@
 #define PIN_RS485_TXD  {1 << 22, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 #define PIN_RS485_RTS  {1 << 24, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 
-#define PIN_RS485_RECV {1 << 9, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT};
+#define PIN_RS485_RECV {1 << 9, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}
 
 #define USART_RS485    USART1
 #define ID_RS485       ID_USART1
@@ -44,6 +48,10 @@
 #define RS485_TYPE_NONE    0
 #define RS485_TYPE_MASTER  1
 #define RS485_TYPE_SLAVE   2
+
+#define RS485_OK           1
+#define RS485_NOK          0xFE
+#define RS485_NOK_SEND     0x7F
 
 #define RS485_NUM_SLAVE_ADDRESS  32
 

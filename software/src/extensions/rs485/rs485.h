@@ -25,11 +25,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef struct {
+	uint32_t speed;
+	char parity;
+	uint8_t stopbits;
+} __attribute__((__packed__)) RS485Config;
+
+void rs485_init_masterslave(uint8_t extension);
 bool rs485_init(void);
 uint16_t rs485_send(const void *data, const uint16_t length);
 uint16_t rs485_recv(void *data, const uint16_t length);
-
-void rs485_set_mode_receive(void);
-void rs485_set_mode_send(void);
+uint8_t rs485_get_receiver_address(uint8_t stack_id);
 
 #endif

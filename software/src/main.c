@@ -59,7 +59,7 @@ extern uint8_t com_last_stack_address;
 extern uint8_t master_mode;
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
-	logf("Stack Overflow");
+	logf("Stack Overflow\n\r");
 	while(true);
 }
 
@@ -76,7 +76,6 @@ void blinkenlights(const uint8_t length) {
 		}
     }
 }
-
 
 int main() {
 	Pin twi_stack_pullup_master_pins[] = {PINS_TWI_PULLUP_MASTER};
@@ -103,7 +102,6 @@ int main() {
 
     logsi("Bricklets initialized\n\r");
     master_init();
-
 
     if(PIO_Get(&pin_master_detect)) {
 		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));

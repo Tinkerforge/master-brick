@@ -25,6 +25,7 @@
 #include "bricklib/com/com_common.h"
 #include "extensions/chibi/chibi_config.h"
 #include "extensions/chibi/chibi_low_level.h"
+#include "extensions/rs485/rs485_config.h"
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
 
@@ -36,6 +37,11 @@ extern uint16_t chibi_no_ack;
 extern uint16_t chibi_overflow;
 extern uint8_t chibi_frequency_mode;
 extern uint8_t chibi_channel;
+
+extern uint16_t rs485_error_crc;
+extern uint32_t rs485_config_speed;
+extern char rs485_config_parity;
+extern uint8_t rs485_config_stopbits;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -327,4 +333,144 @@ void get_chibi_channel(uint8_t com, const GetChibiChannel *data) {
 
 	send_blocking_with_timeout(&gccr, sizeof(GetChibiChannelReturn), com);
 	logchibii("get_chibi_channel: %d\n\r", gccr.channel);
+}
+
+void is_rs485_present(uint8_t com, const IsRS485Present *data) {
+	IsRS485PresentReturn irpr;
+
+	irpr.stack_id      = data->stack_id;
+	irpr.type          = data->type;
+	irpr.length        = sizeof(IsRS485PresentReturn);
+	irpr.present       = com_ext[0] == COM_RS485 || com_ext[1] == COM_RS485;
+
+	send_blocking_with_timeout(&irpr, sizeof(IsRS485PresentReturn), com);
+	logrsi("is_rs485_present: %d\n\r", irpr.present);
+}
+
+void set_rs485_address(uint8_t com, const SetRS485Address *data) {
+	uint8_t extension;
+	if(com_ext[0] == COM_RS485) {
+		extension = 0;
+	} else if(com_ext[1] == COM_RS485) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	extension_set_address(extension, data->address);
+	logrsi("set_rs485_address: %d\n\r", data->address);
+}
+
+void get_rs485_address(uint8_t com, const GetRS485Address *data) {
+	GetRS485AddressReturn grar;
+
+	uint8_t extension;
+	if(com_ext[0] == COM_RS485) {
+		extension = 0;
+	} else if(com_ext[1] == COM_RS485) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	grar.stack_id      = data->stack_id;
+	grar.type          = data->type;
+	grar.length        = sizeof(GetRS485AddressReturn);
+	grar.address       = extension_get_address(extension);
+
+	send_blocking_with_timeout(&grar, sizeof(GetRS485AddressReturn), com);
+	logrsi("get_rs485_address: %d\n\r", grar.address);
+}
+
+void set_rs485_slave_address(uint8_t com, const SetRS485SlaveAddress *data) {
+	uint8_t extension;
+	if(com_ext[0] == COM_RS485) {
+		extension = 0;
+	} else if(com_ext[1] == COM_RS485) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	extension_set_slave_address(extension, data->num, data->address);
+	logrsi("set_rs485_slave_address: %d, %d\n\r", data->num, data->address);
+}
+
+void get_rs485_slave_address(uint8_t com, const GetRS485SlaveAddress *data) {
+	GetRS485SlaveAddressReturn grsar;
+
+	uint8_t extension;
+	if(com_ext[0] == COM_RS485) {
+		extension = 0;
+	} else if(com_ext[1] == COM_RS485) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	grsar.stack_id      = data->stack_id;
+	grsar.type          = data->type;
+	grsar.length        = sizeof(GetRS485SlaveAddressReturn);
+	grsar.address       = extension_get_slave_address(extension, data->num);
+
+	send_blocking_with_timeout(&grsar, sizeof(GetRS485SlaveAddressReturn), com);
+	logrsi("get_rs485_slave_address: %d, %d\n\r", data->num, grsar.address);
+}
+
+void get_rs485_error_log(uint8_t com, const GetRS485ErrorLog *data) {
+	GetRS485ErrorLogReturn grelr;
+
+	grelr.stack_id        = data->stack_id;
+	grelr.type            = data->type;
+	grelr.length          = sizeof(GetRS485ErrorLogReturn);
+	grelr.crc_error       = rs485_error_crc;
+
+	send_blocking_with_timeout(&grelr, sizeof(GetRS485ErrorLogReturn), com);
+}
+
+void set_rs485_configuration(uint8_t com, const SetRS485Configuration *data) {
+	uint8_t extension;
+	if(com_ext[0] == COM_RS485) {
+		extension = 0;
+	} else if(com_ext[1] == COM_RS485) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	extension_i2c_write(extension, EXTENSION_POS_ANY, (char*)&data->speed, 6);
+
+	logrsi("set_rs485_configuration: %d, %c, %d\n\r", data->speed,
+	                                                  data->parity,
+	                                                  data->stopbits);
+}
+
+void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data) {
+	uint8_t extension;
+	if(com_ext[0] == COM_RS485) {
+		extension = 0;
+	} else if(com_ext[1] == COM_RS485) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	GetRS485ConfigurationReturn grcr;
+
+	grcr.stack_id        = data->stack_id;
+	grcr.type            = data->type;
+	grcr.length          = sizeof(GetRS485ConfigurationReturn);
+	extension_i2c_read(extension, EXTENSION_POS_ANY, (char*)&grcr.speed, 6);
+
+	send_blocking_with_timeout(&grcr, sizeof(GetRS485ConfigurationReturn), com);
+
+	logrsi("get_rs485_configuration: %d, %c, %d\n\r", grcr.speed,
+	                                                  grcr.parity,
+	                                                  grcr.stopbits);
 }

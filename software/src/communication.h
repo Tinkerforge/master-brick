@@ -43,6 +43,15 @@
 #define TYPE_GET_CHIBI_FREQUENCY 15
 #define TYPE_SET_CHIBI_CHANNEL 16
 #define TYPE_GET_CHIBI_CHANNEL 17
+#define TYPE_IS_RS485_PRESENT 18
+#define TYPE_SET_RS485_ADDRESS 19
+#define TYPE_GET_RS485_ADDRESS 20
+#define TYPE_SET_RS485_SLAVE_ADDRESS 21
+#define TYPE_GET_RS485_SLAVE_ADDRESS 22
+#define TYPE_GET_RS485_ERROR_LOG 23
+#define TYPE_SET_RS485_CONFIGURATION 24
+#define TYPE_GET_RS485_CONFIGURATION 25
+
 
 #define COM_MESSAGES_USER \
 	{TYPE_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -62,6 +71,14 @@
 	{TYPE_GET_CHIBI_FREQUENCY, (message_handler_func_t)get_chibi_frequency}, \
 	{TYPE_SET_CHIBI_CHANNEL, (message_handler_func_t)set_chibi_channel}, \
 	{TYPE_GET_CHIBI_CHANNEL, (message_handler_func_t)get_chibi_channel}, \
+	{TYPE_IS_RS485_PRESENT, (message_handler_func_t)is_rs485_present}, \
+	{TYPE_SET_RS485_ADDRESS, (message_handler_func_t)set_rs485_address}, \
+	{TYPE_GET_RS485_ADDRESS, (message_handler_func_t)get_rs485_address}, \
+	{TYPE_SET_RS485_SLAVE_ADDRESS, (message_handler_func_t)set_rs485_slave_address}, \
+	{TYPE_GET_RS485_SLAVE_ADDRESS, (message_handler_func_t)get_rs485_slave_address}, \
+	{TYPE_GET_RS485_ERROR_LOG, (message_handler_func_t)get_rs485_error_log}, \
+	{TYPE_SET_RS485_CONFIGURATION, (message_handler_func_t)set_rs485_configuration}, \
+	{TYPE_GET_RS485_CONFIGURATION, (message_handler_func_t)get_rs485_configuration}, \
 
 
 typedef struct {
@@ -256,6 +273,98 @@ typedef struct {
 	uint8_t channel;
 } __attribute__((__packed__)) GetChibiChannelReturn;
 
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) IsRS485Present;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	bool present;
+} __attribute__((__packed__)) IsRS485PresentReturn;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t address;
+} __attribute__((__packed__)) SetRS485Address;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetRS485Address;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t address;
+} __attribute__((__packed__)) GetRS485AddressReturn;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t num;
+	uint8_t address;
+} __attribute__((__packed__)) SetRS485SlaveAddress;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t num;
+} __attribute__((__packed__)) GetRS485SlaveAddress;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t address;
+} __attribute__((__packed__)) GetRS485SlaveAddressReturn;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetRS485ErrorLog;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint16_t crc_error;
+} __attribute__((__packed__)) GetRS485ErrorLogReturn;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint32_t speed;
+	char parity;
+	uint8_t stopbits;
+} __attribute__((__packed__)) SetRS485Configuration;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetRS485Configuration;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint32_t speed;
+	char parity;
+	uint8_t stopbits;
+} __attribute__((__packed__)) GetRS485ConfigurationReturn;
+
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data);
 void get_stack_current(uint8_t com, const GetStackCurrent *data);
 void set_extension_type(uint8_t com, const SetExtensionType *data);
@@ -273,5 +382,13 @@ void set_chibi_frequency(uint8_t com, const SetChibiFrequency *data);
 void get_chibi_frequency(uint8_t com, const GetChibiFrequency *data);
 void set_chibi_channel(uint8_t com, const SetChibiChannel *data);
 void get_chibi_channel(uint8_t com, const GetChibiChannel *data);
+void is_rs485_present(uint8_t com, const IsRS485Present *data);
+void set_rs485_address(uint8_t com, const SetRS485Address *data);
+void get_rs485_address(uint8_t com, const GetRS485Address *data);
+void set_rs485_slave_address(uint8_t com, const SetRS485SlaveAddress *data);
+void get_rs485_slave_address(uint8_t com, const GetRS485SlaveAddress *data);
+void get_rs485_error_log(uint8_t com, const GetRS485ErrorLog *data);
+void set_rs485_configuration(uint8_t com, const SetRS485Configuration *data);
+void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data);
 
 #endif

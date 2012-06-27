@@ -24,12 +24,14 @@
 #include "config.h"
 #include "rs485.h"
 #include "rs485_config.h"
+#include "rs485_low_level.h"
 
 #include "bricklib/com/com.h"
 #include "bricklib/com/com_common.h"
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/utility/pearson_hash.h"
+#include "bricklib/utility/util_definitions.h"
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -40,84 +42,101 @@ extern uint8_t rs485_buffer_recv[];
 extern uint8_t rs485_buffer_send[];
 extern uint16_t rs485_buffer_size_send;
 extern uint16_t rs485_buffer_size_recv;
+
 extern uint8_t rs485_mode;
 extern uint8_t rs485_type;
+extern uint8_t rs485_address;
 
+extern uint8_t master_routing_table[];
 extern uint8_t rs485_slave_address[];
+extern uint8_t rs485_last_sequence_number;
+
+uint16_t rs485_master_recv_counter = 3;
+xTaskHandle rs485_handle_master_message_loop;
+xTaskHandle rs485_handle_master_state_machine_loop;
 
 void rs485_master_init(void) {
 	logrsi("Master init\n\r");
+
+	if(rs485_slave_address[0] == 0) {
+		return;
+	}
+
     rs485_init();
-    rs485_set_mode_receive();
 
 	xTaskCreate(rs485_master_state_machine_loop,
 				(signed char *)"rs_sm",
 				1000,
 				NULL,
 				1,
-				(xTaskHandle *)NULL);
+				&rs485_handle_master_state_machine_loop);
 
 	xTaskCreate(rs485_master_message_loop,
 				(signed char *)"rsm_ml",
-				2000,
+				1000,
 				NULL,
 				1,
-				(xTaskHandle *)NULL);
+				&rs485_handle_master_message_loop);
 
-	rs485_slave_address[0] = 1;
 	rs485_type = RS485_TYPE_MASTER;
 }
 
+extern bool rs485_low_level_buffer_ack;
 void rs485_master_state_machine_loop(void *arg) {
-	uint8_t rs485_address_counter = 1;
+	if(rs485_slave_address[0] == 0) {
+		return;
+	}
+
+	unsigned long last_wake_time = xTaskGetTickCount();
+	uint8_t rs485_address_counter = 0;
     while(true) {
+		// 1ms resolution
+		unsigned long tick_count = xTaskGetTickCount();
+		if(tick_count > last_wake_time + 2) {
+			last_wake_time = tick_count - 1;
+		}
+
+    	vTaskDelayUntil(&last_wake_time, 1);
+
+    	// If buffer full, don't ask for stuff. Otherwise we will just trigger
+    	// unnecessary timeouts
+    	if(rs485_buffer_size_recv != 0) {
+    		continue;
+    	}
+
+    	if(rs485_master_recv_counter > 0) {
+    		rs485_master_recv_counter--;
+    	} else {
+    		// Oooops, something went wrong, we were in recv mode for
+    		// longer then 3ms.
+    		rs485_low_level_set_mode_send_from_task();
+    	}
+
     	if(rs485_mode == RS485_MODE_SEND) {
+    		rs485_master_recv_counter = 3;
 			// As long as receive buffer is not empty do nothing
 			if(rs485_buffer_size_recv == 0) {
 				// Nothing to send just ask for stuff
 				if(rs485_buffer_size_send == 0) {
-					rs485_master_send(rs485_address_counter);
+			    	uint8_t address = rs485_slave_address[rs485_address_counter];
+			    	if(address == 0) {
+			    		rs485_address_counter = 0;
+			    		address = rs485_slave_address[0];
+			    	}
+
+			    	rs485_address = address;
+					rs485_low_level_send(address, rs485_last_sequence_number+1, false);
+					rs485_address_counter++;
+
 				// Send message and ask for stuff
 				} else {
-					rs485_master_send(rs485_address_counter);
+					uint8_t address = master_routing_table[rs485_buffer_send[0]];
+			    	rs485_address = address;
+					rs485_low_level_send(address, rs485_last_sequence_number+1, false);
 				}
-
-				//rs485_address_counter++;
 			}
     	}
-    	taskYIELD();
     }
-}
-
-void rs485_master_send(uint8_t address) {
-	uint8_t checksum = 0;
-    while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0);
-    USART_RS485->US_THR = 0xFF;
-    while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0);
-    USART_RS485->US_THR = 0xFF;
-    while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0);
-    USART_RS485->US_THR = 0xFF;
-
-    while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0);
-    if(rs485_buffer_size_send == 0) {
-    	USART_RS485->US_THR = address | (1 << 7);
-    	PEARSON(checksum, (address | (1 << 7)));
-    } else {
-    	USART_RS485->US_THR = address;
-    	PEARSON(checksum, address);
-    }
-
-    for(uint8_t i = 0; i < rs485_buffer_size_send; i++) {
-        while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0);
-        USART_RS485->US_THR = rs485_buffer_send[i];
-        PEARSON(checksum, rs485_buffer_send[i]);
-    }
-
-    while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0);
-    USART_RS485->US_THR = checksum;
-
-    rs485_buffer_size_send = 0;
-    rs485_set_mode_receive();
 }
 
 void rs485_master_message_loop(void *parameters) {

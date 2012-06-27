@@ -68,6 +68,9 @@ void chibi_init_masterslave(uint8_t extension) {
 	// TODO: initialize chibi pins according to extension
 
 	if(chibi_address == chibi_master_address) {
+		if(chibi_slave_address[0] == 0) {
+			return;
+		}
 		chibi_master_init();
 	} else {
 		chibi_slave_init();

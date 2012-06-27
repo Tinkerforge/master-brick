@@ -29,6 +29,7 @@
 #include "bricklib/com/spi/spi_stack/spi_stack_common.h"
 #include "bricklib/com/spi/spi_stack/spi_stack_select.h"
 #include "bricklib/drivers/adc/adc.h"
+#include "bricklib/drivers/usart/usart.h"
 #include "bricklib/logging/logging.h"
 #include "bricklib/utility/util_definitions.h"
 
@@ -38,6 +39,7 @@
 #include "extensions/chibi/chibi_low_level.h"
 #include "extensions/rs485/rs485_config.h"
 #include "extensions/rs485/rs485_master.h"
+#include "extensions/rs485/rs485_low_level.h"
 
 #include "config.h"
 
@@ -56,10 +58,17 @@ extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_type;
 
 extern uint8_t rs485_slave_address[];
+extern uint8_t rs485_address;
 extern uint8_t rs485_type;
+extern uint8_t rs485_mode;
 
 extern uint16_t chibi_wait_for_recv;
 extern uint16_t spi_stack_buffer_size_recv;
+extern uint8_t rs485_buffer_size_send;
+extern uint8_t rs485_last_sequence_number;
+
+extern xTaskHandle rs485_handle_master_message_loop;
+extern xTaskHandle rs485_handle_master_state_machine_loop;
 
 bool chibi_enumerate_ready = false;
 
@@ -77,9 +86,15 @@ void master_create_routing_table_rs485(uint8_t extension) {
 	logrsi("Start routing table creation\n\r");
 	com_last_ext_id[extension] = com_last_spi_stack_id;
 
-	for(uint8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
+	for(int8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
 		uint8_t slave_address = rs485_slave_address[i];
 		if(slave_address == 0) {
+			if(rs485_slave_address[0] == 0) {
+				logrsi("Couldn't find any bus participants\n\r");
+				vTaskDelete(rs485_handle_master_message_loop);
+				vTaskDelete(rs485_handle_master_state_machine_loop);
+			}
+			rs485_buffer_size_send = 0;
 			return;
 		}
 
@@ -95,9 +110,11 @@ void master_create_routing_table_rs485(uint8_t extension) {
 		tries = 0;
 		master_routing_table[0] = slave_address;
 
+		USART_DisableIt(USART_RS485, US_IER_RXRDY);
 		rs485_send(&se, sizeof(StackEnumerate));
-		rs485_set_mode_send();
-		rs485_master_send(1);
+		rs485_low_level_set_mode_send_from_task();
+		rs485_address = slave_address;
+		rs485_low_level_send(slave_address, 1, false);
 
 		master_routing_table[0] = 0;
 
@@ -105,19 +122,30 @@ void master_create_routing_table_rs485(uint8_t extension) {
 		StackEnumerateReturn *ser = (StackEnumerateReturn*)data;
 
 		tries = 0;
-		while(tries < 2000) {
-			SLEEP_US(10);
+		while(tries < 200) {
+			SLEEP_US(200);
 			if(rs485_recv(ser, 64)) {
 				if(ser->type == TYPE_STACK_ENUMERATE) {
 					break;
 				}
-				rs485_set_mode_send();
-				rs485_master_send(1);
-				tries++;
+				rs485_low_level_set_mode_send_from_task();
+			}
+			tries++;
+
+			if(rs485_mode == RS485_MODE_SEND) {
+				rs485_low_level_send(slave_address, rs485_last_sequence_number+1, false);
 			}
 		}
 
-		if(tries == 2000) {
+		if(tries == 200) {
+			for(uint8_t j = i; j < RS485_NUM_SLAVE_ADDRESS-1; j++) {
+				rs485_slave_address[j] = rs485_slave_address[j+1];
+			}
+			rs485_slave_address[RS485_NUM_SLAVE_ADDRESS-1] = 0;
+
+			i--;
+
+			logrsi("Reached 200 tries, couldn't find %d\n\r", com_last_ext_id[extension] + 1);
 			continue;
 		}
 
@@ -128,13 +156,12 @@ void master_create_routing_table_rs485(uint8_t extension) {
 		com_last_ext_id[extension] = ser->stack_id_upto;
 		logrsi("last ext id %d for slave/ext %d/%d\n\r", ser->stack_id_upto, slave_address, extension);
 	}
-
 }
 
 void master_create_routing_table_chibi(uint8_t extension) {
 	com_last_ext_id[extension] = com_last_spi_stack_id;
 
-	for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
+	for(int8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
 		uint8_t slave_address = chibi_slave_address[i];
 		if(slave_address == 0) {
 			return;
@@ -179,6 +206,13 @@ void master_create_routing_table_chibi(uint8_t extension) {
 		}
 
 		if(tries == 2000) {
+			for(uint8_t j = i; j < CHIBI_NUM_SLAVE_ADDRESS-1; j++) {
+				chibi_slave_address[j] = chibi_slave_address[j+1];
+			}
+			chibi_slave_address[CHIBI_NUM_SLAVE_ADDRESS-1] = 0;
+
+			i--;
+
 			logspisw("Did not receive answer for Stack Enumerate (chibi)\n\r");
 			continue;
 		}
