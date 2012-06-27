@@ -96,5 +96,6 @@ uint16_t rs485_low_level_get_length_from_message(const uint8_t *data);
 uint16_t rs485_low_level_get_crc_from_message(const uint8_t *data);
 uint16_t rs485_low_level_crc16(uint8_t *data, uint8_t length);
 void rs485_low_level_read_buffer(void *buffer, uint32_t size);
+void rs485_low_level_resync(void);
 
 #endif

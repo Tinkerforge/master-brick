@@ -226,7 +226,8 @@ void rs485_low_level_handle_message(uint8_t *data) {
 	// If the CRC is wrong we force timeout
 	if(crc16 != rs485_low_level_get_crc_from_message(data)) {
 		rs485_error_crc++;
-		rs485_low_level_recv();
+		logrse("CRC Error: %d\n\r", rs485_error_crc);
+		rs485_low_level_resync();
 		return;
 	}
 
@@ -351,6 +352,11 @@ void USART1_IrqHandler() {
 				} else {
 					rs485_state = RS485_STATE_RECV_DATA_END;
 					const uint16_t length = rs485_low_level_get_length_from_message(rs485_low_level_buffer_recv);
+					// TODO: What is the right thing to do here? Something is definately wrong!
+					if(length > 64) {
+						rs485_low_level_resync();
+						return;
+					}
 					const uint16_t length_ro_read = length -9 +3 +2;
 					rs485_low_level_read_buffer(&rs485_low_level_buffer_recv[9],
 					                            length_ro_read);
@@ -386,4 +392,26 @@ uint16_t rs485_low_level_crc16(uint8_t *data, uint8_t length) {
     }
 
     return (uint16_t)(high << 8 | low);
+}
+
+void rs485_low_level_resync(void) {
+	USART_RS485->US_IDR = 0xFFFFFFFF;
+	PIO_Clear(&pin_rs485_low_level_recv);
+
+	volatile uint8_t data;
+
+	while(true) {
+		uint16_t counter = 5000;
+		while(((USART_RS485->US_CSR & US_CSR_RXRDY) != US_CSR_RXRDY) && --counter);
+		if(counter == 0) {
+			if(rs485_type == RS485_TYPE_MASTER) {
+				rs485_low_level_set_mode_send_from_task();
+			} else {
+				rs485_low_level_recv();
+			}
+			return;
+		}
+
+		data = USART1->US_RHR;
+	}
 }

@@ -284,6 +284,7 @@ void extension_stack_id_rs485(uint8_t com, const GetStackID *data, uint8_t com_n
 
 	for(uint8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
 		uint8_t slave_address = rs485_slave_address[i];
+		logrsi("Extension Get Stack %d\n\r", slave_address);
 		if(slave_address == 0) {
 			return;
 		}
@@ -295,6 +296,7 @@ void extension_stack_id_rs485(uint8_t com, const GetStackID *data, uint8_t com_n
 				break;
 			}
 		}
+		logrsi("Extension Get Stack ID %d %d\n\r", id, com_last_ext_id[com_num]);
 
 		if(id <= com_last_ext_id[com_num]) {
 			GetStackID gsid = {

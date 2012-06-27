@@ -12,3 +12,4 @@
 1.1.7: Fix several Chibi bugs:
  - check sequence number to eliminate duplicates
  - different negotiation of send and recv states (now more messages from master to slave possible shoud be possible)
+1.2.0: Add RS485 support

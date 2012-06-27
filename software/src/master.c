@@ -110,11 +110,12 @@ void master_create_routing_table_rs485(uint8_t extension) {
 		tries = 0;
 		master_routing_table[0] = slave_address;
 
+		uint8_t sequence_number = 1;
 		USART_DisableIt(USART_RS485, US_IER_RXRDY);
 		rs485_send(&se, sizeof(StackEnumerate));
 		rs485_low_level_set_mode_send_from_task();
 		rs485_address = slave_address;
-		rs485_low_level_send(slave_address, 1, false);
+		rs485_low_level_send(slave_address, sequence_number, false);
 
 		master_routing_table[0] = 0;
 
@@ -122,6 +123,8 @@ void master_create_routing_table_rs485(uint8_t extension) {
 		StackEnumerateReturn *ser = (StackEnumerateReturn*)data;
 
 		tries = 0;
+		uint8_t tries_resend = 0;
+
 		while(tries < 200) {
 			SLEEP_US(200);
 			if(rs485_recv(ser, 64)) {
@@ -134,6 +137,16 @@ void master_create_routing_table_rs485(uint8_t extension) {
 
 			if(rs485_mode == RS485_MODE_SEND) {
 				rs485_low_level_send(slave_address, rs485_last_sequence_number+1, false);
+			} else {
+				tries_resend++;
+				if(tries_resend == 5) {
+					USART_DisableIt(USART_RS485, US_IER_RXRDY);
+					rs485_send(&se, sizeof(StackEnumerate));
+					rs485_low_level_set_mode_send_from_task();
+					rs485_address = slave_address;
+					rs485_low_level_send(slave_address, ++sequence_number, false);
+					tries_resend = 0;
+				}
 			}
 		}
 
@@ -145,7 +158,7 @@ void master_create_routing_table_rs485(uint8_t extension) {
 
 			i--;
 
-			logrsi("Reached 200 tries, couldn't find %d\n\r", com_last_ext_id[extension] + 1);
+			logrsi("Reached 200 tries, couldn't find %d\n\r", slave_address);
 			continue;
 		}
 
