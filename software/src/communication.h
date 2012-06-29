@@ -52,7 +52,6 @@
 #define TYPE_SET_RS485_CONFIGURATION 24
 #define TYPE_GET_RS485_CONFIGURATION 25
 
-
 #define COM_MESSAGES_USER \
 	{TYPE_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
 	{TYPE_GET_STACK_CURRENT, (message_handler_func_t)get_stack_current}, \
@@ -79,7 +78,6 @@
 	{TYPE_GET_RS485_ERROR_LOG, (message_handler_func_t)get_rs485_error_log}, \
 	{TYPE_SET_RS485_CONFIGURATION, (message_handler_func_t)set_rs485_configuration}, \
 	{TYPE_GET_RS485_CONFIGURATION, (message_handler_func_t)get_rs485_configuration}, \
-
 
 typedef struct {
 	uint8_t stack_id;
@@ -364,6 +362,7 @@ typedef struct {
 	char parity;
 	uint8_t stopbits;
 } __attribute__((__packed__)) GetRS485ConfigurationReturn;
+
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data);
 void get_stack_current(uint8_t com, const GetStackCurrent *data);
