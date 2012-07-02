@@ -31,7 +31,6 @@ INCLUDE_DIRECTORIES(
 SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/communication.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/logging/logging.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/drivers/cmsis/core_cm3.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/drivers/crc/crc.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/drivers/dacc/dacc.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/drivers/pwmc/pwmc.c"
