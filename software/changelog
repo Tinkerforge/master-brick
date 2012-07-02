@@ -14,3 +14,4 @@
  - different negotiation of send and recv states (now more messages from master to slave possible shoud be possible)
 1.2.0: Add RS485 support
 1.2.1: Add get_temperature and reset function
+1.2.2: Add USB hotplug support (through bricklib)
