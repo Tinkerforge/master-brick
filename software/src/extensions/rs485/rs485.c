@@ -62,6 +62,15 @@ RS485Config rs485_config = {
 
 extern uint8_t master_routing_table[];
 
+uint16_t rs485_wait_time(void) {
+	uint16_t t = 4*1000*64*8/9600;
+	if(t < 3) {
+		return 3;
+	}
+
+	return t;
+}
+
 void rs485_init_masterslave(uint8_t extension) {
 	rs485_address = extension_get_address(extension);
 	for(uint8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {

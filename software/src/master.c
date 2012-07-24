@@ -126,7 +126,12 @@ void master_create_routing_table_rs485(uint8_t extension) {
 		uint8_t tries_resend = 0;
 
 		while(tries < 200) {
-			SLEEP_US(200);
+			uint16_t s = rs485_wait_time()/10;
+			if(s < 3) {
+				SLEEP_MS(3);
+			} else {
+				SLEEP_MS(s);
+			}
 			if(rs485_recv(ser, 64)) {
 				if(ser->type == TYPE_STACK_ENUMERATE) {
 					break;

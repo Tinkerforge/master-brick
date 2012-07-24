@@ -53,6 +53,10 @@
 #include "extensions/rs485/rs485_config.h"
 #include "extensions/rs485/rs485_slave.h"
 #include "extensions/rs485/rs485_master.h"
+#include "extensions/wifi/wifi.h"
+#include "extensions/wifi/wifi_config.h"
+#include "extensions/wifi/wifi_command.h"
+#include "extensions/wifi/wifi_data.h"
 #include "extensions/extension_init.h"
 
 extern uint8_t com_last_stack_address;
@@ -96,10 +100,6 @@ int main() {
     // of just nops!
     blinkenlights(1);
 
-#ifdef PROFILING
-    profiling_init();
-#endif
-
     logsi("Bricklets initialized\n\r");
     master_init();
 
@@ -129,6 +129,7 @@ int main() {
 						NULL,
 						1,
 						(xTaskHandle *)NULL);
+
 			logsi("USB initialized\n\r");
     	} else {
     		logsi("No USB connection\n\r");

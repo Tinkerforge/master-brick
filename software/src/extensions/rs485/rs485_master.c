@@ -113,7 +113,7 @@ void rs485_master_state_machine_loop(void *arg) {
     	}
 
     	if(rs485_mode == RS485_MODE_SEND) {
-    		rs485_master_recv_counter = 3;
+    		rs485_master_recv_counter = rs485_wait_time();
 			// As long as receive buffer is not empty do nothing
 			if(rs485_buffer_size_recv == 0) {
 				// Nothing to send just ask for stuff

@@ -31,6 +31,7 @@ typedef struct {
 	uint8_t stopbits;
 } __attribute__((__packed__)) RS485Config;
 
+uint16_t rs485_wait_time(void);
 void rs485_init_masterslave(uint8_t extension);
 bool rs485_init(void);
 uint16_t rs485_send(const void *data, const uint16_t length);
