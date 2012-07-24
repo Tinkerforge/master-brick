@@ -110,7 +110,7 @@ int main() {
 
     	// If we are a Master in the Stack, we have to wait again, so
     	// other Bricks can enumerate there Bricklets
-    	blinkenlights(4);
+    	blinkenlights(5);
     	logsi("Configuring as Stack-Master\n\r");
 
         spi_stack_master_init();
