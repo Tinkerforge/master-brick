@@ -34,7 +34,7 @@ int main() {
 	master_get_stack_current(&master, &current);
 
 	printf("Stack Voltage: %f V\n", voltage/1000.0);
-	printf("Stack Current: %f V\n", current/1000.0);
+	printf("Stack Current: %f A\n", current/1000.0);
 
 	printf("Press key to exit\n");
 	getchar();
