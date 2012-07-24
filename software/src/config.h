@@ -26,6 +26,7 @@
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
 #include "extensions/rs485/rs485.h"
+#include "extensions/wifi/wifi.h"
 #include "extensions/extension_config.h"
 #include "bricklib/drivers/board/sam3s/SAM3S.h"
 
