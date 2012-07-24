@@ -37,6 +37,8 @@
 #include "extensions/rs485/rs485_master.h"
 #include "extensions/rs485/rs485_slave.h"
 
+#include "extensions/wifi/wifi.h"
+
 #include <stdio.h>
 
 extern ComType com_ext[];
@@ -145,6 +147,13 @@ uint8_t extension_init(void) {
 				case EXTENSION_TYPE_RS485: {
 					com_ext[i] = COM_RS485;
 					rs485_init_masterslave(i);
+
+					break;
+				}
+
+				case EXTENSION_TYPE_WIFI: {
+					com_ext[i] = COM_WIFI;
+					wifi_init_extension(i);
 
 					break;
 				}

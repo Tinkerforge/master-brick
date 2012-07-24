@@ -24,11 +24,13 @@
 
 #define COM_EXTENSIONS \
 	{COM_CHIBI, chibi_init, chibi_send, chibi_recv}, \
-	{COM_RS485, rs485_init, rs485_send, rs485_recv},
+	{COM_RS485, rs485_init, rs485_send, rs485_recv}, \
+	{COM_WIFI,  wifi_init,  wifi_send,  wifi_recv},
 
 #define EXTENSION_TYPE_NONE 0
 #define EXTENSION_TYPE_CHIBI 1
 #define EXTENSION_TYPE_RS485 2
+#define EXTENSION_TYPE_WIFI 3
 
 #define EXTENSION_POS_TYPE 0
 #define EXTENSION_POS_ADDRESS 4
