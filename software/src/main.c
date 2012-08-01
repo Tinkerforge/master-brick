@@ -125,7 +125,7 @@ int main() {
 
 			xTaskCreate(usb_message_loop,
 						(signed char *)"usb_ml",
-						2000,
+						MESSAGE_LOOP_SIZE,
 						NULL,
 						1,
 						(xTaskHandle *)NULL);
@@ -138,14 +138,14 @@ int main() {
     	if(com_last_stack_address > 0) {
 			xTaskCreate(spi_stack_master_state_machine_loop,
 						(signed char *)"spi_sm",
-						1000,
+						500,
 						NULL,
 						1,
 						(xTaskHandle *)NULL);
 
 			xTaskCreate(spi_stack_master_message_loop,
 						(signed char *)"spi_ml",
-						1000,
+						MESSAGE_LOOP_SIZE,
 						NULL,
 						1,
 						(xTaskHandle *)NULL);
@@ -160,7 +160,7 @@ int main() {
 
     	xTaskCreate(spi_stack_slave_message_loop,
     			    (signed char *)"spi_ml",
-    			    2500,
+    			    MESSAGE_LOOP_SIZE,
     			    NULL,
     			    1,
     			    (xTaskHandle *)NULL);

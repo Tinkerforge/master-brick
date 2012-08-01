@@ -107,7 +107,7 @@ bool wifi_init(void) {
 
 	xTaskCreate(wifi_message_loop,
 				(signed char *)"wif_ml",
-				1000,
+				MESSAGE_LOOP_SIZE,
 				NULL,
 				1,
 				(xTaskHandle *)NULL);

@@ -44,43 +44,15 @@
 
 #define RS485_MODBUS_FUNCTION_CODE          100
 #define RS485_NO_MESSAGE_BUFFER_SIZE          9
-#define RS485_WAIT_BEFORE_SEND_US            10
 
 #define RS485_BUFFER_NO_ACK 0
 #define RS485_BUFFER_WAIT_FOR_ACK 1
 #define RS485_BUFFER_NO_DATA 2
 
-#define RS485_SEND_BYTE_NO_CHECKSUM(data) do { \
-    while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0); \
-    USART_RS485->US_THR = data; \
-} while(0)
-
-#define RS485_SEND_BYTE_CHECKSUM(data, checksum) do { \
-    while((USART_RS485->US_CSR & US_CSR_TXEMPTY) == 0); \
-    USART_RS485->US_THR = data; \
-    PEARSON(checksum, data); \
-} while(0)
-
-#define RS485_RECV_BYTE_NO_CHECKSUM(data) do { \
-	uint16_t counter = RS485_WAIT; \
-	while(((USART_RS485->US_CSR & US_CSR_RXRDY) != US_CSR_RXRDY) && --counter); \
-	if(counter == 0) { \
-		if(rs485_type == RS485_TYPE_SLAVE) { \
-			USART1->US_IER = US_IER_RXRDY; \
-		} else { \
-			rs485_set_mode_send(); \
-		} \
-		__enable_irq(); \
-		return; \
+#define RS485_WAIT_BEFORE_SEND() do { \
+	for(uint32_t i = 0; i < 4*BOARD_MCK/rs485_config.speed; i++) { \
+		__NOP(); \
 	} \
-	data = USART1->US_RHR; \
-} while(0)
-
-#define RS485_RECV_BYTE_CHECKSUM(data, rs485_checksum) do { \
-	uint16_t counter = RS485_WAIT; \
-	while(((USART_RS485->US_CSR & US_CSR_RXRDY) != US_CSR_RXRDY) && --counter); \
-	data = USART1->US_RHR; \
-	PEARSON(rs485_checksum, data); \
 } while(0)
 
 void rs485_low_level_begin_read(void);

@@ -125,8 +125,13 @@ void master_create_routing_table_rs485(uint8_t extension) {
 		tries = 0;
 		uint8_t tries_resend = 0;
 
-		while(tries < 200) {
-			uint16_t s = rs485_wait_time()/10;
+		uint16_t s = rs485_wait_time()/10;
+		uint16_t max_tries = 200;
+		if(max_tries*s > 1000) {
+			max_tries = 1000/s;
+		}
+
+		while(tries < max_tries) {
 			if(s < 3) {
 				SLEEP_MS(3);
 			} else {
@@ -155,7 +160,7 @@ void master_create_routing_table_rs485(uint8_t extension) {
 			}
 		}
 
-		if(tries == 200) {
+		if(tries == max_tries) {
 			for(uint8_t j = i; j < RS485_NUM_SLAVE_ADDRESS-1; j++) {
 				rs485_slave_address[j] = rs485_slave_address[j+1];
 			}

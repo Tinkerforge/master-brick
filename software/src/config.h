@@ -35,7 +35,7 @@
 #define BRICK_HARDWARE_NAME "Master Brick 1.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
 #define BRICK_FIRMWARE_VERSION_MINOR 2
-#define BRICK_FIRMWARE_VERSION_REVISION 3
+#define BRICK_FIRMWARE_VERSION_REVISION 4
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
@@ -63,6 +63,8 @@
 
 
 // UART for console output (printf)
+//#define CONSOLE_USART_USE_UART1
+
 #define PIN_CONSOLE_RXD  {1 << 21, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 #define PIN_CONSOLE_TXD  {1 << 22, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 
@@ -136,8 +138,11 @@
 #define PIN_SPI_SELECT_MASTER_4 {1 << 0, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
 #define PIN_SPI_SELECT_MASTER_5 {1 << 1, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
 #define PIN_SPI_SELECT_MASTER_6 {1 << 2, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
+#ifndef CONSOLE_USART_USE_UART1
 #define PIN_SPI_SELECT_MASTER_7 {1 << 3, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
+#endif
 
+#ifndef CONSOLE_USART_USE_UART1
 #define PINS_SPI_SELECT_MASTER   PIN_SPI_SELECT_MASTER_0, \
                                  PIN_SPI_SELECT_MASTER_1, \
                                  PIN_SPI_SELECT_MASTER_2, \
@@ -146,7 +151,15 @@
                                  PIN_SPI_SELECT_MASTER_5, \
                                  PIN_SPI_SELECT_MASTER_6, \
                                  PIN_SPI_SELECT_MASTER_7
-
+#else
+#define PINS_SPI_SELECT_MASTER   PIN_SPI_SELECT_MASTER_0, \
+                                 PIN_SPI_SELECT_MASTER_1, \
+                                 PIN_SPI_SELECT_MASTER_2, \
+                                 PIN_SPI_SELECT_MASTER_3, \
+                                 PIN_SPI_SELECT_MASTER_4, \
+                                 PIN_SPI_SELECT_MASTER_5, \
+                                 PIN_SPI_SELECT_MASTER_6
+#endif
 
 // LED
 #define PIN_LED_STD_BLUE    {1 << 18, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}

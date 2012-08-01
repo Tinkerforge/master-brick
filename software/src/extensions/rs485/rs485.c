@@ -82,7 +82,9 @@ void rs485_init_masterslave(uint8_t extension) {
 	}
 
 	extension_i2c_read(extension, EXTENSION_POS_ANY, (char*)&rs485_config, 6);
-	if(rs485_config.speed < 9000 || rs485_config.speed > 4000000) {
+	if(rs485_config.speed < 9600) {
+		rs485_config.speed = 9600;
+	} else if(rs485_config.speed > 4000000) {
 		rs485_config.speed = RS485_BAUDRATE;
 	}
 

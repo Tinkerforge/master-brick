@@ -42,7 +42,7 @@ void chibi_master_init(void) {
 
 	xTaskCreate(chibi_master_message_loop,
 				(signed char *)"chm_ml",
-				2000,
+				MESSAGE_LOOP_SIZE,
 				NULL,
 				1,
 				(xTaskHandle *)NULL);

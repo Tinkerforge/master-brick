@@ -43,6 +43,8 @@ extern uint16_t rs485_buffer_size_recv;
 extern uint8_t rs485_mode;
 extern uint8_t rs485_type;
 extern uint8_t rs485_address;
+extern RS485Config rs485_config;
+extern bool rs485_master_send_empty;
 
 uint8_t rs485_low_level_buffer_send[128];
 uint8_t rs485_low_level_buffer_recv[128];
@@ -113,7 +115,7 @@ void rs485_low_level_send(uint8_t address, uint8_t sequence_number, bool nodata)
 	rs485_low_level_buffer_send[1] = RS485_MODBUS_FUNCTION_CODE;
 	rs485_low_level_buffer_send[2] = sequence_number;
 
-	if(rs485_buffer_size_send == 0 || nodata) {
+	if(rs485_buffer_size_send == 0 || nodata || rs485_master_send_empty) {
 		memset(&rs485_low_level_buffer_send[3], 0, 4);
 
 		uint16_t crc16 = rs485_low_level_crc16(rs485_low_level_buffer_send, 7);
@@ -243,10 +245,10 @@ void rs485_low_level_handle_message(uint8_t *data) {
 		// If sequence number not the same, it is polling
 		if(sequence_number != rs485_last_sequence_number) {
 			if(rs485_type == RS485_TYPE_MASTER) {
-				SLEEP_US(RS485_WAIT_BEFORE_SEND_US);
+				RS485_WAIT_BEFORE_SEND();
 				rs485_low_level_send(rs485_address, sequence_number + 1, true);
 			} else {
-				SLEEP_US(RS485_WAIT_BEFORE_SEND_US);
+				RS485_WAIT_BEFORE_SEND();
 				rs485_low_level_send(rs485_address, sequence_number, false);
 			}
 		// Sequence number is the same, so the message is an ack
@@ -254,7 +256,9 @@ void rs485_low_level_handle_message(uint8_t *data) {
 			// If we waited for an ack, we can set the send buffer size back to 0
 			if(rs485_low_level_buffer_ack & RS485_BUFFER_WAIT_FOR_ACK) {
 				if(!(rs485_low_level_buffer_ack & RS485_BUFFER_NO_DATA)) {
-					rs485_buffer_size_send = 0;
+					if(!rs485_master_send_empty) {
+						rs485_buffer_size_send = 0;
+					}
 				}
 				rs485_low_level_buffer_ack = RS485_BUFFER_NO_ACK;
 
@@ -269,21 +273,22 @@ void rs485_low_level_handle_message(uint8_t *data) {
 				if(rs485_type == RS485_TYPE_MASTER) {
 					rs485_low_level_set_mode_send_from_task();
 				} else {
-					SLEEP_US(RS485_WAIT_BEFORE_SEND_US);
+					RS485_WAIT_BEFORE_SEND();
 					rs485_low_level_send(rs485_address, sequence_number, false);
 				}
 			}
-
-
 		}
 
+		rs485_master_send_empty = false;
 		return;
 	}
 
 	if(rs485_buffer_size_recv == 0) {
 		if(rs485_low_level_buffer_ack & RS485_BUFFER_WAIT_FOR_ACK) {
 			if(!(rs485_low_level_buffer_ack & RS485_BUFFER_NO_DATA)) {
-				rs485_buffer_size_send = 0;
+				if(!rs485_master_send_empty) {
+					rs485_buffer_size_send = 0;
+				}
 			}
 			rs485_low_level_buffer_ack = RS485_BUFFER_NO_ACK;
 		}
@@ -300,7 +305,7 @@ void rs485_low_level_handle_message(uint8_t *data) {
 
 			// The master always sends an ack without data, otherwise
 			// other rs485 participants might not have there turn
-			SLEEP_US(RS485_WAIT_BEFORE_SEND_US);
+			RS485_WAIT_BEFORE_SEND();
 			rs485_low_level_send(rs485_address, sequence_number, true);
 		} else {
 			// If the sequence number is the same, it means that an ack was not
@@ -314,7 +319,7 @@ void rs485_low_level_handle_message(uint8_t *data) {
 
 			// The slave can send ack with or without data, with old
 			// sequence number
-			SLEEP_US(RS485_WAIT_BEFORE_SEND_US);
+			RS485_WAIT_BEFORE_SEND();
 			rs485_low_level_send(rs485_address, sequence_number, false);
 		}
 	// If the recv buffer is full we force a timeout
@@ -323,6 +328,7 @@ void rs485_low_level_handle_message(uint8_t *data) {
 			rs485_low_level_recv();
 		}
 	}
+	rs485_master_send_empty = false;
 }
 
 void USART1_IrqHandler() {
@@ -352,7 +358,7 @@ void USART1_IrqHandler() {
 				} else {
 					rs485_state = RS485_STATE_RECV_DATA_END;
 					const uint16_t length = rs485_low_level_get_length_from_message(rs485_low_level_buffer_recv);
-					// TODO: What is the right thing to do here? Something is definately wrong!
+					// TODO: What is the right thing to do here? Something is definitely wrong!
 					if(length > 64) {
 						rs485_low_level_resync();
 						return;
@@ -401,7 +407,7 @@ void rs485_low_level_resync(void) {
 	volatile uint8_t data;
 
 	while(true) {
-		uint16_t counter = 5000;
+		uint32_t counter = 2*8*BOARD_MCK/rs485_config.speed;
 		while(((USART_RS485->US_CSR & US_CSR_RXRDY) != US_CSR_RXRDY) && --counter);
 		if(counter == 0) {
 			if(rs485_type == RS485_TYPE_MASTER) {

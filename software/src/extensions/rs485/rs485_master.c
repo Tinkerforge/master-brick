@@ -51,9 +51,14 @@ extern uint8_t master_routing_table[];
 extern uint8_t rs485_slave_address[];
 extern uint8_t rs485_last_sequence_number;
 
+extern bool rs485_low_level_buffer_ack;
+extern uint16_t spi_stack_buffer_size_send;
+
 uint16_t rs485_master_recv_counter = 3;
 xTaskHandle rs485_handle_master_message_loop;
 xTaskHandle rs485_handle_master_state_machine_loop;
+
+bool rs485_master_send_empty = false;
 
 void rs485_master_init(void) {
 	logrsi("Master init\n\r");
@@ -66,14 +71,14 @@ void rs485_master_init(void) {
 
 	xTaskCreate(rs485_master_state_machine_loop,
 				(signed char *)"rs_sm",
-				1000,
+				500,
 				NULL,
 				1,
 				&rs485_handle_master_state_machine_loop);
 
 	xTaskCreate(rs485_master_message_loop,
 				(signed char *)"rsm_ml",
-				1000,
+				MESSAGE_LOOP_SIZE,
 				NULL,
 				1,
 				&rs485_handle_master_message_loop);
@@ -81,7 +86,6 @@ void rs485_master_init(void) {
 	rs485_type = RS485_TYPE_MASTER;
 }
 
-extern bool rs485_low_level_buffer_ack;
 void rs485_master_state_machine_loop(void *arg) {
 	if(rs485_slave_address[0] == 0) {
 		return;
@@ -109,6 +113,7 @@ void rs485_master_state_machine_loop(void *arg) {
     	} else {
     		// Oooops, something went wrong, we were in recv mode for
     		// longer then 3ms.
+    		rs485_master_send_empty = true;
     		rs485_low_level_set_mode_send_from_task();
     	}
 
@@ -117,7 +122,7 @@ void rs485_master_state_machine_loop(void *arg) {
 			// As long as receive buffer is not empty do nothing
 			if(rs485_buffer_size_recv == 0) {
 				// Nothing to send just ask for stuff
-				if(rs485_buffer_size_send == 0) {
+				if(rs485_buffer_size_send == 0 || rs485_master_send_empty) {
 			    	uint8_t address = rs485_slave_address[rs485_address_counter];
 			    	if(address == 0) {
 			    		rs485_address_counter = 0;

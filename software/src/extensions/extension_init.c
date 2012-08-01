@@ -305,7 +305,7 @@ void extension_stack_id_rs485(uint8_t com, const GetStackID *data, uint8_t com_n
 				break;
 			}
 		}
-		logrsi("Extension Get Stack ID %d %d\n\r", id, com_last_ext_id[com_num]);
+		logrsi("Extension Get Stack ID %d %d\n\r", id, slave_address);
 
 		if(id <= com_last_ext_id[com_num]) {
 			GetStackID gsid = {
@@ -314,6 +314,7 @@ void extension_stack_id_rs485(uint8_t com, const GetStackID *data, uint8_t com_n
 				sizeof(GetStackID),
 				data->uid
 			};
+
 			send_blocking_with_timeout(&gsid, sizeof(GetStackID), com_ext[com_num]);
 		}
 	}
