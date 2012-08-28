@@ -26,6 +26,7 @@
 #include "extensions/chibi/chibi_config.h"
 #include "extensions/chibi/chibi_low_level.h"
 #include "extensions/rs485/rs485_config.h"
+#include "extensions/wifi/wifi_config.h"
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
 
@@ -473,4 +474,72 @@ void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data) {
 	logrsi("get_rs485_configuration: %d, %c, %d\n\r", grcr.speed,
 	                                                  grcr.parity,
 	                                                  grcr.stopbits);
+}
+
+void is_wifi_present(uint8_t com, const IsWifiPresent *data) {
+	IsWifiPresentReturn iwpr;
+
+	iwpr.stack_id      = data->stack_id;
+	iwpr.type          = data->type;
+	iwpr.length        = sizeof(IsWifiPresentReturn);
+	iwpr.present       = com_ext[0] == COM_WIFI || com_ext[1] == COM_WIFI;
+
+	send_blocking_with_timeout(&iwpr, sizeof(IsWifiPresentReturn), com);
+	logwifii("is_wifi_present: %d\n\r", iwpr.present);
+}
+
+void set_wifi_configuration(uint8_t com, const SetWifiConfiguration *data) {
+	wifi_write_config(((char*)data) + 4,
+	                  sizeof(SetWifiConfiguration)-4,
+	                  WIFI_CONFIGURATION_POS);
+
+	logwifii("set_wifi_configuration: %d, %d.%d.%d.%d:%d\n\r", data->connection,
+	                                                           data->ip[3],
+	                                                           data->ip[2],
+	                                                           data->ip[1],
+	                                                           data->ip[0],
+	                                                           data->port);
+}
+
+void get_wifi_configuration(uint8_t com, const GetWifiConfiguration *data) {
+	GetWifiConfigurationReturn gwcr;
+
+	gwcr.stack_id        = data->stack_id;
+	gwcr.type            = data->type;
+	gwcr.length          = sizeof(GetWifiConfigurationReturn);
+	wifi_read_config(((char*)&gwcr) + 4,
+	                 sizeof(GetWifiConfigurationReturn)-4,
+	                 WIFI_CONFIGURATION_POS);
+
+	send_blocking_with_timeout(&gwcr, sizeof(GetWifiConfigurationReturn), com);
+
+	logwifii("get_wifi_configuration: %d, %d.%d.%d.%d:%d\n\r", gwcr.connection,
+	                                                           gwcr.ip[3],
+	                                                           gwcr.ip[2],
+	                                                           gwcr.ip[1],
+	                                                           gwcr.ip[0],
+	                                                           gwcr.port);
+}
+
+void set_wifi_encryption(uint8_t com, const SetWifiEncryption *data) {
+	wifi_write_config(((char*)data) + 4,
+	                  sizeof(SetWifiEncryption) - 4,
+	                  WIFI_ENCRYPTION_POS);
+
+	logwifii("set_wifi_encryption: %d\n\r", data->encryption);
+}
+
+void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data) {
+	GetWifiEncryptionReturn gwer;
+
+	gwer.stack_id        = data->stack_id;
+	gwer.type            = data->type;
+	gwer.length          = sizeof(GetWifiEncryptionReturn);
+	wifi_read_config(((char*)&gwer) + 4,
+	                 sizeof(GetWifiEncryptionReturn) - 4,
+	                 WIFI_ENCRYPTION_POS);
+
+	send_blocking_with_timeout(&gwer, sizeof(GetWifiEncryptionReturn), com);
+
+	logwifii("get_wifi_encryption: %d\n\r", gwer.encryption);
 }

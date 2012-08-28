@@ -30,7 +30,6 @@
 #include "bricklib/utility/util_definitions.h"
 
 Pin wifi_cs = PIN_WIFI_SPI_CS;
-Pin wifi_wakeup = PIN_WIFI_SPI_WAKEUP;
 
 bool wifi_low_level_is_byte_stuffing(char value) {
 	return ((WIFI_LOW_LEVEL_SPI_ESC_CHAR	          == value) ||

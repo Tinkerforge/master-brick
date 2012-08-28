@@ -343,5 +343,4 @@ void master_create_routing_table_stack(void) {
 }
 
 void tick_task(uint8_t tick_type) {
-
 }

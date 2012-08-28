@@ -22,7 +22,9 @@
 #include "wifi_command.h"
 
 #include <string.h>
+#include <stdio.h>
 
+#include "extensions/extension_i2c.h"
 #include "wifi.h"
 #include "wifi_low_level.h"
 
@@ -43,11 +45,18 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_WRXPS_OFF,
 	WIFI_COMMAND_AT_ATE0,
 	WIFI_COMMAND_AT_ATV0,
+	WIFI_COMMAND_AT_ATV1,
 	WIFI_COMMAND_AT_WWPA,
 	WIFI_COMMAND_AT_WAUTO,
 	WIFI_COMMAND_AT_NAUTO,
 	WIFI_COMMAND_AT_NSTCP,
-	WIFI_COMMAND_AT_WA
+	WIFI_COMMAND_AT_WA,
+	WIFI_COMMAND_AT_NSET,
+	WIFI_COMMAND_AT_WAUTH_WEP,
+	WIFI_COMMAND_AT_WWEP,
+	WIFI_COMMAND_AT_SPICONF,
+	WIFI_COMMAND_AT_WRSSI,
+	WIFI_COMMAND_AT_NSTAT
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -67,19 +76,23 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_WRXPS_OFF)-1,
 	sizeof(WIFI_COMMAND_AT_ATE0)-1,
 	sizeof(WIFI_COMMAND_AT_ATV0)-1,
+	sizeof(WIFI_COMMAND_AT_ATV1)-1,
 	sizeof(WIFI_COMMAND_AT_WWPA)-1,
 	sizeof(WIFI_COMMAND_AT_WAUTO)-1,
 	sizeof(WIFI_COMMAND_AT_NAUTO)-1,
 	sizeof(WIFI_COMMAND_AT_NSTCP)-1,
-	sizeof(WIFI_COMMAND_AT_WA)-1
+	sizeof(WIFI_COMMAND_AT_WA)-1,
+	sizeof(WIFI_COMMAND_AT_NSET)-1,
+	sizeof(WIFI_COMMAND_AT_WAUTH_WEP)-1,
+	sizeof(WIFI_COMMAND_AT_WWEP)-1,
+	sizeof(WIFI_COMMAND_AT_SPICONF)-1,
+	sizeof(WIFI_COMMAND_AT_WRSSI)-1,
+	sizeof(WIFI_COMMAND_AT_NSTAT)-1
 };
 
 extern uint8_t wifi_state;
 
-extern char wifi_ssid[];
-extern char wifi_wpa_key[];
-extern uint8_t wifi_wpa_key_length;
-extern uint8_t wifi_ssid_length;
+extern WifiConfiguration wifi_configuration;
 
 void wifi_command_send(const WIFICommand command) {
 	// TODO: flush?
@@ -105,30 +118,90 @@ void wifi_command_send(const WIFICommand command) {
 		}
 
 		case WIFI_COMMAND_ID_AT_WWPA: {
-			wifi_low_level_write_buffer(wifi_wpa_key, wifi_wpa_key_length);
+			uint8_t length;
+			for(length = 0; length < 51; length++) {
+				if(wifi_configuration.key[length] == '\0') {
+					break;
+				}
+			}
+			wifi_low_level_write_buffer(wifi_configuration.key, length);
 			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WAUTO: {
+			uint8_t length;
+			for(length = 0; length < 33; length++) {
+				if(wifi_configuration.ssid[length] == '\0') {
+					break;
+				}
+			}
 			wifi_low_level_write_buffer("0,", 2);
-			wifi_low_level_write_buffer(wifi_ssid, wifi_ssid_length);
+			wifi_low_level_write_buffer(wifi_configuration.ssid, length);
 			wifi_low_level_write_buffer(",,0", 3);
 			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NAUTO: {
-			wifi_low_level_write_buffer("1,1,,4223", 9);
+			char str[10];
+			sprintf(str, "1,1,,%d", wifi_configuration.port);
+			uint8_t length = 9;
+			if(wifi_configuration.port >= 10000) {
+				length = 10;
+			}
+			wifi_low_level_write_buffer(str, length);
 			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NSTCP: {
-			wifi_low_level_write_buffer("4223", 4);
+			char str[5];
+			sprintf(str, "%d", wifi_configuration.port);
+			uint8_t length = 4;
+			if(wifi_configuration.port >= 10000) {
+				length = 5;
+			}
+			wifi_low_level_write_buffer(str, length);
 			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WA: {
-			wifi_low_level_write_buffer(wifi_ssid, wifi_ssid_length);
+			uint8_t length;
+			for(length = 0; length < 33; length++) {
+				if(wifi_configuration.ssid[length] == '\0') {
+					break;
+				}
+			}
+			wifi_low_level_write_buffer(wifi_configuration.ssid, length);
 			break;
+		}
+
+		case WIFI_COMMAND_ID_AT_NSET: {
+			char str[2 + (4*3 + 3)*3 + 1] = {'\0'};
+			sprintf(str,
+			        "%d.%d.%d.%d,%d.%d.%d.%d,%d.%d.%d.%d",
+			        wifi_configuration.ip[3],
+			        wifi_configuration.ip[2],
+			        wifi_configuration.ip[1],
+			        wifi_configuration.ip[0],
+			        wifi_configuration.subnet_mask[3],
+			        wifi_configuration.subnet_mask[2],
+			        wifi_configuration.subnet_mask[1],
+			        wifi_configuration.subnet_mask[0],
+			        wifi_configuration.gateway[3],
+			        wifi_configuration.gateway[2],
+			        wifi_configuration.gateway[1],
+			        wifi_configuration.gateway[0]);
+
+			wifi_low_level_write_buffer(str, strlen(str));
+		}
+
+		case WIFI_COMMAND_ID_AT_WWEP: {
+			char str[64] = {'\0'};
+			sprintf(str,
+			        "%d=%s",
+			        wifi_configuration.key_index,
+			        wifi_configuration.key);
+
+			wifi_low_level_write_buffer(str, strlen(str));
 		}
 
 		default: {
@@ -189,6 +262,10 @@ uint8_t wifi_command_recv(char *data, const uint8_t length) {
 }
 
 uint8_t wifi_command_parse(const char *data, const uint8_t length) {
+	if(length == 0) {
+		return WIFI_ANSWER_NO_ANSWER;
+	}
+
 	switch(data[0]) {
 		case '0': return WIFI_ANSWER_OK;
 		case '1': return WIFI_ANSWER_ERROR;
@@ -221,7 +298,7 @@ void wifi_command_flush(void) {
 	wifi_state = WIFI_STATE_COMMAND_RECV;
 
 	for(uint8_t i = 0; i < 255; i++) {
-		wifi_low_level_read_byte();
+		uint8_t b = wifi_low_level_read_byte();
 	}
 
 	wifi_state = WIFI_STATE_COMMAND_IDLE;

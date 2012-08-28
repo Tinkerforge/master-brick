@@ -19,45 +19,38 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef CHIBI_CONFIG_H
-#define CHIBI_CONFIG_H
+#ifndef WIFI_CONFIG_H
+#define WIFI_CONFIG_H
 
 #include "extensions/extension_config.h"
+
+#define WIFI_CONFIGURATION_POS 0
+#define WIFI_ENCRYPTION_POS (sizeof(SetWifiConfiguration) - 4)
 
 #define WIFI_MAX_DATA_LENGTH 64
 #define WIFI_BUFFER_SIZE WIFI_MAX_DATA_LENGTH
 
-#define PIN_WIFI_RXD     {1 << 21, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
-#define PIN_WIFI_TXD     {1 << 22, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
-#define PIN_WIFI_RTS     {1 << 24, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
-
-#define PIN_WIFI_CTS     PIN_EXT_0_GP_1
-#define PIN_WIFI_RESET   PIN_EXT_0_GP_0
-#define PIN_WIFI_WAKE    PIN_EXT_0_GP_2
-#define PIN_WIFI_SELECT  PIN_EXT_0_SELECT
+#define PIN_WIFI_RESET       PIN_EXT_0_GP_0
+#define PIN_WIFI_LED         PIN_EXT_0_GP_1
+#define PIN_WIFI_DATA_RDY    PIN_EXT_0_GP_2
 
 #define PIN_WIFI_SPI_MISO    PIN_EXT_RXD
 #define PIN_WIFI_SPI_MOSI    PIN_EXT_TXD
 #define PIN_WIFI_SPI_CLK     PIN_EXT_SCK
-#define PIN_WIFI_SPI_CS      PIN_EXT_0_GP_0
-#define PIN_WIFI_SPI_WAKEUP  PIN_EXT_0_SELECT
+#define PIN_WIFI_SPI_CS      PIN_EXT_0_SELECT
 
 #define USART_WIFI_SPI       USART0
 #define ID_WIFI_SPI          ID_USART0
 #define IRQ_WIFI_SPI         USART0_IRQn
-#define PINS_WIFI_SPI        PIN_EXT_RXD, \
-                             PIN_EXT_TXD, \
-                             PIN_EXT_SCK, \
-                             PIN_EXT_0_GP_0, \
-                             PIN_EXT_0_SELECT
+#define PINS_WIFI_SPI        PIN_WIFI_SPI_MISO, \
+                             PIN_WIFI_SPI_MOSI, \
+                             PIN_WIFI_SPI_CLK, \
+                             PIN_WIFI_SPI_CS, \
+                             PIN_WIFI_RESET, \
+                             PIN_WIFI_LED, \
+                             PIN_WIFI_DATA_RDY
 
 
-/*#define USART_WIFI    USART1
-#define ID_WIFI       ID_USART1
-#define IRQ_WIFI      USART1_IRQn
-#define PINS_WIFI     {PIN_WIFI_RXD, PIN_WIFI_TXD, PIN_WIFI_RTS}
-
-#define WIFI_USART_CLOCK 9600*/
 #define WIFI_SPI_CLOCK 2000000
 
 #define DEBUG_WIFI 1

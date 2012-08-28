@@ -51,6 +51,11 @@
 #define TYPE_GET_RS485_ERROR_LOG 23
 #define TYPE_SET_RS485_CONFIGURATION 24
 #define TYPE_GET_RS485_CONFIGURATION 25
+#define TYPE_IS_WIFI_PRESENT 26
+#define TYPE_SET_WIFI_CONFIGURATION 27
+#define TYPE_GET_WIFI_CONFIGURATION 28
+#define TYPE_SET_WIFI_ENCRYPTION 29
+#define TYPE_GET_WIFI_ENCRYPTION 30
 
 #define COM_MESSAGES_USER \
 	{TYPE_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -78,6 +83,11 @@
 	{TYPE_GET_RS485_ERROR_LOG, (message_handler_func_t)get_rs485_error_log}, \
 	{TYPE_SET_RS485_CONFIGURATION, (message_handler_func_t)set_rs485_configuration}, \
 	{TYPE_GET_RS485_CONFIGURATION, (message_handler_func_t)get_rs485_configuration}, \
+	{TYPE_IS_WIFI_PRESENT, (message_handler_func_t)is_wifi_present}, \
+	{TYPE_SET_WIFI_CONFIGURATION, (message_handler_func_t)set_wifi_configuration}, \
+	{TYPE_GET_WIFI_CONFIGURATION, (message_handler_func_t)get_wifi_configuration}, \
+	{TYPE_SET_WIFI_ENCRYPTION, (message_handler_func_t)set_wifi_encryption}, \
+	{TYPE_GET_WIFI_ENCRYPTION, (message_handler_func_t)get_wifi_encryption}, \
 
 typedef struct {
 	uint8_t stack_id;
@@ -363,6 +373,72 @@ typedef struct {
 	uint8_t stopbits;
 } __attribute__((__packed__)) GetRS485ConfigurationReturn;
 
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) IsWifiPresent;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	bool present;
+} __attribute__((__packed__)) IsWifiPresentReturn;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	char ssid[32];
+	uint8_t connection;
+	uint8_t ip[4];
+	uint8_t subnet_mask[4];
+	uint8_t gateway[4];
+	uint16_t port;
+} __attribute__((__packed__)) SetWifiConfiguration;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetWifiConfiguration;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	char ssid[32];
+	uint8_t connection;
+	uint8_t ip[4];
+	uint8_t subnet_mask[4];
+	uint8_t gateway[4];
+	uint16_t port;
+} __attribute__((__packed__)) GetWifiConfigurationReturn;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t encryption;
+	char key[50];
+	uint8_t key_index;
+} __attribute__((__packed__)) SetWifiEncryption;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetWifiEncryption;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t encryption;
+	char key[50];
+	uint8_t key_index;
+} __attribute__((__packed__)) GetWifiEncryptionReturn;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data);
 void get_stack_current(uint8_t com, const GetStackCurrent *data);
@@ -389,5 +465,10 @@ void get_rs485_slave_address(uint8_t com, const GetRS485SlaveAddress *data);
 void get_rs485_error_log(uint8_t com, const GetRS485ErrorLog *data);
 void set_rs485_configuration(uint8_t com, const SetRS485Configuration *data);
 void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data);
+void is_wifi_present(uint8_t com, const IsWifiPresent *data);
+void set_wifi_configuration(uint8_t com, const SetWifiConfiguration *data);
+void get_wifi_configuration(uint8_t com, const GetWifiConfiguration *data);
+void set_wifi_encryption(uint8_t com, const SetWifiEncryption *data);
+void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data);
 
 #endif
