@@ -1,7 +1,7 @@
 /* master-brick
  * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
  *
- * wifi_brickd.h: Reimplementation of brickd for WIFI Extension
+ * wifi_brickd.h: Simplistic reimplementation of brickd for WIFI Extension
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,5 +24,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#define WIFI_BRICKD_ROUTING_TABLE_SIZE 10
+
+typedef struct WifiRouting WifiRouting;
+
+struct WifiRouting{
+	uint8_t stack_id;
+	int8_t cid;
+	uint32_t counter;
+};
+
+void wifi_brickd_init(void);
+uint32_t wifi_brickd_counter_diff(uint32_t new, uint32_t old);
+void wifi_brickd_route_from(const uint8_t *data, const uint8_t cid);
+int8_t wifi_brickd_route_to(const uint8_t *data);
 
 #endif
