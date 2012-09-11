@@ -28,6 +28,7 @@
 #include "wifi_config.h"
 #include "wifi_command.h"
 #include "wifi_data.h"
+#include "wifi_brickd.h"
 #include "wifi_low_level.h"
 
 #include "bricklib/com/com.h"
@@ -36,20 +37,14 @@
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/utility/pearson_hash.h"
+#include "bricklib/utility/init.h"
 #include "bricklib/com/usb/usb.h"
 #include "bricklib/bricklet/bricklet_config.h"
 #include "extensions/extension_init.h"
 #include "extensions/extension_i2c.h"
 
-
 extern ComType com_ext[];
 extern uint32_t led_rxtx;
-
-uint8_t wifi_state = WIFI_STATE_COMMAND_IDLE;
-
-uint8_t wifi_buffer_recv[WIFI_BUFFER_SIZE] = {0};
-uint16_t wifi_buffer_size_recv = 0;
-
 extern ComType com_current;
 
 extern uint8_t com_stack_id;
@@ -58,16 +53,57 @@ extern uint8_t com_last_spi_stack_id;
 extern BrickletSettings bs[];
 extern const BrickletAddress baddr[];
 
-WifiConfiguration wifi_configuration;
-WifiStatus wifi_status;
+
+bool wifi_task_created = false;
+uint8_t wifi_buffer_recv[WIFI_BUFFER_SIZE] = {0};
+uint16_t wifi_buffer_size_recv = 0;
+
+Pin pins_wifi_spi[] = {PINS_WIFI_SPI};
+
+WifiConfiguration wifi_configuration = {
+	"TinkerforgeWLAN",
+	0,
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	4223,
+	0,
+	"1234123456785678",
+	0
+};
+
+WifiStatus wifi_status = {
+	{0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0},
+	0,
+	0,
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	0,
+	0,
+	WIFI_STATE_NO_STARTUP,
+};
 
 bool wifi_init(void) {
-    Pin pins_wifi_spi[] = {PINS_WIFI_SPI};
-    PIO_Configure(pins_wifi_spi, PIO_LISTSIZE(pins_wifi_spi));
-    pins_wifi_spi[4].type = PIO_OUTPUT_1;
-    pins_wifi_spi[5].type = PIO_OUTPUT_1;
-    pins_wifi_spi[6].type = PIO_INPUT;
+    pins_wifi_spi[WIFI_RESET].type = PIO_INPUT;
+    pins_wifi_spi[WIFI_LED].type = PIO_OUTPUT_1;
+    pins_wifi_spi[WIFI_DATA_RDY].type = PIO_INPUT;
 
+    PIO_Configure(pins_wifi_spi, PIO_LISTSIZE(pins_wifi_spi));
+
+/*    SLEEP_MS(3000);
+    while(!PIO_Get(&pins_wifi_spi[WIFI_RESET]));
+    pins_wifi_spi[WIFI_RESET].type = PIO_OUTPUT_0;
+    PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
+    SLEEP_MS(100);
+    pins_wifi_spi[WIFI_RESET].type = PIO_INPUT;
+    PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
+
+    while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+    	printf("waiting...\n\r");
+    }*/
+    wifi_brickd_init();
     wifi_low_level_deselect();
 
     wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), 0);
@@ -84,100 +120,139 @@ bool wifi_init(void) {
     USART_Configure(USART_WIFI_SPI, mode, WIFI_SPI_CLOCK, BOARD_MCK);
     NVIC_EnableIRQ(IRQ_WIFI_SPI);
 
-
     USART_SetTransmitterEnabled(USART_WIFI_SPI, 1);
     USART_SetReceiverEnabled(USART_WIFI_SPI, 1);
 
     wifi_command_flush();
 
-    printf("ate0\n\r");
+    logwifid("AT+ATE0\n\r");
     wifi_command_send(WIFI_COMMAND_ID_AT_ATE0);
     wifi_command_flush();
 
-    printf("atv0\n\r");
+    logwifid("AT+ATV0\n\r");
     wifi_command_send(WIFI_COMMAND_ID_AT_ATV0);
     wifi_command_flush();
 
-    // TOOD: Is it worth to use PHASE=1?
-    // With PHASE=1 we need only one select per package.
-    // But we would need every write command function two times!
-    /*wifi_command_send(WIFI_COMMAND_ID_AT_SPICONF);
+    bool startup = true;
+    logwifid("AT\n\r");
+	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT) != WIFI_ANSWER_OK) {
+		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+		startup = false;
+	}
 
-    // Reconfigure with phase=1
-    mode |= US_MR_CPHA;
+    if(startup) {
+    	logwifid("AT+WD\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WD) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
 
-    PMC->PMC_PCER0 = 1 << ID_WIFI_SPI;
-    USART_Configure(USART_WIFI_SPI, mode, WIFI_SPI_CLOCK, BOARD_MCK);
-    NVIC_EnableIRQ(IRQ_WIFI_SPI);
-
-
-    USART_SetTransmitterEnabled(USART_WIFI_SPI, 1);
-    USART_SetReceiverEnabled(USART_WIFI_SPI, 1);*/
-
-    printf("at\n\r");
-	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT);
-    printf("at+wd\n\r");
-	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WD);
 //	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXPS_OFF);
 
 	// Wifi module always on (no sleep)
-    printf("at+wrxactive\n\r");
-	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXACTIVE_ON);
+    if(startup) {
+    	logwifid("AT+WRXACTIVE=1\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXACTIVE_ON) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
+
 
 	// Bulk mode data transfer
-    printf("at+bdata\n\r");
-	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_BDATA_ON);
+    if(startup) {
+    	logwifid("AT+BDATA=1\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_BDATA_ON) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
+
 
 	if(wifi_configuration.encryption == ENCRYPTION_WPA) {
-		printf("at+wwpa\n\r");
-		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WWPA);
-	} else {
-		// TODO
+		if(startup) {
+			logwifid("AT+WWPA\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WWPA) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+	} else if(wifi_configuration.encryption == ENCRYPTION_WEP) {
+		if(startup) {
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WAUTH_WEP) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+		if(startup) {
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WWEP) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+	} else if(wifi_configuration.encryption == ENCRYPTION_OPEN) {
+		if(startup) {
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WAUTH_OPEN) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
 	}
 
 	if(wifi_configuration.connection == CONNECTION_DHCP) {
-		printf("at+ndhcp on\n\r");
-		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NDHCP_ON);
+		if(startup) {
+			logwifid("AT+NDHCP=1\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NDHCP_ON) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
 	} else {
-		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSET);
+		if(startup) {
+			logwifid("AT+NSET\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSET) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
 	}
 
-	// TODO: AT+WPAPSK
+	// TODO: AT+WPAPSK to save recalculation
 
-	printf("at+wa\n\r");
-	uint8_t ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WA);
-	if(ret == WIFI_ANSWER_OK) {
-		//while(wifi_command_recv_and_parse() == WIFI_ANSWER_NO_ANSWER);
-		printf("after parse\n\r");
-		wifi_refresh_status();
-
-		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSTCP);
-		PIO_Clear(&pins_wifi_spi[5]);
-	} else {
-		printf("answer: NOK\n\r");
-		// TODO
+	if(startup) {
+		logwifid("AT+WA\n\r");
+		wifi_command_send(WIFI_COMMAND_ID_AT_WA);
+		wifi_status.state = WIFI_STATE_ASSOCIATING;
 	}
 
-	wifi_command_flush();
+	if(!wifi_task_created) {
+		wifi_task_created = true;
+		xTaskCreate(wifi_message_loop,
+					(signed char *)"wif_ml",
+					MESSAGE_LOOP_SIZE,
+					NULL,
+					1,
+					(xTaskHandle *)NULL);
 
-	xTaskCreate(wifi_message_loop,
-				(signed char *)"wif_ml",
-				MESSAGE_LOOP_SIZE,
-				NULL,
-				1,
-				(xTaskHandle *)NULL);
+		logwifii("WIFI initialized\n\r");
+	}
 
-    logwifii("WIFI initialized\n\r");
     return true;
 }
 
 void wifi_refresh_status(void) {
+	logwifii("Refresh status\n\r");
 	char data[100];
-	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSTAT);
+	wifi_command_send(WIFI_COMMAND_ID_AT_NSTAT);
 
 	while(true) {
-		uint8_t length = wifi_command_recv(data, 100);
-		if(wifi_command_parse(data, length) != WIFI_ANSWER_NO_ANSWER) {
+		uint8_t length = 0;
+		while(length == 0) {
+			length = wifi_command_recv(data, 100, WIFI_COMMAND_RECV_TIMEOUT);
+		}
+		uint8_t ret = wifi_command_parse(data, length);
+		if(ret == WIFI_ANSWER_OK || ret == WIFI_ANSWER_ERROR) {
 			return;
 		}
 
@@ -294,6 +369,10 @@ void wifi_init_extension(uint8_t extension) {
 }
 
 uint16_t wifi_send(const void *data, const uint16_t length) {
+	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
+		return 0;
+	}
+
 	led_rxtx++;
 
 	uint16_t send_length = MIN(length, WIFI_BUFFER_SIZE);
@@ -304,6 +383,10 @@ uint16_t wifi_send(const void *data, const uint16_t length) {
 }
 
 uint16_t wifi_recv(void *data, const uint16_t length) {
+	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
+		return 0;
+	}
+
 	if(wifi_buffer_size_recv == 0) {
 		wifi_data_poll();
 		return 0;
@@ -360,6 +443,43 @@ void wifi_message_loop_return(char *data, uint16_t length) {
 	}
 }
 
+uint32_t wifi_read_key(void) {
+	uint8_t extension;
+	if(com_ext[0] == COM_WIFI) {
+		extension = 0;
+	} else if(com_ext[1] == COM_WIFI) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return 0;
+	}
+
+	uint32_t key = 0;
+	extension_i2c_read(extension,
+					   WIFI_KEY_POS,
+					   (char*)&key,
+					   4);
+	return key;
+}
+
+void wifi_write_key(void) {
+	uint8_t extension;
+	if(com_ext[0] == COM_WIFI) {
+		extension = 0;
+	} else if(com_ext[1] == COM_WIFI) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	uint32_t key = WIFI_KEY;
+	extension_i2c_write(extension,
+					    WIFI_KEY_POS,
+					    (char*)&key,
+					    4);
+}
+
 void wifi_read_config(char *data, uint8_t length, uint8_t position) {
 	uint8_t extension;
 	if(com_ext[0] == COM_WIFI) {
@@ -368,6 +488,11 @@ void wifi_read_config(char *data, uint8_t length, uint8_t position) {
 		extension = 1;
 	} else {
 		// TODO: Error?
+		return;
+	}
+
+	if(wifi_read_key() != WIFI_KEY) {
+		wifi_write_config(data, length, position);
 		return;
 	}
 
@@ -424,4 +549,48 @@ void wifi_write_config(char *data, uint8_t length, uint8_t position) {
 						    data + reminder + i*32,
 						    last);
 	}
+
+	wifi_write_key();
+}
+
+uint32_t wifi_tick_counter = 0;
+void wifi_tick(void) {
+	wifi_tick_counter++;
+
+	switch(wifi_status.state) {
+		case WIFI_STATE_STARTUP_ERROR: {
+			if(wifi_tick_counter % 2000 == 0) {
+				wifi_init();
+			}
+			break;
+		}
+		case WIFI_STATE_ASSOCIATING: {
+			char data[100];
+			const uint8_t length = wifi_command_recv(data, 100, 500);
+			uint8_t ret = wifi_command_parse(data, length);
+			if(ret == WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_ASSOCIATED;
+				wifi_refresh_status();
+				ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSTCP);
+			} else if(ret == WIFI_ANSWER_ERROR) {
+				printf("answer: error\n\r");
+				wifi_status.state = WIFI_STATE_DISASSOCIATED;
+			}
+			break;
+		}
+		case WIFI_STATE_ASSOCIATED: {
+			break;
+		}
+		case WIFI_STATE_DISASSOCIATED: {
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WA) == WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_ASSOCIATING;
+			}
+			break;
+		}
+
+		default: {
+			break;
+		}
+	}
+
 }

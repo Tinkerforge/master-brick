@@ -23,6 +23,9 @@
 
 #include "wifi_low_level.h"
 #include "wifi_command.h"
+#include "wifi_brickd.h"
+
+#include "bricklib/com/com_messages.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -31,14 +34,19 @@
 WIFIDataState wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 uint16_t wifi_data_recv_length_desired = 0;
 uint16_t wifi_data_recv_length = 0;
+uint16_t wifi_buffer_size_counter = 0;
 int8_t  wifi_data_current_cid = -1;
 char wifi_data_length_buffer[4] = {0};
 extern uint8_t wifi_buffer_recv[];
 extern uint16_t wifi_buffer_size_recv;
+extern Pin pins_wifi_spi[];
 
 uint16_t wifi_data_lenght_mul[4] = {1000, 100, 10, 1};
 
 bool wifi_data_currently_stuffing = false;
+
+bool wifi_data_cid_present[WIFI_DATA_MAX_CID] = {false};
+
 
 void wifi_data_next(const char data) {
 	char ndata = data;
@@ -93,12 +101,21 @@ void wifi_data_next(const char data) {
 		}
 
 		case WIFI_DATA_WAIT_FOR_DATA: {
-			wifi_buffer_recv[wifi_data_recv_length] = ndata;
+			wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
+			wifi_buffer_size_counter++;
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length == wifi_data_recv_length_desired) {
-				wifi_buffer_size_recv = wifi_data_recv_length;
 				wifi_data_recv_length = 0;
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+			}
+			if(wifi_buffer_size_counter >= 4) {
+				uint16_t length = get_length_from_data((const char*)wifi_buffer_recv);
+				if(wifi_buffer_size_counter == length) {
+					wifi_data_cid_present[wifi_data_current_cid] = true;
+					wifi_buffer_size_recv = wifi_buffer_size_counter;
+					wifi_buffer_size_counter = 0;
+					wifi_brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
+				}
 			}
 			break;
 		}
@@ -127,10 +144,10 @@ void wifi_data_send(const char *data, const uint16_t length) {
 	}
 }
 
-void wifi_data_send_escape(const char *data, const uint16_t length) {
+void wifi_data_send_escape_cid(const char *data, const uint16_t length, const uint8_t cid) {
 	char escape_buffer[WIFI_DATA_ESCAPE_BUFFER_SIZE] = {
 		0x1B, 'Z',
-		wifi_data_int_to_hex(wifi_data_current_cid),
+		wifi_data_int_to_hex(cid),
 		'0', '0', '0', '0'
 	};
 
@@ -145,9 +162,23 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 	wifi_data_send(data, length);
 }
 
+void wifi_data_send_escape(const char *data, const uint16_t length) {
+	int8_t cid = wifi_brickd_route_to((const uint8_t*)data);
+	if(cid == -1) {
+		for(uint8_t i = 1; i < WIFI_DATA_MAX_CID; i++) {
+			if(wifi_data_cid_present[i]) {
+				wifi_data_send_escape_cid(data, length, i);
+			}
+		}
+		return;
+	}
+
+	wifi_data_send_escape_cid(data, length, cid);
+}
+
 void wifi_data_poll(void) {
 	uint8_t i = 0;
-	if(wifi_buffer_size_recv != 0) {
+	if(wifi_buffer_size_recv != 0i/* || !PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])*/) {
 		return;
 	}
 
@@ -183,4 +214,11 @@ char wifi_data_int_to_hex(int8_t c) {
 	}
 
 	return 'X';
+}
+
+void wifi_data_disconnect(uint8_t cid) {
+	if(cid > 0 && cid < 16) {
+		wifi_data_cid_present[cid] = false;
+		wifi_brickd_disconnect(cid);
+	}
 }

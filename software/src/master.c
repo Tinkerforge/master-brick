@@ -40,6 +40,7 @@
 #include "extensions/rs485/rs485_config.h"
 #include "extensions/rs485/rs485_master.h"
 #include "extensions/rs485/rs485_low_level.h"
+#include "extensions/wifi/wifi.h"
 
 #include "config.h"
 
@@ -343,4 +344,5 @@ void master_create_routing_table_stack(void) {
 }
 
 void tick_task(uint8_t tick_type) {
+	wifi_tick();
 }

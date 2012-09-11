@@ -56,6 +56,7 @@
 #define TYPE_GET_WIFI_CONFIGURATION 28
 #define TYPE_SET_WIFI_ENCRYPTION 29
 #define TYPE_GET_WIFI_ENCRYPTION 30
+#define TYPE_GET_WIFI_STATUS 31
 
 #define COM_MESSAGES_USER \
 	{TYPE_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -88,6 +89,8 @@
 	{TYPE_GET_WIFI_CONFIGURATION, (message_handler_func_t)get_wifi_configuration}, \
 	{TYPE_SET_WIFI_ENCRYPTION, (message_handler_func_t)set_wifi_encryption}, \
 	{TYPE_GET_WIFI_ENCRYPTION, (message_handler_func_t)get_wifi_encryption}, \
+	{TYPE_GET_WIFI_STATUS, (message_handler_func_t)get_wifi_status},
+
 
 typedef struct {
 	uint8_t stack_id;
@@ -440,6 +443,28 @@ typedef struct {
 	uint8_t key_index;
 } __attribute__((__packed__)) GetWifiEncryptionReturn;
 
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetWifiStatus;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t mac_address[6];
+	uint8_t bssid[6];
+	uint8_t channel;
+	int16_t rssi;
+	uint8_t ip[4];
+	uint8_t subnet_mask[4];
+	uint8_t gateway[4];
+	uint32_t rx_count;
+	uint32_t tx_count;
+	uint8_t last_error;
+} __attribute__((__packed__)) GetWifiStatusReturn;
+
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data);
 void get_stack_current(uint8_t com, const GetStackCurrent *data);
 void set_extension_type(uint8_t com, const SetExtensionType *data);
@@ -470,5 +495,6 @@ void set_wifi_configuration(uint8_t com, const SetWifiConfiguration *data);
 void get_wifi_configuration(uint8_t com, const GetWifiConfiguration *data);
 void set_wifi_encryption(uint8_t com, const SetWifiEncryption *data);
 void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data);
+void get_wifi_status(uint8_t com, const GetWifiStatus *data);
 
 #endif

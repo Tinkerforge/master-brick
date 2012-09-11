@@ -21,12 +21,15 @@
 
 #include "communication.h"
 
+#include <string.h>
+
 #include "bricklib/drivers/adc/adc.h"
 #include "bricklib/com/com_common.h"
 #include "extensions/chibi/chibi_config.h"
 #include "extensions/chibi/chibi_low_level.h"
 #include "extensions/rs485/rs485_config.h"
 #include "extensions/wifi/wifi_config.h"
+#include "extensions/wifi/wifi.h"
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
 
@@ -43,6 +46,8 @@ extern uint16_t rs485_error_crc;
 extern uint32_t rs485_config_speed;
 extern char rs485_config_parity;
 extern uint8_t rs485_config_stopbits;
+
+extern WifiStatus wifi_status;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -542,4 +547,15 @@ void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data) {
 	send_blocking_with_timeout(&gwer, sizeof(GetWifiEncryptionReturn), com);
 
 	logwifii("get_wifi_encryption: %d\n\r", gwer.encryption);
+}
+
+void get_wifi_status(uint8_t com, const GetWifiStatus *data) {
+	GetWifiStatusReturn gwsr;
+
+	gwsr.stack_id        = data->stack_id;
+	gwsr.type            = data->type;
+	gwsr.length          = sizeof(GetWifiStatusReturn);
+	memcpy(((char*)&gwsr)+4, &wifi_status, sizeof(GetWifiStatusReturn)-4);
+
+	send_blocking_with_timeout(&gwsr, sizeof(GetWifiStatusReturn), com);
 }

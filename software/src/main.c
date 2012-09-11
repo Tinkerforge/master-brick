@@ -168,5 +168,11 @@ int main() {
 
 	brick_init_start_tick_task();
 	logsi("Starting Scheduler\n\r");
+
+	Pin pins_wifi_spi[] = {PINS_WIFI_SPI};
+    pins_wifi_spi[WIFI_DATA_RDY].type = PIO_INPUT;
+
+    PIO_Configure(&pins_wifi_spi[WIFI_DATA_RDY], 1);
+
 	vTaskStartScheduler();
 }

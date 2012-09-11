@@ -24,9 +24,14 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "bricklib/drivers/pio/pio.h"
+
 #include "extensions/extension_i2c.h"
 #include "wifi.h"
+#include "wifi_data.h"
 #include "wifi_low_level.h"
+
+extern WifiStatus wifi_status;
 
 static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT,
@@ -53,10 +58,12 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_WA,
 	WIFI_COMMAND_AT_NSET,
 	WIFI_COMMAND_AT_WAUTH_WEP,
+	WIFI_COMMAND_AT_WAUTH_OPEN,
 	WIFI_COMMAND_AT_WWEP,
 	WIFI_COMMAND_AT_SPICONF,
 	WIFI_COMMAND_AT_WRSSI,
-	WIFI_COMMAND_AT_NSTAT
+	WIFI_COMMAND_AT_NSTAT,
+	WIFI_COMMAND_AT_VER,
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -84,24 +91,18 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_WA)-1,
 	sizeof(WIFI_COMMAND_AT_NSET)-1,
 	sizeof(WIFI_COMMAND_AT_WAUTH_WEP)-1,
+	sizeof(WIFI_COMMAND_AT_WAUTH_OPEN)-1,
 	sizeof(WIFI_COMMAND_AT_WWEP)-1,
 	sizeof(WIFI_COMMAND_AT_SPICONF)-1,
 	sizeof(WIFI_COMMAND_AT_WRSSI)-1,
-	sizeof(WIFI_COMMAND_AT_NSTAT)-1
+	sizeof(WIFI_COMMAND_AT_NSTAT)-1,
+	sizeof(WIFI_COMMAND_AT_VER)-1
 };
 
-extern uint8_t wifi_state;
-
 extern WifiConfiguration wifi_configuration;
+extern Pin pins_wifi_spi[];
 
 void wifi_command_send(const WIFICommand command) {
-	// TODO: flush?
-	if(wifi_state != WIFI_STATE_COMMAND_IDLE) {
-		return;
-	}
-
-	wifi_state = WIFI_STATE_COMMAND_SEND;
-
 	wifi_low_level_write_buffer(wifi_command_str[command],
 	                            wifi_command_length[command]);
 
@@ -210,25 +211,17 @@ void wifi_command_send(const WIFICommand command) {
 	}
 
 	wifi_low_level_write_buffer("\r\n", 2);
-
-	wifi_state = WIFI_STATE_COMMAND_IDLE;
 }
 
-uint8_t wifi_command_recv(char *data, const uint8_t length) {
-	if(wifi_state != WIFI_STATE_COMMAND_IDLE) {
-		return 0;
-	}
-
-	wifi_state = WIFI_STATE_COMMAND_RECV;
-
+uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout) {
 	uint8_t i = 0;
 	uint8_t last_byte = 0;
 
-	while(true) {
+	for(uint32_t counter = 0; counter < timeout; counter++) {
+		//while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
 		uint8_t b = wifi_low_level_read_byte();
 		if(b == '\r' || b == '\n') {
 			if(i > 0 && last_byte == '\r' && b == '\n') {
-				wifi_state = WIFI_STATE_COMMAND_IDLE;
 				return i;
 			}
 			last_byte = b;
@@ -238,6 +231,7 @@ uint8_t wifi_command_recv(char *data, const uint8_t length) {
 
 
 				if(b == WIFI_LOW_LEVEL_SPI_ESC_CHAR) {
+					//while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
 					b = wifi_low_level_read_byte() ^ 0x20;
 				} else {
 					last_byte = b;
@@ -250,7 +244,6 @@ uint8_t wifi_command_recv(char *data, const uint8_t length) {
 				i++;
 
 				if(i == length) {
-					wifi_state = WIFI_STATE_COMMAND_IDLE;
 					return i;
 				}
 			}
@@ -263,15 +256,46 @@ uint8_t wifi_command_recv(char *data, const uint8_t length) {
 
 uint8_t wifi_command_parse(const char *data, const uint8_t length) {
 	if(length == 0) {
-		return WIFI_ANSWER_NO_ANSWER;
+		return WIFI_ANSWER_TIMEOUT;
 	}
 
 	switch(data[0]) {
-		case '0': return WIFI_ANSWER_OK;
-		case '1': return WIFI_ANSWER_ERROR;
-		case '7': return WIFI_ANSWER_CONNECT;
-		case '8': return WIFI_ANSWER_DISCONNECT;
-		default:  return WIFI_ANSWER_NO_ANSWER;
+		case '0': {
+			return WIFI_ANSWER_OK;
+		}
+
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '1': {
+			return WIFI_ANSWER_ERROR;
+		}
+
+		case '2': {
+			return WIFI_ANSWER_INVALD_COMMAND;
+		}
+
+		case '7': {
+			return WIFI_ANSWER_CONNECT;
+		}
+
+		case '8': {
+			wifi_status.state = WIFI_STATE_DISASSOCIATED;
+			wifi_data_disconnect(wifi_data_hex_to_int(data[2]));
+			return WIFI_ANSWER_DISCONNECT;
+		}
+
+		case '9': {
+			printf("disassociated\n\r");
+			return WIFI_ANSWER_DISASSOCIATED;
+		}
+
+		default: {
+			printf("command: %c %d\n\r", data[0], data[0]);
+			printf("command str: %s\n\r", data);
+			return WIFI_ANSWER_NO_ANSWER;
+		}
 	}
 }
 
@@ -286,20 +310,12 @@ uint8_t wifi_command_send_recv_and_parse(const WIFICommand command) {
 
 uint8_t wifi_command_recv_and_parse(void) {
 	char data[255];
-	const uint8_t length = wifi_command_recv(data, 255);
+	const uint8_t length = wifi_command_recv(data, 255, WIFI_COMMAND_RECV_TIMEOUT);
 	return wifi_command_parse(data, length);
 }
 
 void wifi_command_flush(void) {
-	if(wifi_state != WIFI_STATE_COMMAND_IDLE) {
-		return;
-	}
-
-	wifi_state = WIFI_STATE_COMMAND_RECV;
-
 	for(uint8_t i = 0; i < 255; i++) {
 		uint8_t b = wifi_low_level_read_byte();
 	}
-
-	wifi_state = WIFI_STATE_COMMAND_IDLE;
 }

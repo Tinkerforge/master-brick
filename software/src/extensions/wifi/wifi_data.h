@@ -27,6 +27,8 @@
 #define WIFI_DATA_CHAR_ESC 0x1B
 #define WIFI_DATA_CHAR_Z   'Z'
 
+#define WIFI_DATA_MAX_CID 16
+
 #define WIFI_DATA_ESCAPE_BUFFER_SIZE 7
 
 typedef enum {
@@ -40,8 +42,10 @@ typedef enum {
 void wifi_data_next(const char data);
 void wifi_data_send(const char *data, const uint16_t length);
 void wifi_data_send_escape(const char *data, const uint16_t length);
+void wifi_data_send_escape_cid(const char *data, const uint16_t length, const uint8_t cid);
 void wifi_data_poll(void);
 int8_t wifi_data_hex_to_int(char c);
 char wifi_data_int_to_hex(int8_t c);
+void wifi_data_disconnect(uint8_t cid);
 
 #endif

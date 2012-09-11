@@ -25,18 +25,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define WIFI_KEY (42 | (23 << 8) | (17 << 16) | 7)
+#define WIFI_KEY_POS 128
+
 #define CONNECTION_DHCP 0
 #define CONNECTION_STATIC_IP 1
 
 #define ENCRYPTION_WPA 0
-#define ENCRYPTION_WEP 1
-#define ENCRYPTION_NONE 2
+#define ENCRYPTION_WPA_ENTERPRISE 1
+#define ENCRYPTION_WEP 2
+#define ENCRYPTION_OPEN 3
+
+#define WIFI_ERROR_NO_ERROR 0
+#define WIFI_ERROR_BAD_RESPONSE 1
+#define WIFI_ERROR_COULD_NOT_CONNECT 2
 
 typedef enum {
-	WIFI_STATE_COMMAND_IDLE,
-	WIFI_STATE_COMMAND_SEND,
-	WIFI_STATE_COMMAND_RECV
-} WIFIState;
+	WIFI_STATE_DISASSOCIATED = 0,
+	WIFI_STATE_ASSOCIATED = 1,
+	WIFI_STATE_ASSOCIATING = 2,
+	WIFI_STATE_STARTUP_ERROR = 3,
+
+	WIFI_STATE_NO_STARTUP = 255
+} WifiState;
 
 typedef struct {
 	char ssid[32];
@@ -60,16 +71,18 @@ typedef struct {
 	uint8_t gateway[4];
 	uint32_t rx_count;
 	uint32_t tx_count;
+	uint8_t state;
 } __attribute__((__packed__)) WifiStatus;
 
 bool wifi_init(void);
 uint16_t wifi_send(const void *data, const uint16_t length);
 uint16_t wifi_recv(void *data, const uint16_t length);
-void wifi_refresh_status(void);
+void wifi_establish_connection(void);
 void wifi_message_loop(void *parameters);
 void wifi_message_loop_return(char *data, uint16_t length);
 void wifi_init_extension(uint8_t extension);
 void wifi_read_config(char *data, uint8_t length, uint8_t position);
 void wifi_write_config(char *data, uint8_t length, uint8_t position);
+void wifi_tick(void);
 
 #endif

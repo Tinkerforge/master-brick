@@ -50,6 +50,10 @@
                              PIN_WIFI_LED, \
                              PIN_WIFI_DATA_RDY
 
+#define WIFI_RESET 4
+#define WIFI_LED 5
+#define WIFI_DATA_RDY 6
+
 
 #define WIFI_SPI_CLOCK 2000000
 
