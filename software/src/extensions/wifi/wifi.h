@@ -25,9 +25,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define WIFI_KEY (42 | (23 << 8) | (17 << 16) | 7)
-#define WIFI_KEY_POS 128
-
 #define CONNECTION_DHCP 0
 #define CONNECTION_STATIC_IP 1
 
@@ -59,6 +56,8 @@ typedef struct {
 	uint8_t encryption;
 	char key[50];
 	uint8_t key_index;
+	uint8_t eap_options;
+	uint16_t certificate_length;
 } __attribute__((__packed__)) WifiConfiguration;
 
 typedef struct {
@@ -81,8 +80,9 @@ void wifi_establish_connection(void);
 void wifi_message_loop(void *parameters);
 void wifi_message_loop_return(char *data, uint16_t length);
 void wifi_init_extension(uint8_t extension);
-void wifi_read_config(char *data, uint8_t length, uint8_t position);
-void wifi_write_config(char *data, uint8_t length, uint8_t position);
+void wifi_read_config(char *data, const uint8_t length, const uint8_t position);
+void wifi_write_config(const char *data, const uint8_t length, const uint8_t position);
 void wifi_tick(void);
+void wifi_refresh_status(void);
 
 #endif

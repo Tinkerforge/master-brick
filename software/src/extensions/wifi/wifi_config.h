@@ -24,8 +24,13 @@
 
 #include "extensions/extension_config.h"
 
-#define WIFI_CONFIGURATION_POS 0
-#define WIFI_ENCRYPTION_POS (sizeof(SetWifiConfiguration) - 4)
+#define WIFI_KEY (42 | (23 << 8) | (17 << 16) | 7)
+#define WIFI_KEY_POS 4
+#define WIFI_CONFIGURATION_POS 8
+#define WIFI_ENCRYPTION_POS (WIFI_CONFIGURATION_POS + (sizeof(SetWifiConfiguration) - 4))
+#define WIFI_USERNAME_POS (WIFI_ENCRYPTION_POS + sizeof(SetWifiEncryption) - 4)
+#define WIFI_PASSWORD_POS (WIFI_USERNAME_POS + 32)
+#define WIFI_CERTIFICATE 1024
 
 #define WIFI_MAX_DATA_LENGTH 64
 #define WIFI_BUFFER_SIZE WIFI_MAX_DATA_LENGTH

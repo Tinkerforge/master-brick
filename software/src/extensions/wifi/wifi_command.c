@@ -218,7 +218,9 @@ uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout) {
 	uint8_t last_byte = 0;
 
 	for(uint32_t counter = 0; counter < timeout; counter++) {
-		//while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
+		if(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+			continue;
+		}
 		uint8_t b = wifi_low_level_read_byte();
 		if(b == '\r' || b == '\n') {
 			if(i > 0 && last_byte == '\r' && b == '\n') {
@@ -316,6 +318,6 @@ uint8_t wifi_command_recv_and_parse(void) {
 
 void wifi_command_flush(void) {
 	for(uint8_t i = 0; i < 255; i++) {
-		uint8_t b = wifi_low_level_read_byte();
+		wifi_low_level_read_byte();
 	}
 }

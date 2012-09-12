@@ -69,6 +69,8 @@ WifiConfiguration wifi_configuration = {
 	4223,
 	0,
 	"1234123456785678",
+	0,
+	0,
 	0
 };
 
@@ -92,21 +94,10 @@ bool wifi_init(void) {
 
     PIO_Configure(pins_wifi_spi, PIO_LISTSIZE(pins_wifi_spi));
 
-/*    SLEEP_MS(3000);
-    while(!PIO_Get(&pins_wifi_spi[WIFI_RESET]));
-    pins_wifi_spi[WIFI_RESET].type = PIO_OUTPUT_0;
-    PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
-    SLEEP_MS(100);
-    pins_wifi_spi[WIFI_RESET].type = PIO_INPUT;
-    PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
-
-    while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
-    	printf("waiting...\n\r");
-    }*/
     wifi_brickd_init();
     wifi_low_level_deselect();
 
-    wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), 0);
+    wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);
 
     uint32_t mode = US_MR_USART_MODE_SPI_MASTER |
                     US_MR_USCLKS_MCK |
@@ -122,6 +113,24 @@ bool wifi_init(void) {
 
     USART_SetTransmitterEnabled(USART_WIFI_SPI, 1);
     USART_SetReceiverEnabled(USART_WIFI_SPI, 1);
+
+    uint32_t i = 0;
+    for(i = 0; i < 500000; i++) {
+    	if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+    		break;
+    	}
+    }
+
+    wifi_command_flush();
+
+	pins_wifi_spi[WIFI_RESET].type = PIO_OUTPUT_0;
+	PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
+	SLEEP_MS(10);
+	pins_wifi_spi[WIFI_RESET].type = PIO_INPUT;
+	PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
+
+	SLEEP_MS(1);
+    while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
 
     wifi_command_flush();
 
@@ -180,12 +189,14 @@ bool wifi_init(void) {
 		}
 	} else if(wifi_configuration.encryption == ENCRYPTION_WEP) {
 		if(startup) {
+			logwifid("AT+WAUTH (WEP)\n\r");
 			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WAUTH_WEP) != WIFI_ANSWER_OK) {
 				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
 				startup = false;
 			}
 		}
 		if(startup) {
+			logwifid("AT+WWEP\n\r");
 			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WWEP) != WIFI_ANSWER_OK) {
 				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
 				startup = false;
@@ -193,6 +204,7 @@ bool wifi_init(void) {
 		}
 	} else if(wifi_configuration.encryption == ENCRYPTION_OPEN) {
 		if(startup) {
+			logwifid("AT+WAUTH (OPEN)\n\r");
 			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WAUTH_OPEN) != WIFI_ANSWER_OK) {
 				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
 				startup = false;
@@ -242,6 +254,11 @@ bool wifi_init(void) {
 }
 
 void wifi_refresh_status(void) {
+	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
+		logwifii("Refresh status: not associated\n\r");
+		return;
+	}
+
 	logwifii("Refresh status\n\r");
 	char data[100];
 	wifi_command_send(WIFI_COMMAND_ID_AT_NSTAT);
@@ -315,7 +332,7 @@ void wifi_refresh_status(void) {
 		}
 
 		if((ptr = strcasestr(data, "SubNet=")) != NULL) {
-			ptr += strlen("SubNetr=");
+			ptr += strlen("SubNet=");
 			char *ptr_tmp = ptr;
 			for(int8_t j = 3; j >= 0; j--) {
 				for(uint8_t i = 0; i < 4; i++) {
@@ -480,7 +497,7 @@ void wifi_write_key(void) {
 					    4);
 }
 
-void wifi_read_config(char *data, uint8_t length, uint8_t position) {
+void wifi_read_config(char *data, const uint8_t length, const uint8_t position) {
 	uint8_t extension;
 	if(com_ext[0] == COM_WIFI) {
 		extension = 0;
@@ -499,7 +516,7 @@ void wifi_read_config(char *data, uint8_t length, uint8_t position) {
 	uint8_t i;
 	for(i = 0; i < length/32; i++) {
 		extension_i2c_read(extension,
-						   EXTENSION_POS_ANY + position + i*32,
+						   position + i*32,
 						   data + i*32,
 						   32);
 	}
@@ -507,13 +524,13 @@ void wifi_read_config(char *data, uint8_t length, uint8_t position) {
 	uint8_t reminder = length - i*32;
 	if(reminder != 0) {
 		extension_i2c_read(extension,
-						   EXTENSION_POS_ANY + position + i*32,
+						   position + i*32,
 						   data + i*32,
 						   reminder);
 	}
 }
 
-void wifi_write_config(char *data, uint8_t length, uint8_t position) {
+void wifi_write_config(const char *data, const uint8_t length, const uint8_t position) {
 	uint8_t extension;
 	if(com_ext[0] == COM_WIFI) {
 		extension = 0;
@@ -524,10 +541,12 @@ void wifi_write_config(char *data, uint8_t length, uint8_t position) {
 		return;
 	}
 
-	uint8_t reminder = 32 - ((EXTENSION_POS_ANY + position) % 32);
+	printf("write config: %d %d\n\r", length, position);
+
+	uint8_t reminder = 32 - (position % 32);
 	if(reminder != 32) {
 		extension_i2c_write(extension,
-						    EXTENSION_POS_ANY + position,
+						    position,
 						    data,
 						    reminder);
 	} else {
@@ -537,7 +556,7 @@ void wifi_write_config(char *data, uint8_t length, uint8_t position) {
 	uint8_t i = 0;
 	for(i = 0; i < (length - reminder)/32; i++) {
 		extension_i2c_write(extension,
-						    EXTENSION_POS_ANY + position + reminder + i*32,
+						    position + reminder + i*32,
 						    data + reminder + i*32,
 						    32);
 	}
@@ -545,7 +564,7 @@ void wifi_write_config(char *data, uint8_t length, uint8_t position) {
 	uint8_t last = (length - reminder) - i*32;
 	if(last != 0) {
 		extension_i2c_write(extension,
-						    EXTENSION_POS_ANY + position + reminder + i*32,
+						    position + reminder + i*32,
 						    data + reminder + i*32,
 						    last);
 	}
@@ -553,13 +572,14 @@ void wifi_write_config(char *data, uint8_t length, uint8_t position) {
 	wifi_write_key();
 }
 
-uint32_t wifi_tick_counter = 0;
 void wifi_tick(void) {
-	wifi_tick_counter++;
+	static uint16_t wifi_error_counter = 0;
 
 	switch(wifi_status.state) {
 		case WIFI_STATE_STARTUP_ERROR: {
-			if(wifi_tick_counter % 2000 == 0) {
+			wifi_error_counter++;
+			if(wifi_error_counter >= 2000) {
+				wifi_error_counter = 0;
 				wifi_init();
 			}
 			break;
@@ -582,9 +602,9 @@ void wifi_tick(void) {
 			break;
 		}
 		case WIFI_STATE_DISASSOCIATED: {
-			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WA) == WIFI_ANSWER_OK) {
-				wifi_status.state = WIFI_STATE_ASSOCIATING;
-			}
+			printf("WIFI_STATE_DISASSOCIATED\n\r");
+			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
+			wifi_status.state = WIFI_STATE_ASSOCIATING;
 			break;
 		}
 

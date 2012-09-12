@@ -559,3 +559,67 @@ void get_wifi_status(uint8_t com, const GetWifiStatus *data) {
 
 	send_blocking_with_timeout(&gwsr, sizeof(GetWifiStatusReturn), com);
 }
+
+void refresh_wifi_status(uint8_t com, const RefreshWifiStatus *data) {
+	printf("refresh wifi status\n\r");
+	wifi_refresh_status();
+}
+
+void set_wifi_certificate(uint8_t com, const SetWifiCertificate *data) {
+	if(data->data_length > 32) {
+		return;
+	}
+
+	if(data->index == 0xFFFF) {
+		char data_tmp[32];
+		memcpy(data_tmp, data->data, data->data_length);
+		memset(data_tmp + data->data_length, 0, 32 - data->data_length);
+		wifi_write_config(data_tmp, 32, WIFI_USERNAME_POS);
+	} else if(data->index == 0xFFFE) {
+		char data_tmp[32];
+		memcpy(data_tmp, data->data, data->data_length);
+		memset(data_tmp + data->data_length, 0, 32 - data->data_length);
+		wifi_write_config(data_tmp, 32, WIFI_PASSWORD_POS);
+	} else if(data->index < 7168/32) {
+		wifi_write_config(data->data,
+		                  data->data_length,
+		                  WIFI_CERTIFICATE + data->index*32);
+	}
+
+	logwifii("set_wifi_certificate: %d %d\n\r", data->index, data->data_length);
+}
+
+void get_wifi_certificate(uint8_t com, const GetWifiCertificate *data) {
+	GetWifiCertificateReturn gwcr;
+
+	gwcr.stack_id        = data->stack_id;
+	gwcr.type            = data->type;
+	gwcr.length          = sizeof(GetWifiCertificateReturn);
+
+	gwcr.data_length     = 0;
+	if(data->index == 0xFFFF) {
+		wifi_read_config(gwcr.data,
+		                 32,
+		                 WIFI_USERNAME_POS);
+
+		for(int8_t i = 31; i >= 0; i--) {
+			if(gwcr.data[i] != 0) {
+				gwcr.data_length = i+1;
+				break;
+ 			}
+		}
+	} else if(data->index == 0xFFFE) {
+		wifi_read_config(gwcr.data,
+		                 32,
+		                 WIFI_PASSWORD_POS);
+
+		for(int8_t i = 31; i >= 0; i--) {
+			if(gwcr.data[i] != 0) {
+				gwcr.data_length = i+1;
+				break;
+ 			}
+		}
+	}
+
+	send_blocking_with_timeout(&gwcr, sizeof(GetWifiCertificateReturn), com);
+}
