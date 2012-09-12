@@ -67,16 +67,16 @@ void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName)
 	while(true);
 }
 
-#define BLINK_CYCLE 1000000
+#define BLINK_DELAY 40
 
 void blinkenlights(const uint8_t length) {
     for(uint8_t j = 0; j < length; j++) {
 		for(uint8_t i = LED_EXT_BLUE_0; i <= LED_EXT_BLUE_3; i++) {
-			led_blink(i, BLINK_CYCLE);
+			led_blink(i, BLINK_DELAY);
 		}
 
 		for(uint8_t i = LED_EXT_BLUE_3; i >= LED_EXT_BLUE_0; i--) {
-			led_blink(i, BLINK_CYCLE);
+			led_blink(i, BLINK_DELAY);
 		}
     }
 }
