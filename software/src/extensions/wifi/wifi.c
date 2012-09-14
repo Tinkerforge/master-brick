@@ -138,12 +138,16 @@ bool wifi_init(void) {
 
     wifi_command_flush();
 
+    SLEEP_MS(1);
+
     logwifid("AT+ATE0\n\r");
     wifi_command_send(WIFI_COMMAND_ID_AT_ATE0);
+    SLEEP_MS(1);
     wifi_command_flush();
 
     logwifid("AT+ATV0\n\r");
     wifi_command_send(WIFI_COMMAND_ID_AT_ATV0);
+    SLEEP_MS(1);
     wifi_command_flush();
 
     bool startup = true;
@@ -163,7 +167,6 @@ bool wifi_init(void) {
 
 //	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXPS_OFF);
 
-    // TODO: choosable!
 	// Wifi module always on (no sleep)
     if(startup) {
     	logwifid("AT+WRXACTIVE=1\n\r");
