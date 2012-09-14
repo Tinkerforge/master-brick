@@ -37,6 +37,9 @@
 #define WIFI_ERROR_BAD_RESPONSE 1
 #define WIFI_ERROR_COULD_NOT_CONNECT 2
 
+#define WIFI_POWER_MODE_FULL_SPEED 0
+#define WIFI_POWER_MODE_LOW_POWER  1
+
 typedef enum {
 	WIFI_STATE_DISASSOCIATED = 0,
 	WIFI_STATE_ASSOCIATED = 1,
@@ -80,9 +83,10 @@ void wifi_establish_connection(void);
 void wifi_message_loop(void *parameters);
 void wifi_message_loop_return(char *data, uint16_t length);
 void wifi_init_extension(uint8_t extension);
-void wifi_read_config(char *data, const uint8_t length, const uint8_t position);
-void wifi_write_config(const char *data, const uint8_t length, const uint8_t position);
-void wifi_tick(void);
+void wifi_read_config(char *data, const uint8_t length, const uint16_t position);
+void wifi_write_config(const char *data, const uint8_t length, const uint16_t position);
+void wifi_tick(uint8_t tick_type);
 void wifi_refresh_status(void);
+void wifi_set_power_mode(const uint8_t mode);
 
 #endif

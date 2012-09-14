@@ -26,6 +26,7 @@
 #include "wifi_brickd.h"
 
 #include "bricklib/com/com_messages.h"
+#include "bricklib/utility/led.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -111,7 +112,10 @@ void wifi_data_next(const char data) {
 			if(wifi_buffer_size_counter >= 4) {
 				uint16_t length = get_length_from_data((const char*)wifi_buffer_recv);
 				if(wifi_buffer_size_counter == length) {
-					wifi_data_cid_present[wifi_data_current_cid] = true;
+					if(!wifi_data_cid_present[wifi_data_current_cid]) {
+						wifi_data_cid_present[wifi_data_current_cid] = true;
+						led_on(LED_EXT_BLUE_3);
+					}
 					wifi_buffer_size_recv = wifi_buffer_size_counter;
 					wifi_buffer_size_counter = 0;
 					wifi_brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);

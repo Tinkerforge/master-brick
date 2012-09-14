@@ -48,6 +48,8 @@ extern char rs485_config_parity;
 extern uint8_t rs485_config_stopbits;
 
 extern WifiStatus wifi_status;
+extern WifiConfiguration wifi_configuration;
+extern uint8_t wifi_power_mode;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -561,8 +563,8 @@ void get_wifi_status(uint8_t com, const GetWifiStatus *data) {
 }
 
 void refresh_wifi_status(uint8_t com, const RefreshWifiStatus *data) {
-	printf("refresh wifi status\n\r");
 	wifi_refresh_status();
+	logwifii("wifi_refresh_status\n\r");
 }
 
 void set_wifi_certificate(uint8_t com, const SetWifiCertificate *data) {
@@ -580,9 +582,9 @@ void set_wifi_certificate(uint8_t com, const SetWifiCertificate *data) {
 		memcpy(data_tmp, data->data, data->data_length);
 		memset(data_tmp + data->data_length, 0, 32 - data->data_length);
 		wifi_write_config(data_tmp, 32, WIFI_PASSWORD_POS);
-	} else if(data->index < 7168/32) {
+	} else if(data->index < (6*1024)/32) {
 		wifi_write_config(data->data,
-		                  data->data_length,
+		                  32,
 		                  WIFI_CERTIFICATE + data->index*32);
 	}
 
@@ -619,7 +621,34 @@ void get_wifi_certificate(uint8_t com, const GetWifiCertificate *data) {
 				break;
  			}
 		}
+	} else if(data->index < (6*1024)/32) {
+		wifi_read_config(gwcr.data,
+		                 32,
+		                 WIFI_CERTIFICATE + data->index*32);
+		if(data->index == ((wifi_configuration.certificate_length+31)/32 - 1)) {
+			gwcr.data_length = wifi_configuration.certificate_length % 32;
+		} else {
+			gwcr.data_length = 32;
+		}
 	}
 
 	send_blocking_with_timeout(&gwcr, sizeof(GetWifiCertificateReturn), com);
+	logwifii("get_wifi_certificate: %d\n\r", gwcr.data_length);
+}
+
+void set_wifi_power_mode(uint8_t com, const SetWifiPowerMode *data) {
+	wifi_set_power_mode(data->mode);
+	logwifii("set_wifi_power_mode: %d\n\r", data->mode);
+}
+
+void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data) {
+	GetWifiPowerModeReturn gwpmr;
+
+	gwpmr.stack_id        = data->stack_id;
+	gwpmr.type            = data->type;
+	gwpmr.length          = sizeof(GetWifiPowerModeReturn);
+	gwpmr.mode            = wifi_power_mode;
+
+	send_blocking_with_timeout(&gwpmr, sizeof(GetWifiPowerModeReturn), com);
+	logwifii("get_wifi_power_mode: %d\n\r", gwpmr.mode);
 }

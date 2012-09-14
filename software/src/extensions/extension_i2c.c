@@ -84,7 +84,7 @@ bool extension_i2c_read(const uint8_t extension,
 
 bool extension_i2c_write(const uint8_t extension,
                          const uint16_t address,
-                         char *data,
+                         const char *data,
                          const uint16_t length) {
 	extension_i2c_select(extension);
 	bool ret = i2c_eeprom_master_write(TWI_STACK,

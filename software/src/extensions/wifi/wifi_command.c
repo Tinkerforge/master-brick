@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "bricklib/logging/logging.h"
 #include "bricklib/drivers/pio/pio.h"
 
 #include "extensions/extension_i2c.h"
@@ -64,6 +65,9 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_WRSSI,
 	WIFI_COMMAND_AT_NSTAT,
 	WIFI_COMMAND_AT_VER,
+	WIFI_COMMAND_AT_PSPOLLINTRL,
+	WIFI_COMMAND_AT_WEAPCONF,
+	WIFI_COMMAND_AT_WEAP
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -96,7 +100,10 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_SPICONF)-1,
 	sizeof(WIFI_COMMAND_AT_WRSSI)-1,
 	sizeof(WIFI_COMMAND_AT_NSTAT)-1,
-	sizeof(WIFI_COMMAND_AT_VER)-1
+	sizeof(WIFI_COMMAND_AT_VER)-1,
+	sizeof(WIFI_COMMAND_AT_PSPOLLINTRL)-1,
+	sizeof(WIFI_COMMAND_AT_WEAPCONF)-1,
+	sizeof(WIFI_COMMAND_AT_WEAP)-1
 };
 
 extern WifiConfiguration wifi_configuration;
@@ -107,17 +114,6 @@ void wifi_command_send(const WIFICommand command) {
 	                            wifi_command_length[command]);
 
 	switch(command) {
-		case WIFI_COMMAND_ID_AT:
-		case WIFI_COMMAND_ID_AT_WD:
-		case WIFI_COMMAND_ID_AT_ATA:
-		case WIFI_COMMAND_ID_AT_ATO:
-		case WIFI_COMMAND_ID_AT_ATC_ON:
-		case WIFI_COMMAND_ID_AT_ATC_OFF:
-		case WIFI_COMMAND_ID_AT_NDHCP_ON:
-		case WIFI_COMMAND_ID_AT_NDHCP_OFF: {
-			break;
-		}
-
 		case WIFI_COMMAND_ID_AT_WWPA: {
 			uint8_t length;
 			for(length = 0; length < 51; length++) {
@@ -193,6 +189,7 @@ void wifi_command_send(const WIFICommand command) {
 			        wifi_configuration.gateway[0]);
 
 			wifi_low_level_write_buffer(str, strlen(str));
+			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WWEP: {
@@ -203,6 +200,70 @@ void wifi_command_send(const WIFICommand command) {
 			        wifi_configuration.key);
 
 			wifi_low_level_write_buffer(str, strlen(str));
+			break;
+		}
+
+		case WIFI_COMMAND_ID_AT_WEAPCONF: {
+			char str[72] = {'\0'};
+			uint8_t outer = 0;
+			switch(wifi_configuration.eap_options & 0b00000011) {
+				case 0:
+					outer = 43;
+					break;
+				case 1:
+					outer = 13;
+					break;
+				case 2:
+					outer = 21;
+					break;
+				case 3:
+					outer = 25;
+					break;
+			}
+
+			uint8_t inner = 0;
+			switch((wifi_configuration.eap_options >> 2) & 0b00000001) {
+				case 0:
+					inner = 26;
+					break;
+				case 1:
+					inner = 6;
+					break;
+			}
+
+			uint8_t printed = sprintf(str, "%d,%d,", outer, inner);
+
+			wifi_read_config(&str[printed], 32, WIFI_USERNAME_POS);
+			printed = strlen(str);
+			str[printed] = ',';
+
+			wifi_read_config(&str[printed+1], 32, WIFI_PASSWORD_POS);
+
+			wifi_low_level_write_buffer(str, strlen(str));
+
+			break;
+		}
+
+		case WIFI_COMMAND_ID_AT_WEAP: {
+			char str[33] = {'\0'};
+
+			uint8_t type = (wifi_configuration.eap_options >> 3) & 0b00000011;
+
+			sprintf(str, "%d,0,%d,1\n\r%cW", type, wifi_configuration.certificate_length, 0x1B);
+			wifi_low_level_write_buffer(str, strlen(str));
+
+			uint16_t i;
+			str[32] = '\0';
+			for(i = 0; i < wifi_configuration.certificate_length; i+=32) {
+				wifi_read_config(str, 32, WIFI_CERTIFICATE + i);
+				if(i + 32 < wifi_configuration.certificate_length) {
+					wifi_low_level_write_buffer(str, 32);
+				} else {
+					wifi_low_level_write_buffer(str, wifi_configuration.certificate_length % 32);
+				}
+			}
+
+			break;
 		}
 
 		default: {
@@ -230,7 +291,6 @@ uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout) {
 		} else {
 			if(wifi_low_level_is_byte_stuffing(b)) {
 				// TODO: handle XON/XOFF etc
-
 
 				if(b == WIFI_LOW_LEVEL_SPI_ESC_CHAR) {
 					//while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
@@ -289,13 +349,16 @@ uint8_t wifi_command_parse(const char *data, const uint8_t length) {
 		}
 
 		case '9': {
-			printf("disassociated\n\r");
+			logwifii("disassociated\n\r");
 			return WIFI_ANSWER_DISASSOCIATED;
 		}
 
 		default: {
-			printf("command: %c %d\n\r", data[0], data[0]);
-			printf("command str: %s\n\r", data);
+			if(data[0] == 'O' && data[1] == 'K') {
+				return WIFI_ANSWER_OK;
+			}
+			logwifid("parse default: %c %d\n\r", data[0], data[0]);
+			logwifid("parse default str: %s\n\r", data);
 			return WIFI_ANSWER_NO_ANSWER;
 		}
 	}

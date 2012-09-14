@@ -45,6 +45,7 @@
 
 extern ComType com_ext[];
 extern uint32_t led_rxtx;
+extern uint32_t led_ext3_rxtx;
 extern ComType com_current;
 
 extern uint8_t com_stack_id;
@@ -54,6 +55,7 @@ extern BrickletSettings bs[];
 extern const BrickletAddress baddr[];
 
 
+uint8_t wifi_power_mode = 0;
 bool wifi_task_created = false;
 uint8_t wifi_buffer_recv[WIFI_BUFFER_SIZE] = {0};
 uint16_t wifi_buffer_size_recv = 0;
@@ -93,6 +95,8 @@ bool wifi_init(void) {
     pins_wifi_spi[WIFI_DATA_RDY].type = PIO_INPUT;
 
     PIO_Configure(pins_wifi_spi, PIO_LISTSIZE(pins_wifi_spi));
+
+    led_off(LED_EXT_BLUE_3);
 
     wifi_brickd_init();
     wifi_low_level_deselect();
@@ -159,10 +163,19 @@ bool wifi_init(void) {
 
 //	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXPS_OFF);
 
+    // TODO: choosable!
 	// Wifi module always on (no sleep)
     if(startup) {
     	logwifid("AT+WRXACTIVE=1\n\r");
     	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXACTIVE_ON) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
+
+    if(startup) {
+    	logwifid("AT+PSPOLLINTRL=0\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_PSPOLLINTRL) != WIFI_ANSWER_OK) {
     		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
     		startup = false;
     	}
@@ -183,6 +196,22 @@ bool wifi_init(void) {
 		if(startup) {
 			logwifid("AT+WWPA\n\r");
 			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WWPA) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+	} else if(wifi_configuration.encryption == ENCRYPTION_WPA_ENTERPRISE) {
+		if(startup) {
+			logwifid("AT+WEAPCONF\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WEAPCONF) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+		if(startup) {
+			logwifid("AT+WEAP\n\r");
+			uint8_t ret;
+			if((ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WEAP)) != WIFI_ANSWER_OK) {
 				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
 				startup = false;
 			}
@@ -391,6 +420,7 @@ uint16_t wifi_send(const void *data, const uint16_t length) {
 	}
 
 	led_rxtx++;
+	led_ext3_rxtx++;
 
 	uint16_t send_length = MIN(length, WIFI_BUFFER_SIZE);
 
@@ -410,6 +440,7 @@ uint16_t wifi_recv(void *data, const uint16_t length) {
 	}
 
 	led_rxtx++;
+	led_ext3_rxtx++;
 
 	static uint16_t recv_pointer = 0;
 
@@ -497,7 +528,7 @@ void wifi_write_key(void) {
 					    4);
 }
 
-void wifi_read_config(char *data, const uint8_t length, const uint8_t position) {
+void wifi_read_config(char *data, const uint8_t length, const uint16_t position) {
 	uint8_t extension;
 	if(com_ext[0] == COM_WIFI) {
 		extension = 0;
@@ -530,7 +561,7 @@ void wifi_read_config(char *data, const uint8_t length, const uint8_t position) 
 	}
 }
 
-void wifi_write_config(const char *data, const uint8_t length, const uint8_t position) {
+void wifi_write_config(const char *data, const uint8_t length, const uint16_t position) {
 	uint8_t extension;
 	if(com_ext[0] == COM_WIFI) {
 		extension = 0;
@@ -540,8 +571,6 @@ void wifi_write_config(const char *data, const uint8_t length, const uint8_t pos
 		// TODO: Error?
 		return;
 	}
-
-	printf("write config: %d %d\n\r", length, position);
 
 	uint8_t reminder = 32 - (position % 32);
 	if(reminder != 32) {
@@ -572,37 +601,60 @@ void wifi_write_config(const char *data, const uint8_t length, const uint8_t pos
 	wifi_write_key();
 }
 
-void wifi_tick(void) {
-	static uint16_t wifi_error_counter = 0;
+void wifi_tick(uint8_t tick_type) {
+	static uint16_t wifi_counter = 0;
+
+	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
+		return;
+	}
 
 	switch(wifi_status.state) {
 		case WIFI_STATE_STARTUP_ERROR: {
-			wifi_error_counter++;
-			if(wifi_error_counter >= 2000) {
-				wifi_error_counter = 0;
+			led_off(LED_EXT_BLUE_3);
+			PIO_Set(&pins_wifi_spi[WIFI_LED]);
+			wifi_counter++;
+			if(wifi_counter >= 2000) {
+				wifi_counter = 0;
 				wifi_init();
 			}
 			break;
 		}
 		case WIFI_STATE_ASSOCIATING: {
 			char data[100];
+
+			const uint8_t wifi_counter_mod =  wifi_counter % 200;
+			if(wifi_counter_mod == 0) {
+				PIO_Clear(&pins_wifi_spi[WIFI_LED]);
+			} else if(wifi_counter_mod == 100) {
+				PIO_Set(&pins_wifi_spi[WIFI_LED]);
+			}
+			wifi_counter++;
+
+			led_off(LED_EXT_BLUE_3);
+
 			const uint8_t length = wifi_command_recv(data, 100, 500);
 			uint8_t ret = wifi_command_parse(data, length);
+
 			if(ret == WIFI_ANSWER_OK) {
+				wifi_counter = 0;
 				wifi_status.state = WIFI_STATE_ASSOCIATED;
 				wifi_refresh_status();
 				ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSTCP);
 			} else if(ret == WIFI_ANSWER_ERROR) {
-				printf("answer: error\n\r");
+				wifi_counter = 0;
+				logwifid("Could not associate\n\r");
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			}
 			break;
 		}
 		case WIFI_STATE_ASSOCIATED: {
+			PIO_Clear(&pins_wifi_spi[WIFI_LED]);
 			break;
 		}
 		case WIFI_STATE_DISASSOCIATED: {
-			printf("WIFI_STATE_DISASSOCIATED\n\r");
+			led_off(LED_EXT_BLUE_3);
+			PIO_Set(&pins_wifi_spi[WIFI_LED]);
+			logwifid("wifi state disassociated\n\r");
 			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
 			wifi_status.state = WIFI_STATE_ASSOCIATING;
 			break;
@@ -613,4 +665,14 @@ void wifi_tick(void) {
 		}
 	}
 
+}
+
+void wifi_set_power_mode(const uint8_t mode) {
+	if(mode == WIFI_POWER_MODE_LOW_POWER) {
+		wifi_power_mode = WIFI_POWER_MODE_LOW_POWER;
+		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXACTIVE_OFF);
+	} else {
+		wifi_power_mode = WIFI_POWER_MODE_FULL_SPEED;
+		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXACTIVE_ON);
+	}
 }
