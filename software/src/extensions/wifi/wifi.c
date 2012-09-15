@@ -285,6 +285,45 @@ bool wifi_init(void) {
     return true;
 }
 
+bool wifi_parse_ip(const char *data, const char *search_str, uint8_t *result) {
+	char *ptr;
+	if((ptr = strcasestr(data, search_str)) != NULL) {
+		ptr += strlen(search_str);
+		char *ptr_tmp = ptr;
+		for(int8_t j = 3; j >= 0; j--) {
+			for(uint8_t i = 0; i < 4; i++) {
+				ptr_tmp++;
+				if(!(*ptr_tmp >= '0' && *ptr_tmp <= '9')) {
+					result[j] = atoi(ptr);
+					ptr = ptr_tmp+1;
+					break;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool wifi_parse_mac(const char *data, const char *search_str, uint8_t *result) {
+	char *ptr;
+	if((ptr = strcasestr(data, search_str)) != NULL) {
+		ptr += strlen(search_str);
+		for(int8_t i = 5; i >= 0; i--) {
+			result[i] = wifi_data_hex_to_int(*ptr) << 4;
+			ptr++;
+			result[i] |= wifi_data_hex_to_int(*ptr);
+			ptr+=2;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 void wifi_refresh_status(void) {
 	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
 		logwifii("Refresh status: not associated\n\r");
@@ -308,27 +347,11 @@ void wifi_refresh_status(void) {
 		data[length] = '\0';
 
 		char *ptr;
-		if((ptr = strcasestr(data, "MAC=")) != NULL) {
-			ptr += strlen("MAC=");
-			for(int8_t i = 5; i >= 0; i--) {
-				wifi_status.mac_address[i] = wifi_data_hex_to_int(*ptr) << 4;
-				ptr++;
-				wifi_status.mac_address[i] |= wifi_data_hex_to_int(*ptr);
-				ptr+=2;
-			}
-
+		if(wifi_parse_mac(data, "MAC=", wifi_status.mac_address)) {
 			logwifii("mac: %x:%x:%x:%x:%x:%x\n\r", wifi_status.mac_address[5], wifi_status.mac_address[4], wifi_status.mac_address[3], wifi_status.mac_address[2], wifi_status.mac_address[1], wifi_status.mac_address[0]);
 		}
 
-		if((ptr = strcasestr(data, "BSSID=")) != NULL) {
-			ptr += strlen("BSSID=");
-			for(int8_t i = 5; i >= 0; i--) {
-				wifi_status.bssid[i] = wifi_data_hex_to_int(*ptr) << 4;
-				ptr++;
-				wifi_status.bssid[i] |= wifi_data_hex_to_int(*ptr);
-				ptr+=2;
-			}
-
+		if(wifi_parse_mac(data, "BSSID=", wifi_status.bssid)) {
 			logwifii("bssid: %x:%x:%x:%x:%x:%x\n\r", wifi_status.bssid[5], wifi_status.bssid[4], wifi_status.bssid[3], wifi_status.bssid[2], wifi_status.bssid[1], wifi_status.bssid[0]);
 		}
 
@@ -346,54 +369,15 @@ void wifi_refresh_status(void) {
 			logwifii("rssi: %d\n\r", wifi_status.rssi);
 		}
 
-		if((ptr = strcasestr(data, "IP addr=")) != NULL) {
-			ptr += strlen("IP addr=");
-			char *ptr_tmp = ptr;
-			for(int8_t j = 3; j >= 0; j--) {
-				for(uint8_t i = 0; i < 4; i++) {
-					ptr_tmp++;
-					if(*ptr_tmp == '.' || *ptr_tmp == ' ') {
-						wifi_status.ip[j] = atoi(ptr);
-						ptr = ptr_tmp+1;
-						break;
-					}
-				}
-			}
-
+		if(wifi_parse_ip(data, "IP addr=", wifi_status.ip)) {
 			logwifii("ip: %d.%d.%d.%d\n\r", wifi_status.ip[3], wifi_status.ip[2], wifi_status.ip[1], wifi_status.ip[0]);
 		}
 
-		if((ptr = strcasestr(data, "SubNet=")) != NULL) {
-			ptr += strlen("SubNet=");
-			char *ptr_tmp = ptr;
-			for(int8_t j = 3; j >= 0; j--) {
-				for(uint8_t i = 0; i < 4; i++) {
-					ptr_tmp++;
-					if(*ptr_tmp == '.' || *ptr_tmp == ' ') {
-						wifi_status.subnet_mask[j] = atoi(ptr);
-						ptr = ptr_tmp+1;
-						break;
-					}
-				}
-			}
-
+		if(wifi_parse_ip(data, "SubNet=", wifi_status.subnet_mask)) {
 			logwifii("Subnet mask: %d.%d.%d.%d\n\r", wifi_status.subnet_mask[3], wifi_status.subnet_mask[2], wifi_status.subnet_mask[1], wifi_status.subnet_mask[0]);
 		}
 
-		if((ptr = strcasestr(data, "Gateway=")) != NULL) {
-			ptr += strlen("Gateway=");
-			char *ptr_tmp = ptr;
-			for(int8_t j = 3; j >= 0; j--) {
-				for(uint8_t i = 0; i < 4; i++) {
-					ptr_tmp++;
-					if(*ptr_tmp == '.' || *ptr_tmp == ' ') {
-						wifi_status.gateway[j] = atoi(ptr);
-						ptr = ptr_tmp+1;
-						break;
-					}
-				}
-			}
-
+		if(wifi_parse_ip(data, "Gateway=", wifi_status.gateway)) {
 			logwifii("Gateway: %d.%d.%d.%d\n\r", wifi_status.gateway[3], wifi_status.gateway[2], wifi_status.gateway[1], wifi_status.gateway[0]);
 		}
 
