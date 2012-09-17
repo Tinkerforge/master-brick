@@ -60,7 +60,9 @@ typedef struct {
 	char key[50];
 	uint8_t key_index;
 	uint8_t eap_options;
-	uint16_t certificate_length;
+	uint16_t ca_certificate_length;
+	uint16_t client_certificate_length;
+	uint16_t private_key_length;
 } __attribute__((__packed__)) WifiConfiguration;
 
 typedef struct {
@@ -90,5 +92,6 @@ void wifi_refresh_status(void);
 void wifi_set_power_mode(const uint8_t mode);
 bool wifi_parse_ip(const char *data, const char *search_str, uint8_t *result);
 bool wifi_parse_mac(const char *data, const char *search_str, uint8_t *result);
+void wifi_write_eap(void);
 
 #endif

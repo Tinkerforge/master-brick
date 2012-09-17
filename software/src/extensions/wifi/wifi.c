@@ -54,6 +54,8 @@ extern uint8_t com_last_spi_stack_id;
 extern BrickletSettings bs[];
 extern const BrickletAddress baddr[];
 
+extern uint8_t eap_type;
+
 
 uint8_t wifi_power_mode = 0;
 bool wifi_task_created = false;
@@ -177,12 +179,20 @@ bool wifi_init(void) {
     }
 
     if(startup) {
+    	logwifid("AT+WSYNCINTRL\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WSYNCINTRL) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
+
+/*    if(startup) {
     	logwifid("AT+PSPOLLINTRL=0\n\r");
     	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_PSPOLLINTRL) != WIFI_ANSWER_OK) {
     		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
     		startup = false;
     	}
-    }
+    }*/
 
 
 	// Bulk mode data transfer
@@ -211,12 +221,37 @@ bool wifi_init(void) {
 				startup = false;
 			}
 		}
+
 		if(startup) {
 			logwifid("AT+WEAP\n\r");
-			uint8_t ret;
-			if((ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WEAP)) != WIFI_ANSWER_OK) {
-				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
-				startup = false;
+			if(wifi_configuration.ca_certificate_length > 0) {
+				eap_type = 0;
+				if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WEAP) != WIFI_ANSWER_OK) {
+					wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+					startup = false;
+				} else {
+					wifi_write_eap();
+				}
+			}
+
+			if(wifi_configuration.client_certificate_length > 0) {
+				eap_type = 1;
+				if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WEAP) != WIFI_ANSWER_OK) {
+					wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+					startup = false;
+				} else {
+					wifi_write_eap();
+				}
+			}
+
+			if(wifi_configuration.private_key_length > 0) {
+				eap_type = 2;
+				if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WEAP) != WIFI_ANSWER_OK) {
+					wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+					startup = false;
+				} else {
+					wifi_write_eap();
+				}
 			}
 		}
 	} else if(wifi_configuration.encryption == ENCRYPTION_WEP) {
@@ -609,13 +644,14 @@ void wifi_tick(uint8_t tick_type) {
 		case WIFI_STATE_ASSOCIATING: {
 			char data[100];
 
+			wifi_counter++;
+
 			const uint8_t wifi_counter_mod =  wifi_counter % 200;
 			if(wifi_counter_mod == 0) {
 				PIO_Clear(&pins_wifi_spi[WIFI_LED]);
 			} else if(wifi_counter_mod == 100) {
 				PIO_Set(&pins_wifi_spi[WIFI_LED]);
 			}
-			wifi_counter++;
 
 			led_off(LED_EXT_BLUE_3);
 
@@ -623,12 +659,10 @@ void wifi_tick(uint8_t tick_type) {
 			uint8_t ret = wifi_command_parse(data, length);
 
 			if(ret == WIFI_ANSWER_OK) {
-				wifi_counter = 0;
 				wifi_status.state = WIFI_STATE_ASSOCIATED;
 				wifi_refresh_status();
 				ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSTCP);
 			} else if(ret == WIFI_ANSWER_ERROR) {
-				wifi_counter = 0;
 				logwifid("Could not associate\n\r");
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			}
@@ -641,7 +675,7 @@ void wifi_tick(uint8_t tick_type) {
 		case WIFI_STATE_DISASSOCIATED: {
 			led_off(LED_EXT_BLUE_3);
 			PIO_Set(&pins_wifi_spi[WIFI_LED]);
-			logwifid("wifi state disassociated\n\r");
+
 			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
 			wifi_status.state = WIFI_STATE_ASSOCIATING;
 			break;

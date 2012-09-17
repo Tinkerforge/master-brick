@@ -30,6 +30,7 @@
 #include "extensions/rs485/rs485_config.h"
 #include "extensions/wifi/wifi_config.h"
 #include "extensions/wifi/wifi.h"
+#include "extensions/wifi/wifi_command.h"
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
 
@@ -50,6 +51,7 @@ extern uint8_t rs485_config_stopbits;
 extern WifiStatus wifi_status;
 extern WifiConfiguration wifi_configuration;
 extern uint8_t wifi_power_mode;
+extern uint8_t eap_type;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -582,10 +584,20 @@ void set_wifi_certificate(uint8_t com, const SetWifiCertificate *data) {
 		memcpy(data_tmp, data->data, data->data_length);
 		memset(data_tmp + data->data_length, 0, 32 - data->data_length);
 		wifi_write_config(data_tmp, 32, WIFI_PASSWORD_POS);
-	} else if(data->index < (6*1024)/32) {
+	} else if(data->index < WIFI_CA_CERTIFICATE_MAX_LENGTH/32) {
 		wifi_write_config(data->data,
 		                  32,
-		                  WIFI_CERTIFICATE + data->index*32);
+		                  WIFI_CA_CERTIFICATE_POS + data->index*32);
+	} else if(data->index < 10000 + WIFI_CLIENT_CERTIFICATE_MAX_LENGTH/32) {
+		uint16_t index = data->index - 10000;
+		wifi_write_config(data->data,
+		                  32,
+		                  WIFI_CLIENT_CERTIFICATE_POS + index*32);
+	} else if(data->index < 20000 + WIFI_PRIVATE_KEY_MAX_LENGTH/32) {
+		uint16_t index = data->index - 20000;
+		wifi_write_config(data->data,
+		                  32,
+		                  WIFI_PRIVATE_KEY_POS + index*32);
 	}
 
 	logwifii("set_wifi_certificate: %d %d\n\r", data->index, data->data_length);
@@ -621,19 +633,39 @@ void get_wifi_certificate(uint8_t com, const GetWifiCertificate *data) {
 				break;
  			}
 		}
-	} else if(data->index < (6*1024)/32) {
+	} else if(data->index < WIFI_CA_CERTIFICATE_MAX_LENGTH/32) {
 		wifi_read_config(gwcr.data,
 		                 32,
-		                 WIFI_CERTIFICATE + data->index*32);
-		if(data->index == ((wifi_configuration.certificate_length+31)/32 - 1)) {
-			gwcr.data_length = wifi_configuration.certificate_length % 32;
+		                 WIFI_CA_CERTIFICATE_POS + data->index*32);
+		if(data->index == ((wifi_configuration.ca_certificate_length+31)/32 - 1)) {
+			gwcr.data_length = wifi_configuration.ca_certificate_length % 32;
+		} else {
+			gwcr.data_length = 32;
+		}
+	} else if(data->index < 10000 + WIFI_CLIENT_CERTIFICATE_MAX_LENGTH/32) {
+		uint16_t index = data->index - 10000;
+		wifi_read_config(gwcr.data,
+		                 32,
+		                 WIFI_CLIENT_CERTIFICATE_POS + index*32);
+		if(index == ((wifi_configuration.client_certificate_length+31)/32 - 1)) {
+			gwcr.data_length = wifi_configuration.client_certificate_length % 32;
+		} else {
+			gwcr.data_length = 32;
+		}
+	} else if(data->index < 20000 + WIFI_PRIVATE_KEY_MAX_LENGTH/32) {
+		uint16_t index = data->index - 20000;
+		wifi_read_config(gwcr.data,
+		                 32,
+		                 WIFI_PRIVATE_KEY_POS + index*32);
+		if(index == ((wifi_configuration.private_key_length+31)/32 - 1)) {
+			gwcr.data_length = wifi_configuration.private_key_length % 32;
 		} else {
 			gwcr.data_length = 32;
 		}
 	}
 
 	send_blocking_with_timeout(&gwcr, sizeof(GetWifiCertificateReturn), com);
-	logwifii("get_wifi_certificate: %d\n\r", gwcr.data_length);
+	logwifii("get_wifi_certificate: %d %d\n\r", data->index, gwcr.data_length);
 }
 
 void set_wifi_power_mode(uint8_t com, const SetWifiPowerMode *data) {

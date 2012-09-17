@@ -437,7 +437,9 @@ typedef struct {
 	char key[50];
 	uint8_t key_index;
 	uint8_t eap_options;
-	uint16_t certificate_length;
+	uint16_t ca_certificate_length;
+	uint16_t client_certificate_length;
+	uint16_t private_key_length;
 } __attribute__((__packed__)) SetWifiEncryption;
 
 typedef struct {
@@ -454,7 +456,9 @@ typedef struct {
 	char key[50];
 	uint8_t key_index;
 	uint8_t eap_options;
-	uint16_t certificate_length;
+	uint16_t ca_certificate_length;
+	uint16_t client_certificate_length;
+	uint16_t private_key_length;
 } __attribute__((__packed__)) GetWifiEncryptionReturn;
 
 typedef struct {

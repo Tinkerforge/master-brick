@@ -34,6 +34,8 @@
 
 extern WifiStatus wifi_status;
 
+uint8_t eap_type = 0xFF;
+
 static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT,
 	WIFI_COMMAND_AT_WD,
@@ -67,7 +69,8 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_VER,
 	WIFI_COMMAND_AT_PSPOLLINTRL,
 	WIFI_COMMAND_AT_WEAPCONF,
-	WIFI_COMMAND_AT_WEAP
+	WIFI_COMMAND_AT_WEAP,
+	WIFI_COMMAND_AT_WSYNCINTRL
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -103,7 +106,8 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_VER)-1,
 	sizeof(WIFI_COMMAND_AT_PSPOLLINTRL)-1,
 	sizeof(WIFI_COMMAND_AT_WEAPCONF)-1,
-	sizeof(WIFI_COMMAND_AT_WEAP)-1
+	sizeof(WIFI_COMMAND_AT_WEAP)-1,
+	sizeof(WIFI_COMMAND_AT_WSYNCINTRL)-1
 };
 
 extern WifiConfiguration wifi_configuration;
@@ -245,23 +249,32 @@ void wifi_command_send(const WIFICommand command) {
 		}
 
 		case WIFI_COMMAND_ID_AT_WEAP: {
-			char str[33] = {'\0'};
+			char str[13] = {'\0'};
 
-			uint8_t type = (wifi_configuration.eap_options >> 3) & 0b00000011;
+			uint16_t length;
+			switch(eap_type) {
+				case 0: {
+					length = wifi_configuration.ca_certificate_length;
+					break;
+				}
 
-			sprintf(str, "%d,0,%d,1\n\r%cW", type, wifi_configuration.certificate_length, 0x1B);
-			wifi_low_level_write_buffer(str, strlen(str));
+				case 1: {
+					length = wifi_configuration.client_certificate_length;
+					break;
+				}
 
-			uint16_t i;
-			str[32] = '\0';
-			for(i = 0; i < wifi_configuration.certificate_length; i+=32) {
-				wifi_read_config(str, 32, WIFI_CERTIFICATE + i);
-				if(i + 32 < wifi_configuration.certificate_length) {
-					wifi_low_level_write_buffer(str, 32);
-				} else {
-					wifi_low_level_write_buffer(str, wifi_configuration.certificate_length % 32);
+				case 2: {
+					length = wifi_configuration.private_key_length;
+					break;
+				}
+
+				default: {
+					return;
 				}
 			}
+
+			sprintf(str, "%d,0,%d,1", eap_type, length);
+			wifi_low_level_write_buffer(str, strlen(str));
 
 			break;
 		}
@@ -272,6 +285,55 @@ void wifi_command_send(const WIFICommand command) {
 	}
 
 	wifi_low_level_write_buffer("\r\n", 2);
+}
+
+void wifi_write_eap(void) {
+	uint16_t length;
+	uint16_t offset;
+	switch(eap_type) {
+		case 0: {
+			length = wifi_configuration.ca_certificate_length;
+			offset = WIFI_CA_CERTIFICATE_POS;
+			break;
+		}
+
+		case 1: {
+			length = wifi_configuration.client_certificate_length;
+			offset = WIFI_CLIENT_CERTIFICATE_POS;
+			break;
+		}
+
+		case 2: {
+			length = wifi_configuration.private_key_length;
+			offset = WIFI_PRIVATE_KEY_POS;
+			break;
+		}
+
+		default: {
+			return;
+		}
+	}
+
+	char str[33] = {'\0'};
+
+	str[0] = 0x1B;
+	str[1] = 'W';
+	wifi_low_level_write_buffer(str, 2);
+
+	uint16_t i;
+	str[32] = '\0';
+	for(i = 0; i < length; i+=32) {
+		wifi_read_config(str, 32, offset + i);
+		if(i + 32 < length) {
+			wifi_low_level_write_buffer(str, 32);
+		} else {
+			wifi_low_level_write_buffer(str, length % 32);
+		}
+	}
+
+	wifi_command_recv_and_parse();
+
+	eap_type = 0xFF;
 }
 
 uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout) {
