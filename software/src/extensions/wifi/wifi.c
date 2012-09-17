@@ -56,6 +56,8 @@ extern const BrickletAddress baddr[];
 
 extern uint8_t eap_type;
 
+int8_t wifi_new_cid = -1;
+
 
 uint8_t wifi_power_mode = 0;
 bool wifi_task_created = false;
@@ -159,6 +161,14 @@ bool wifi_init(void) {
 		startup = false;
 	}
 
+ /*   if(startup) {
+    	logwifid("AT&F\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_F) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }*/
+
     if(startup) {
     	logwifid("AT+WD\n\r");
     	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WD) != WIFI_ANSWER_OK) {
@@ -167,7 +177,13 @@ bool wifi_init(void) {
     	}
     }
 
-//	wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXPS_OFF);
+    if(startup) {
+    	logwifid("AT+WRXPS=0\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXPS_OFF) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
 
 	// Wifi module always on (no sleep)
     if(startup) {
@@ -187,12 +203,28 @@ bool wifi_init(void) {
     }
 
 /*    if(startup) {
-    	logwifid("AT+PSPOLLINTRL=0\n\r");
-    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_PSPOLLINTRL) != WIFI_ANSWER_OK) {
+    	logwifid("ATS\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_ATS) != WIFI_ANSWER_OK) {
     		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
     		startup = false;
     	}
     }*/
+
+/*	if(startup) {
+		logwifid("AT+PSPOLLINTRL=0\n\r");
+		if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_PSPOLLINTRL) != WIFI_ANSWER_OK) {
+			wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+			startup = false;
+		}
+	}*/
+
+    if(startup) {
+    	logwifid("AT+ASYNCMSGFMT\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_ASYNCMSGFMT) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
 
 
 	// Bulk mode data transfer
@@ -659,9 +691,14 @@ void wifi_tick(uint8_t tick_type) {
 			uint8_t ret = wifi_command_parse(data, length);
 
 			if(ret == WIFI_ANSWER_OK) {
-				wifi_status.state = WIFI_STATE_ASSOCIATED;
-				wifi_refresh_status();
 				ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSTCP);
+				if(ret == WIFI_ANSWER_CONNECT) {
+					ret = wifi_command_recv_and_parse();
+					if(ret == WIFI_ANSWER_OK) {
+						wifi_status.state = WIFI_STATE_ASSOCIATED;
+						wifi_refresh_status();
+					}
+				}
 			} else if(ret == WIFI_ANSWER_ERROR) {
 				logwifid("Could not associate\n\r");
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
@@ -669,6 +706,13 @@ void wifi_tick(uint8_t tick_type) {
 			break;
 		}
 		case WIFI_STATE_ASSOCIATED: {
+			/*if(wifi_new_cid != -1) {
+				uint8_t ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_SO);
+				printf("ret1: %d\n\r", ret);
+				ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
+				printf("ret2: %d\n\r", ret);
+				wifi_new_cid = -1;
+			}*/
 			PIO_Clear(&pins_wifi_spi[WIFI_LED]);
 			break;
 		}
@@ -691,9 +735,11 @@ void wifi_tick(uint8_t tick_type) {
 void wifi_set_power_mode(const uint8_t mode) {
 	if(mode == WIFI_POWER_MODE_LOW_POWER) {
 		wifi_power_mode = WIFI_POWER_MODE_LOW_POWER;
+		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXPS_ON);
 		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXACTIVE_OFF);
 	} else {
 		wifi_power_mode = WIFI_POWER_MODE_FULL_SPEED;
 		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXACTIVE_ON);
+		wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRXPS_OFF);
 	}
 }

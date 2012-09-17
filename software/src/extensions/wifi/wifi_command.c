@@ -33,6 +33,7 @@
 #include "wifi_low_level.h"
 
 extern WifiStatus wifi_status;
+extern int8_t wifi_new_cid;
 
 uint8_t eap_type = 0xFF;
 
@@ -70,7 +71,12 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_PSPOLLINTRL,
 	WIFI_COMMAND_AT_WEAPCONF,
 	WIFI_COMMAND_AT_WEAP,
-	WIFI_COMMAND_AT_WSYNCINTRL
+	WIFI_COMMAND_AT_WSYNCINTRL,
+	WIFI_COMMAND_AT_ASYNCMSGFMT,
+	WIFI_COMMAND_AT_F,
+	WIFI_COMMAND_AT_SETSOCKOPT_SO,
+	WIFI_COMMAND_AT_SETSOCKOPT_TC,
+	WIFI_COMMAND_AT_ATS
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -107,7 +113,12 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_PSPOLLINTRL)-1,
 	sizeof(WIFI_COMMAND_AT_WEAPCONF)-1,
 	sizeof(WIFI_COMMAND_AT_WEAP)-1,
-	sizeof(WIFI_COMMAND_AT_WSYNCINTRL)-1
+	sizeof(WIFI_COMMAND_AT_WSYNCINTRL)-1,
+	sizeof(WIFI_COMMAND_AT_ASYNCMSGFMT)-1,
+	sizeof(WIFI_COMMAND_AT_F)-1,
+	sizeof(WIFI_COMMAND_AT_SETSOCKOPT_SO)-1,
+	sizeof(WIFI_COMMAND_AT_SETSOCKOPT_TC)-1,
+	sizeof(WIFI_COMMAND_AT_ATS)-1
 };
 
 extern WifiConfiguration wifi_configuration;
@@ -279,6 +290,30 @@ void wifi_command_send(const WIFICommand command) {
 			break;
 		}
 
+		case WIFI_COMMAND_ID_AT_SETSOCKOPT_SO: {
+			char str[20] = {'\0'};
+
+			sprintf(str, "%d,65535,8,1,4", wifi_new_cid);
+			wifi_low_level_write_buffer(str, strlen(str));
+
+			break;
+		}
+
+		case WIFI_COMMAND_ID_AT_SETSOCKOPT_TC: {
+			char str[20] = {'\0'};
+
+			sprintf(str, "%d,6,4001,600,4", wifi_new_cid);
+			wifi_low_level_write_buffer(str, strlen(str));
+
+			break;
+		}
+
+		case WIFI_COMMAND_ID_AT_ATS: {
+			char str[20] = {'\0'};
+			sprintf(str, "%d=1", 65000);
+			wifi_low_level_write_buffer(str, strlen(str));
+		}
+
 		default: {
 			break;
 		}
@@ -355,7 +390,7 @@ uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout) {
 				// TODO: handle XON/XOFF etc
 
 				if(b == WIFI_LOW_LEVEL_SPI_ESC_CHAR) {
-					//while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
+					while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
 					b = wifi_low_level_read_byte() ^ 0x20;
 				} else {
 					last_byte = b;

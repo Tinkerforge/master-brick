@@ -41,6 +41,8 @@ char wifi_data_length_buffer[4] = {0};
 extern uint8_t wifi_buffer_recv[];
 extern uint16_t wifi_buffer_size_recv;
 extern Pin pins_wifi_spi[];
+extern WifiStatus wifi_status;
+extern int8_t wifi_new_cid;
 
 uint16_t wifi_data_lenght_mul[4] = {1000, 100, 10, 1};
 
@@ -78,9 +80,51 @@ void wifi_data_next(const char data) {
 				wifi_data_state = WIFI_DATA_WAIT_FOR_CID;
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired = 0;
+			} else if(ndata == WIFI_DATA_CHAR_A) {
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC;
+				wifi_data_recv_length = 0;
+				wifi_data_recv_length_desired = 0;
 			} else {
+				printf("esc char: %c\n\r", ndata);
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 			}
+			break;
+		}
+
+		case WIFI_DATA_WAIT_FOR_ASYNC: {
+			printf("%c - %d\n\r", ndata, ndata);
+			if(ndata == '3') {
+				wifi_status.state = WIFI_STATE_DISASSOCIATED;
+			}
+			wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE;
+
+			break;
+		}
+
+		case WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE: {
+			printf("rs %c - %d\n\r", ndata, ndata);
+			wifi_data_recv_length++;
+			if(wifi_data_recv_length == 1) {
+				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)*16;
+			} else {
+				wifi_data_recv_length = 0;
+				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)+2;
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG;
+				printf("size: %d\n\r", wifi_data_recv_length_desired);
+			}
+
+			break;
+		}
+
+		case WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG: {
+			printf("rm %c - %d\n\r", ndata, ndata);
+			wifi_data_recv_length++;
+			if(wifi_data_recv_length >= wifi_data_recv_length_desired) {
+				wifi_data_recv_length = 0;
+				wifi_data_recv_length_desired = 0;
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+			}
+
 			break;
 		}
 
@@ -115,6 +159,7 @@ void wifi_data_next(const char data) {
 					if(!wifi_data_cid_present[wifi_data_current_cid]) {
 						wifi_data_cid_present[wifi_data_current_cid] = true;
 						led_on(LED_EXT_BLUE_3);
+						wifi_new_cid = wifi_data_current_cid;
 					}
 					wifi_buffer_size_recv = wifi_buffer_size_counter;
 					wifi_buffer_size_counter = 0;
