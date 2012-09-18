@@ -74,7 +74,7 @@ WifiConfiguration wifi_configuration = {
 	{0, 0, 0, 0},
 	4223,
 	0,
-	"1234123456785678",
+	"3164429505265866",
 	0,
 	0,
 	0
@@ -673,6 +673,7 @@ void wifi_tick(uint8_t tick_type) {
 			}
 			break;
 		}
+
 		case WIFI_STATE_ASSOCIATING: {
 			char data[100];
 
@@ -705,17 +706,17 @@ void wifi_tick(uint8_t tick_type) {
 			}
 			break;
 		}
+
 		case WIFI_STATE_ASSOCIATED: {
 			/*if(wifi_new_cid != -1) {
-				uint8_t ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_SO);
-				printf("ret1: %d\n\r", ret);
-				ret = wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
-				printf("ret2: %d\n\r", ret);
+				wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_SO);
+				wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
 				wifi_new_cid = -1;
 			}*/
 			PIO_Clear(&pins_wifi_spi[WIFI_LED]);
 			break;
 		}
+
 		case WIFI_STATE_DISASSOCIATED: {
 			led_off(LED_EXT_BLUE_3);
 			PIO_Set(&pins_wifi_spi[WIFI_LED]);

@@ -85,14 +85,12 @@ void wifi_data_next(const char data) {
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired = 0;
 			} else {
-				printf("esc char: %c\n\r", ndata);
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 			}
 			break;
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC: {
-			printf("%c - %d\n\r", ndata, ndata);
 			if(ndata == '3') {
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			}
@@ -102,7 +100,6 @@ void wifi_data_next(const char data) {
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE: {
-			printf("rs %c - %d\n\r", ndata, ndata);
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length == 1) {
 				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)*16;
@@ -110,14 +107,12 @@ void wifi_data_next(const char data) {
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)+2;
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG;
-				printf("size: %d\n\r", wifi_data_recv_length_desired);
 			}
 
 			break;
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG: {
-			printf("rm %c - %d\n\r", ndata, ndata);
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length >= wifi_data_recv_length_desired) {
 				wifi_data_recv_length = 0;
