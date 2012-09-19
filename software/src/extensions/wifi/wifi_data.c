@@ -208,6 +208,7 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 
 void wifi_data_send_escape(const char *data, const uint16_t length) {
 	int8_t cid = wifi_brickd_route_to((const uint8_t*)data);
+
 	if(cid == -1) {
 		for(uint8_t i = 1; i < WIFI_DATA_MAX_CID; i++) {
 			if(wifi_data_cid_present[i]) {
@@ -222,12 +223,11 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 
 void wifi_data_poll(void) {
 	uint8_t i = 0;
-	if(wifi_buffer_size_recv != 0i/* || !PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])*/) {
+	if(wifi_buffer_size_recv != 0/* || !PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])*/) {
 		return;
 	}
 
-	while(((wifi_buffer_size_recv == 0) && (i < 100)) ||
-	      (wifi_data_state != WIFI_DATA_WAIT_FOR_ESC)) {
+	while(((wifi_buffer_size_recv == 0) && (i < 100))) {
 		wifi_data_next(wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR));
 		i++;
 	}

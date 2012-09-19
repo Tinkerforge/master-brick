@@ -440,13 +440,14 @@ uint8_t wifi_command_parse(const char *data, const uint8_t length) {
 		}
 
 		case '8': {
+			logwifii("8: Disassociated\n\r");
 			wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			wifi_data_disconnect(wifi_data_hex_to_int(data[2]));
 			return WIFI_ANSWER_DISCONNECT;
 		}
 
 		case '9': {
-			logwifii("disassociated\n\r");
+			logwifii("9: Disassociated\n\r");
 			wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			return WIFI_ANSWER_DISASSOCIATED;
 		}

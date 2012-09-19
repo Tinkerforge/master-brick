@@ -723,6 +723,7 @@ void wifi_tick(uint8_t tick_type) {
 
 			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
 			wifi_status.state = WIFI_STATE_ASSOCIATING;
+			logwifid("State: Disassociated\n\r");
 			break;
 		}
 
