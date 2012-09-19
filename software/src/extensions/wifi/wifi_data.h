@@ -23,6 +23,7 @@
 #define WIFI_DATA_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define WIFI_DATA_CHAR_ESC 0x1B
 #define WIFI_DATA_CHAR_Z   'Z'
@@ -31,6 +32,7 @@
 #define WIFI_DATA_MAX_CID 16
 
 #define WIFI_DATA_ESCAPE_BUFFER_SIZE 7
+#define WIFI_DATA_RINGBUFFER_SIZE 1500
 
 typedef enum {
 	WIFI_DATA_WAIT_FOR_ESC,
@@ -43,7 +45,8 @@ typedef enum {
 	WIFI_DATA_WAIT_FOR_DATA
 } WIFIDataState;
 
-void wifi_data_next(const char data);
+uint16_t wifi_data_get_ringbuffer_diff(void);
+void wifi_data_next(const char data, bool transceive);
 void wifi_data_send(const char *data, const uint16_t length);
 void wifi_data_send_escape(const char *data, const uint16_t length);
 void wifi_data_send_escape_cid(const char *data, const uint16_t length, const uint8_t cid);

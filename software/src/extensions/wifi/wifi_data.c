@@ -27,6 +27,8 @@
 
 #include "bricklib/com/com_messages.h"
 #include "bricklib/utility/led.h"
+#include "bricklib/utility/util_definitions.h"
+#include "bricklib/logging/logging.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -50,9 +52,108 @@ bool wifi_data_currently_stuffing = false;
 
 bool wifi_data_cid_present[WIFI_DATA_MAX_CID] = {false};
 
+uint16_t wifi_data_ringbuffer_start = 0;
+uint16_t wifi_data_ringbuffer_end = 0;
+char wifi_data_ringbuffer[WIFI_DATA_RINGBUFFER_SIZE] = {0};
 
-void wifi_data_next(const char data) {
+uint32_t wifi_data_ringbuffer_overflow = 0;
+uint16_t wifi_data_ringbuffer_low_watermark = WIFI_DATA_RINGBUFFER_SIZE;
+
+uint16_t wifi_data_get_ringbuffer_diff(void) {
+	uint16_t diff;
+	if(wifi_data_ringbuffer_end < wifi_data_ringbuffer_start) {
+		diff = WIFI_DATA_RINGBUFFER_SIZE + wifi_data_ringbuffer_end - wifi_data_ringbuffer_start;
+	} else {
+		diff = wifi_data_ringbuffer_end - wifi_data_ringbuffer_start;
+	}
+
+	if(WIFI_DATA_RINGBUFFER_SIZE - diff < wifi_data_ringbuffer_low_watermark) {
+		wifi_data_ringbuffer_low_watermark = WIFI_DATA_RINGBUFFER_SIZE - diff;
+	}
+
+	return diff;
+}
+
+uint16_t wifi_data_get_ringbuffer_length(uint16_t start) {
+	uint16_t pos_byte1 = start + 2;
+	if(pos_byte1 >= WIFI_DATA_RINGBUFFER_SIZE) {
+		pos_byte1 = pos_byte1 % WIFI_DATA_RINGBUFFER_SIZE;
+	}
+	uint16_t pos_byte2 = pos_byte1+1;
+	if(pos_byte2 >= WIFI_DATA_RINGBUFFER_SIZE) {
+		pos_byte2 = 0;
+	}
+
+	return wifi_data_ringbuffer[pos_byte1] | (wifi_data_ringbuffer[pos_byte2] << 8);
+}
+
+void wifi_data_next(const char data, bool transceive) {
 	char ndata = data;
+	if(transceive) {
+		if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
+			if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+				ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
+			} else {
+				return;
+			}
+		} else {
+			uint16_t diff = wifi_data_get_ringbuffer_diff();
+			// package not complete enough to read length
+			if(diff < 4) {
+				for(uint8_t i = 0; i < diff; i++) {
+					if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
+						break;
+					}
+
+					wifi_buffer_recv[i] = wifi_data_ringbuffer[wifi_data_ringbuffer_start];
+					wifi_data_ringbuffer_start++;
+					if(wifi_data_ringbuffer_start >= WIFI_DATA_RINGBUFFER_SIZE) {
+						wifi_data_ringbuffer_start = 0;
+					}
+				}
+
+				if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+					ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
+				} else {
+					return;
+				}
+			} else {
+				uint16_t length = wifi_data_get_ringbuffer_length(wifi_data_ringbuffer_start);
+				uint8_t i;
+				for(i = 0; i < length; i++) {
+					if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
+						break;
+					}
+
+					wifi_buffer_recv[i] = wifi_data_ringbuffer[wifi_data_ringbuffer_start];
+					wifi_data_ringbuffer_start++;
+					if(wifi_data_ringbuffer_start >= WIFI_DATA_RINGBUFFER_SIZE) {
+						wifi_data_ringbuffer_start = 0;
+					}
+				}
+
+				if(i == length) {
+					wifi_brickd_route_from(wifi_buffer_recv,
+					                       wifi_data_ringbuffer[wifi_data_ringbuffer_start]);
+					wifi_data_ringbuffer_start++;
+					if(wifi_data_ringbuffer_start >= WIFI_DATA_RINGBUFFER_SIZE) {
+						wifi_data_ringbuffer_start = 0;
+					}
+
+					wifi_buffer_size_recv = length;
+					return;
+				} else {
+					if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+						ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
+					} else {
+						return;
+					}
+				}
+			}
+		}
+	}
+
+
 	if(wifi_data_currently_stuffing) {
 		ndata ^= 0x20;
 		wifi_data_currently_stuffing = false;
@@ -141,25 +242,58 @@ void wifi_data_next(const char data) {
 		}
 
 		case WIFI_DATA_WAIT_FOR_DATA: {
-			wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
-			wifi_buffer_size_counter++;
-			wifi_data_recv_length++;
-			if(wifi_data_recv_length == wifi_data_recv_length_desired) {
-				wifi_data_recv_length = 0;
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+			bool in_recv_buffer = wifi_buffer_size_recv == 0 && (wifi_data_ringbuffer_start == wifi_data_ringbuffer_end);
+			if(in_recv_buffer) {
+				wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
+			} else {
+				wifi_data_ringbuffer[wifi_data_ringbuffer_end] = ndata;
+				wifi_data_ringbuffer_end++;
+				if(wifi_data_ringbuffer_end >= WIFI_DATA_RINGBUFFER_SIZE) {
+					wifi_data_ringbuffer_end = 0;
+				}
 			}
+
+			wifi_buffer_size_counter++;
+
 			if(wifi_buffer_size_counter >= 4) {
-				uint16_t length = get_length_from_data((const char*)wifi_buffer_recv);
+				uint16_t length;
+				if(in_recv_buffer) {
+					length = get_length_from_data((const char*)wifi_buffer_recv);
+				} else {
+					uint16_t pos;
+					if(wifi_data_ringbuffer_end > wifi_buffer_size_counter) {
+						pos = wifi_data_ringbuffer_end-wifi_buffer_size_counter;
+					} else {
+						pos = WIFI_DATA_RINGBUFFER_SIZE+wifi_data_ringbuffer_end-wifi_buffer_size_counter;
+					}
+					length = wifi_data_get_ringbuffer_length(pos);
+				}
 				if(wifi_buffer_size_counter == length) {
 					if(!wifi_data_cid_present[wifi_data_current_cid]) {
 						wifi_data_cid_present[wifi_data_current_cid] = true;
 						led_on(LED_EXT_BLUE_3);
 						wifi_new_cid = wifi_data_current_cid;
 					}
-					wifi_buffer_size_recv = wifi_buffer_size_counter;
+
+					if(in_recv_buffer) {
+						wifi_buffer_size_recv = wifi_buffer_size_counter;
+						wifi_brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
+					} else {
+						wifi_data_ringbuffer[wifi_data_ringbuffer_end] = wifi_data_current_cid;
+						wifi_data_ringbuffer_end++;
+						if(wifi_data_ringbuffer_end >= WIFI_DATA_RINGBUFFER_SIZE) {
+							wifi_data_ringbuffer_end = 0;
+						}
+					}
+
 					wifi_buffer_size_counter = 0;
-					wifi_brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
 				}
+			}
+
+			wifi_data_recv_length++;
+			if(wifi_data_recv_length == wifi_data_recv_length_desired) {
+				wifi_data_recv_length = 0;
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 			}
 			break;
 		}
@@ -171,19 +305,10 @@ void wifi_data_send(const char *data, const uint16_t length) {
 		char ret1;
 		char ret2;
 		uint8_t num = wifi_low_level_write_byte_stuffing(data[i], &ret1, &ret2);
-
-		if((ret1 != WIFI_LOW_LEVEL_SPI_IDLE_CHAR) &&
-		   (ret1 != WIFI_LOW_LEVEL_SPI_INVALID_CHAR_ALL_ZERO) &&
-		   (ret1 != WIFI_LOW_LEVEL_SPI_INVALID_CHAR_ALL_ONE)) {
-			wifi_data_next(ret1);
-		}
+		wifi_data_next(ret1, false);
 
 		if((num == 2)) {
-			if((ret2 != WIFI_LOW_LEVEL_SPI_IDLE_CHAR) &&
-			   (ret2 != WIFI_LOW_LEVEL_SPI_INVALID_CHAR_ALL_ZERO) &&
-			   (ret2 != WIFI_LOW_LEVEL_SPI_INVALID_CHAR_ALL_ONE)) {
-				wifi_data_next(ret2);
-			}
+			wifi_data_next(ret2, false);
 		}
 	}
 }
@@ -202,6 +327,16 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 		escape_buffer[WIFI_DATA_ESCAPE_BUFFER_SIZE-1-i] = wifi_data_int_to_hex(value);
 	}
 
+	const uint16_t diff = WIFI_DATA_RINGBUFFER_SIZE - wifi_data_get_ringbuffer_diff();
+
+	// Received data wouldn't fit anymore, we have to through away data :-(
+	if(diff < (WIFI_DATA_ESCAPE_BUFFER_SIZE+length+2)) {
+		logwifiw("Ringbuffer full: %d %d\n\r", wifi_data_ringbuffer_start,
+		                                       wifi_data_ringbuffer_end);
+		wifi_data_ringbuffer_overflow++;
+		led_on(LED_EXT_BLUE_2);
+		return;
+	}
 	wifi_data_send(escape_buffer, WIFI_DATA_ESCAPE_BUFFER_SIZE);
 	wifi_data_send(data, length);
 }
@@ -223,12 +358,14 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 
 void wifi_data_poll(void) {
 	uint8_t i = 0;
-	if(wifi_buffer_size_recv != 0/* || !PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])*/) {
-		return;
+	if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
+		if((wifi_buffer_size_recv != 0) || !PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+			return;
+		}
 	}
 
-	while(((wifi_buffer_size_recv == 0) && (i < 100))) {
-		wifi_data_next(wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR));
+	while(((wifi_buffer_size_recv == 0) && (i < WIFI_MAX_DATA_LENGTH))) {
+		wifi_data_next(0, true);
 		i++;
 	}
 }

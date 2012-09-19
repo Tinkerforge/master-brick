@@ -474,7 +474,8 @@ uint8_t wifi_command_send_recv_and_parse(const WIFICommand command) {
 
 uint8_t wifi_command_recv_and_parse(void) {
 	char data[255];
-	const uint8_t length = wifi_command_recv(data, 255, WIFI_COMMAND_RECV_TIMEOUT);
+	const uint8_t length = wifi_command_recv(data, 254, WIFI_COMMAND_RECV_TIMEOUT);
+	data[length] = '\0';
 	return wifi_command_parse(data, length);
 }
 

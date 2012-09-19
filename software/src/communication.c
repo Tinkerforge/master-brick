@@ -30,6 +30,7 @@
 #include "extensions/rs485/rs485_config.h"
 #include "extensions/wifi/wifi_config.h"
 #include "extensions/wifi/wifi.h"
+#include "extensions/wifi/wifi_data.h"
 #include "extensions/wifi/wifi_command.h"
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
@@ -52,6 +53,9 @@ extern WifiStatus wifi_status;
 extern WifiConfiguration wifi_configuration;
 extern uint8_t wifi_power_mode;
 extern uint8_t eap_type;
+
+extern uint32_t wifi_data_ringbuffer_overflow;
+extern uint16_t wifi_data_ringbuffer_low_watermark;
 
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -683,4 +687,20 @@ void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data) {
 
 	send_blocking_with_timeout(&gwpmr, sizeof(GetWifiPowerModeReturn), com);
 	logwifii("get_wifi_power_mode: %d\n\r", gwpmr.mode);
+}
+
+void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data) {
+	GetWifiBufferInfoReturn gwbir;
+
+	gwbir.stack_id        = data->stack_id;
+	gwbir.type            = data->type;
+	gwbir.length          = sizeof(GetWifiBufferInfoReturn);
+	gwbir.overflow        = wifi_data_ringbuffer_overflow;
+	gwbir.low_watermark   = wifi_data_ringbuffer_low_watermark;
+	gwbir.used            = wifi_data_get_ringbuffer_diff();
+
+	send_blocking_with_timeout(&gwbir, sizeof(GetWifiBufferInfoReturn), com);
+	logwifii("get_wifi_buffer_info: %d %d %d\n\r", gwbir.overflow,
+	                                               gwbir.low_watermark,
+	                                               gwbir.used);
 }
