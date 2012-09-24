@@ -311,7 +311,9 @@ bool wifi_init(void) {
 		}
 	}
 
-	if(wifi_configuration.connection == CONNECTION_DHCP) {
+	if(wifi_configuration.connection == CONNECTION_DHCP ||
+	   wifi_configuration.connection == CONNECTION_AP_DHCP ||
+	   wifi_configuration.connection == CONNECTION_ADHOC_DHCP) {
 		if(startup) {
 			logwifid("AT+NDHCP=1\n\r");
 			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NDHCP_ON) != WIFI_ANSWER_OK) {
@@ -323,6 +325,34 @@ bool wifi_init(void) {
 		if(startup) {
 			logwifid("AT+NSET\n\r");
 			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_NSET) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+	}
+
+	if(wifi_configuration.connection == CONNECTION_AP_DHCP ||
+	   wifi_configuration.connection == CONNECTION_ADHOC_DHCP) {
+		if(startup) {
+			logwifid("AT+WM=2\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WM_AP) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+	} else if(wifi_configuration.connection == CONNECTION_AP_STATIC_IP ||
+	          wifi_configuration.connection == CONNECTION_ADHOC_STATIC_IP) {
+		if(startup) {
+			logwifid("AT+WM=1\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WM_ADHOC) != WIFI_ANSWER_OK) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				startup = false;
+			}
+		}
+	} else {
+		if(startup) {
+			logwifid("AT+WM=0\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WM_IFACE) != WIFI_ANSWER_OK) {
 				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
 				startup = false;
 			}
@@ -703,6 +733,10 @@ void wifi_tick(uint8_t tick_type) {
 			} else if(ret == WIFI_ANSWER_ERROR) {
 				logwifid("Could not associate\n\r");
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
+			} else {
+				if(ret != WIFI_ANSWER_NO_ANSWER && ret != WIFI_ANSWER_TIMEOUT) {
+					wifi_command_send(WIFI_COMMAND_ID_AT_WA);
+				}
 			}
 			break;
 		}

@@ -76,7 +76,10 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_F,
 	WIFI_COMMAND_AT_SETSOCKOPT_SO,
 	WIFI_COMMAND_AT_SETSOCKOPT_TC,
-	WIFI_COMMAND_AT_ATS
+	WIFI_COMMAND_AT_ATS,
+	WIFI_COMMAND_AT_WM_IFACE,
+	WIFI_COMMAND_AT_WM_ADHOC,
+	WIFI_COMMAND_AT_WM_AP,
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -118,7 +121,10 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_F)-1,
 	sizeof(WIFI_COMMAND_AT_SETSOCKOPT_SO)-1,
 	sizeof(WIFI_COMMAND_AT_SETSOCKOPT_TC)-1,
-	sizeof(WIFI_COMMAND_AT_ATS)-1
+	sizeof(WIFI_COMMAND_AT_ATS)-1,
+	sizeof(WIFI_COMMAND_AT_WM_IFACE)-1,
+	sizeof(WIFI_COMMAND_AT_WM_ADHOC)-1,
+	sizeof(WIFI_COMMAND_AT_WM_AP)-1,
 };
 
 extern WifiConfiguration wifi_configuration;
@@ -432,7 +438,7 @@ uint8_t wifi_command_parse(const char *data, const uint8_t length) {
 		}
 
 		case '2': {
-			return WIFI_ANSWER_INVALD_COMMAND;
+			return WIFI_ANSWER_INVALID_COMMAND;
 		}
 
 		case '7': {

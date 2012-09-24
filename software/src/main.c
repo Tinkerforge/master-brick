@@ -89,6 +89,9 @@ int main() {
     PIO_Configure(&pin_detect, 1);
     PIO_Configure(&pin_master_detect, 1);
 
+    Pin pins_extension[] = {PINS_EXT};
+    PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+
 	brick_init();
 
 #ifdef PROFILING
