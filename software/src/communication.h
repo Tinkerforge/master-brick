@@ -63,6 +63,8 @@
 #define TYPE_SET_WIFI_POWER_MODE 35
 #define TYPE_GET_WIFI_POWER_MODE 36
 #define TYPE_GET_WIFI_BUFFER_INFO 37
+#define TYPE_SET_WIFI_REGULATORY_DOMAIN 38
+#define TYPE_GET_WIFI_REGULATORY_DOMAIN 39
 
 #define COM_MESSAGES_USER \
 	{TYPE_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -101,7 +103,9 @@
 	{TYPE_GET_WIFI_CERTIFICATE, (message_handler_func_t)get_wifi_certificate}, \
 	{TYPE_SET_WIFI_POWER_MODE, (message_handler_func_t)set_wifi_power_mode}, \
 	{TYPE_GET_WIFI_POWER_MODE, (message_handler_func_t)get_wifi_power_mode}, \
-	{TYPE_GET_WIFI_BUFFER_INFO, (message_handler_func_t)get_wifi_buffer_info},
+ 	{TYPE_GET_WIFI_BUFFER_INFO, (message_handler_func_t)get_wifi_buffer_info}, \
+	{TYPE_SET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)set_wifi_regulatory_domain}, \
+	{TYPE_GET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)get_wifi_regulatory_domain},
 
 
 typedef struct {
@@ -550,6 +554,26 @@ typedef struct {
 	uint16_t used;
 } __attribute__((__packed__)) GetWifiBufferInfoReturn;
 
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t domain;
+} __attribute__((__packed__)) SetWifiRegulatoryDomain;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetWifiRegulatoryDomain;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint8_t domain;
+} __attribute__((__packed__)) GetWifiRegulatoryDomainReturn;
+
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data);
 void get_stack_current(uint8_t com, const GetStackCurrent *data);
 void set_extension_type(uint8_t com, const SetExtensionType *data);
@@ -587,5 +611,7 @@ void get_wifi_certificate(uint8_t com, const GetWifiCertificate *data);
 void set_wifi_power_mode(uint8_t com, const SetWifiPowerMode *data);
 void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data);
 void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data);
+void set_wifi_regulatory_domain(uint8_t com, const SetWifiRegulatoryDomain *data);
+void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data);
 
 #endif

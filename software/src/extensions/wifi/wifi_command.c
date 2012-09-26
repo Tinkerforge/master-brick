@@ -80,6 +80,7 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_WM_IFACE,
 	WIFI_COMMAND_AT_WM_ADHOC,
 	WIFI_COMMAND_AT_WM_AP,
+	WIFI_COMMAND_AT_WREGDOMAIN
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -125,6 +126,7 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_WM_IFACE)-1,
 	sizeof(WIFI_COMMAND_AT_WM_ADHOC)-1,
 	sizeof(WIFI_COMMAND_AT_WM_AP)-1,
+	sizeof(WIFI_COMMAND_AT_WREGDOMAIN)-1
 };
 
 extern WifiConfiguration wifi_configuration;
@@ -318,6 +320,19 @@ void wifi_command_send(const WIFICommand command) {
 			char str[20] = {'\0'};
 			sprintf(str, "%d=1", 65000);
 			wifi_low_level_write_buffer(str, strlen(str));
+
+			break;
+		}
+
+		case WIFI_COMMAND_ID_AT_WREGDOMAIN: {
+			if(wifi_configuration.regulatory_domain > 3) {
+				wifi_configuration.regulatory_domain = 1;
+			}
+
+			char str = '0' + wifi_configuration.regulatory_domain;
+			wifi_low_level_write_buffer(&str, 1);
+
+			break;
 		}
 
 		default: {

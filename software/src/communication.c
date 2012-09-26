@@ -704,3 +704,22 @@ void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data) {
 	                                               gwbir.low_watermark,
 	                                               gwbir.used);
 }
+
+void set_wifi_regulatory_domain(uint8_t com, const SetWifiRegulatoryDomain *data) {
+	if(data->domain < 4) {
+		wifi_write_config((char*)&data->domain, 1, WIFI_REGULATORY_DOMAIN_POS);
+		logwifii("wifi_set_regulatory_domain: %d\n\r", data->domain);
+	}
+}
+
+void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data) {
+	GetWifiRegulatoryDomainReturn gwrdr;
+
+	gwrdr.stack_id        = data->stack_id;
+	gwrdr.type            = data->type;
+	gwrdr.length          = sizeof(GetWifiRegulatoryDomainReturn);
+	wifi_read_config((char*)&gwrdr.domain, 1, WIFI_REGULATORY_DOMAIN_POS);
+
+	send_blocking_with_timeout(&gwrdr, sizeof(GetWifiRegulatoryDomainReturn), com);
+	logwifii("get_wifi_regulatory_domain: %d\n\r", gwrdr.domain);
+}

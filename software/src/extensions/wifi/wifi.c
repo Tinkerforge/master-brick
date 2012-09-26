@@ -58,7 +58,6 @@ extern uint8_t eap_type;
 
 int8_t wifi_new_cid = -1;
 
-
 uint8_t wifi_power_mode = 0;
 bool wifi_task_created = false;
 uint8_t wifi_buffer_recv[WIFI_BUFFER_SIZE] = {0};
@@ -77,7 +76,8 @@ WifiConfiguration wifi_configuration = {
 	"3164429505265866",
 	0,
 	0,
-	0
+	0,
+	1
 };
 
 WifiStatus wifi_status = {
@@ -219,13 +219,20 @@ bool wifi_init(void) {
 	}*/
 
     if(startup) {
-    	logwifid("AT+ASYNCMSGFMT\n\r");
+    	logwifid("AT+ASYNCMSGFMT=1\n\r");
     	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_ASYNCMSGFMT) != WIFI_ANSWER_OK) {
     		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
     		startup = false;
     	}
     }
 
+    if(startup) {
+    	logwifid("AT+WREGDOMAIN\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WREGDOMAIN) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
 
 	// Bulk mode data transfer
     if(startup) {
@@ -754,6 +761,27 @@ void wifi_tick(uint8_t tick_type) {
 		case WIFI_STATE_DISASSOCIATED: {
 			led_off(LED_EXT_BLUE_3);
 			PIO_Set(&pins_wifi_spi[WIFI_LED]);
+
+			wifi_status.bssid[0] = 0;
+			wifi_status.bssid[1] = 0;
+			wifi_status.bssid[2] = 0;
+			wifi_status.bssid[3] = 0;
+			wifi_status.bssid[4] = 0;
+			wifi_status.bssid[5] = 0;
+			wifi_status.channel = 0;
+			wifi_status.gateway[0] = 0;
+			wifi_status.gateway[1] = 0;
+			wifi_status.gateway[2] = 0;
+			wifi_status.gateway[3] = 0;
+			wifi_status.ip[0] = 0;
+			wifi_status.ip[1] = 0;
+			wifi_status.ip[2] = 0;
+			wifi_status.ip[3] = 0;
+			wifi_status.subnet_mask[0] = 0;
+			wifi_status.subnet_mask[1] = 0;
+			wifi_status.subnet_mask[2] = 0;
+			wifi_status.subnet_mask[3] = 0;
+			wifi_status.rssi = 0;
 
 			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
 			wifi_status.state = WIFI_STATE_ASSOCIATING;

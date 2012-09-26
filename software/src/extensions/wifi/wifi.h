@@ -67,6 +67,7 @@ typedef struct {
 	uint16_t ca_certificate_length;
 	uint16_t client_certificate_length;
 	uint16_t private_key_length;
+	uint8_t regulatory_domain;
 } __attribute__((__packed__)) WifiConfiguration;
 
 typedef struct {
