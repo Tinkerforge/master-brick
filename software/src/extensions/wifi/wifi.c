@@ -77,6 +77,8 @@ WifiConfiguration wifi_configuration = {
 	0,
 	0,
 	0,
+	0,
+	0,
 	1
 };
 
