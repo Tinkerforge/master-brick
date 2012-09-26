@@ -708,6 +708,7 @@ void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data) {
 void set_wifi_regulatory_domain(uint8_t com, const SetWifiRegulatoryDomain *data) {
 	if(data->domain < 4) {
 		wifi_write_config((char*)&data->domain, 1, WIFI_REGULATORY_DOMAIN_POS);
+		wifi_configuration.regulatory_domain = data->domain;
 		logwifii("wifi_set_regulatory_domain: %d\n\r", data->domain);
 	}
 }
