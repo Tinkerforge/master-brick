@@ -320,8 +320,8 @@ bool wifi_init(void) {
 		}
 	} else if(wifi_configuration.encryption == ENCRYPTION_OPEN) {
 		if(startup) {
-			logwifid("AT+WAUTH (OPEN)\n\r");
-			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WAUTH_OPEN) != WIFI_ANSWER_OK) {
+			logwifid("AT+WSEC=1\n\r");
+			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WSEC) != WIFI_ANSWER_OK) {
 				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
 				startup = false;
 			}

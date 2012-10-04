@@ -81,7 +81,8 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_WM_ADHOC,
 	WIFI_COMMAND_AT_WM_AP,
 	WIFI_COMMAND_AT_WREGDOMAIN,
-	WIFI_COMMAND_AT_WRETRY
+	WIFI_COMMAND_AT_WRETRY,
+	WIFI_COMMAND_AT_WSEC
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -128,7 +129,8 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_WM_ADHOC)-1,
 	sizeof(WIFI_COMMAND_AT_WM_AP)-1,
 	sizeof(WIFI_COMMAND_AT_WREGDOMAIN)-1,
-	sizeof(WIFI_COMMAND_AT_WRETRY)-1
+	sizeof(WIFI_COMMAND_AT_WRETRY)-1,
+	sizeof(WIFI_COMMAND_AT_WSEC)-1
 };
 
 extern WifiConfiguration wifi_configuration;
