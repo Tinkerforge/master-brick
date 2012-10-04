@@ -65,6 +65,7 @@
 #define TYPE_GET_WIFI_BUFFER_INFO 37
 #define TYPE_SET_WIFI_REGULATORY_DOMAIN 38
 #define TYPE_GET_WIFI_REGULATORY_DOMAIN 39
+#define TYPE_GET_USB_VOLTAGE 40
 
 #define COM_MESSAGES_USER \
 	{TYPE_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -105,7 +106,8 @@
 	{TYPE_GET_WIFI_POWER_MODE, (message_handler_func_t)get_wifi_power_mode}, \
  	{TYPE_GET_WIFI_BUFFER_INFO, (message_handler_func_t)get_wifi_buffer_info}, \
 	{TYPE_SET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)set_wifi_regulatory_domain}, \
-	{TYPE_GET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)get_wifi_regulatory_domain},
+	{TYPE_GET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)get_wifi_regulatory_domain}, \
+	{TYPE_GET_USB_VOLTAGE, (message_handler_func_t)get_usb_voltage},
 
 
 typedef struct {
@@ -574,6 +576,19 @@ typedef struct {
 	uint8_t domain;
 } __attribute__((__packed__)) GetWifiRegulatoryDomainReturn;
 
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+} __attribute__((__packed__)) GetUSBVoltage;
+
+typedef struct {
+	uint8_t stack_id;
+	uint8_t type;
+	uint16_t length;
+	uint16_t voltage;
+} __attribute__((__packed__)) GetUSBVoltageReturn;
+
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data);
 void get_stack_current(uint8_t com, const GetStackCurrent *data);
 void set_extension_type(uint8_t com, const SetExtensionType *data);
@@ -613,5 +628,6 @@ void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data);
 void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data);
 void set_wifi_regulatory_domain(uint8_t com, const SetWifiRegulatoryDomain *data);
 void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data);
+void get_usb_voltage(uint8_t com, const GetUSBVoltage *data);
 
 #endif

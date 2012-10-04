@@ -70,6 +70,7 @@ typedef enum {
 	WIFI_COMMAND_ID_AT_WM_ADHOC,
 	WIFI_COMMAND_ID_AT_WM_AP,
 	WIFI_COMMAND_ID_AT_WREGDOMAIN,
+	WIFI_COMMAND_ID_AT_WRETRY,
 	WIFI_COMMAND_ID_AT_END
 } WIFICommand;
 
@@ -127,6 +128,7 @@ typedef enum {
 #define WIFI_COMMAND_AT_WM_ADHOC      "AT+WM=1"
 #define WIFI_COMMAND_AT_WM_AP         "AT+WM=2"
 #define WIFI_COMMAND_AT_WREGDOMAIN    "AT+WREGDOMAIN="
+#define WIFI_COMMAND_AT_WRETRY        "AT+WRETRY=7"
 
 void wifi_command_send(const WIFICommand command);
 uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout);

@@ -204,6 +204,14 @@ bool wifi_init(void) {
     	}
     }
 
+    if(startup) {
+    	logwifid("AT+WRETRY=7\n\r");
+    	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WRETRY) != WIFI_ANSWER_OK) {
+    		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+    		startup = false;
+    	}
+    }
+
 /*    if(startup) {
     	logwifid("ATS\n\r");
     	if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_ATS) != WIFI_ANSWER_OK) {
@@ -695,7 +703,7 @@ void wifi_write_config(const char *data, const uint8_t length, const uint16_t po
 }
 
 void wifi_tick(uint8_t tick_type) {
-	static uint16_t wifi_counter = 0;
+	static uint32_t wifi_counter = 0;
 
 	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
 		return;
@@ -717,6 +725,11 @@ void wifi_tick(uint8_t tick_type) {
 			char data[100];
 
 			wifi_counter++;
+			// We wait 3 minutes before we assume that the GS1011 hang up
+			if(wifi_counter == 60000*3) {
+				wifi_status.state = WIFI_STATE_STARTUP_ERROR;
+				return;
+			}
 
 			const uint8_t wifi_counter_mod =  wifi_counter % 200;
 			if(wifi_counter_mod == 0) {
@@ -735,6 +748,7 @@ void wifi_tick(uint8_t tick_type) {
 				if(ret == WIFI_ANSWER_CONNECT) {
 					ret = wifi_command_recv_and_parse();
 					if(ret == WIFI_ANSWER_OK) {
+						wifi_counter = 0;
 						wifi_status.state = WIFI_STATE_ASSOCIATED;
 						wifi_refresh_status();
 					}
@@ -742,6 +756,7 @@ void wifi_tick(uint8_t tick_type) {
 			} else if(ret == WIFI_ANSWER_ERROR) {
 				logwifid("Could not associate\n\r");
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
+				wifi_counter = 0;
 			} else {
 				if(ret != WIFI_ANSWER_NO_ANSWER && ret != WIFI_ANSWER_TIMEOUT) {
 					wifi_command_send(WIFI_COMMAND_ID_AT_WA);

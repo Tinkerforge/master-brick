@@ -724,3 +724,15 @@ void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data
 	send_blocking_with_timeout(&gwrdr, sizeof(GetWifiRegulatoryDomainReturn), com);
 	logwifii("get_wifi_regulatory_domain: %d\n\r", gwrdr.domain);
 }
+
+void get_usb_voltage(uint8_t com, const GetUSBVoltage *data) {
+	GetUSBVoltageReturn guvr;
+
+	guvr.stack_id        = data->stack_id;
+	guvr.type            = data->type;
+	guvr.length          = sizeof(guvr);
+	guvr.voltage         = adc_channel_get_data(USB_VOLTAGE_CHANNEL)*USB_VOLTAGE_REFERENCE*USB_VOLTAGE_MULTIPLIER/(VOLTAGE_MAX_VALUE*USB_VOLTAGE_DIVISOR);
+
+	send_blocking_with_timeout(&guvr, sizeof(guvr), com);
+	logwifii("get_usb_voltage: %d\n\r", guvr.voltage);
+}

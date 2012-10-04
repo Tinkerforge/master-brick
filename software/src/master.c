@@ -32,6 +32,7 @@
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/logging/logging.h"
 #include "bricklib/utility/util_definitions.h"
+#include "bricklib/utility/init.h"
 
 #include "extensions/extension_i2c.h"
 #include "extensions/chibi/chibi_master.h"
@@ -73,10 +74,13 @@ extern xTaskHandle rs485_handle_master_state_machine_loop;
 
 bool chibi_enumerate_ready = false;
 
+uint8_t master_startup_usb_connected = true;
+
 void master_init(void) {
 	Pin power_pins[] = {PIN_STACK_VOLTAGE, PIN_STACK_CURRENT};
 	PIO_Configure(power_pins, PIO_LISTSIZE(power_pins));
 
+	adc_channel_enable(USB_VOLTAGE_CHANNEL);
 	adc_channel_enable(STACK_VOLTAGE_CHANNEL);
 	adc_channel_enable(STACK_CURRENT_CHANNEL);
 
@@ -344,5 +348,11 @@ void master_create_routing_table_stack(void) {
 }
 
 void tick_task(uint8_t tick_type) {
+	if(tick_type & TICK_TASK_TYPE_CALCULATION) {
+		if(master_startup_usb_connected ^ usb_is_connected()) {
+			usb_isr_vbus(NULL);
+		}
+	}
+
 	wifi_tick(tick_type);
 }
