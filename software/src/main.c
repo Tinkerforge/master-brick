@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * main.c: Master-Brick startup code
  *
@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <pio/pio.h>
 #include <FreeRTOS.h>
 #include <task.h>
@@ -62,6 +63,8 @@
 extern uint8_t com_last_stack_address;
 extern uint8_t master_mode;
 
+char brick_hardware_name[17] = {'\0'};
+
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
 	logf("Stack Overflow\n\r");
 	while(true);
@@ -92,6 +95,15 @@ int main() {
     Pin pins_extension[] = {PINS_EXT};
     PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
 
+    if(master_get_hardware_version() == 10) {
+    	strcpy(brick_hardware_name, BRICK_HARDWARE_NAME10);
+    } else {
+    	// Set dummy calibration, to make sure that calibration is not read
+    	// from flash in Master Brick HW Version 2.0
+    	adc_set_calibration(0, 1, 1);
+    	strcpy(brick_hardware_name, BRICK_HARDWARE_NAME20);
+    }
+
 	brick_init();
 
 #ifdef PROFILING
@@ -103,10 +115,20 @@ int main() {
     // of just nops!
     blinkenlights(1);
 
-    logsi("Bricklets initialized\n\r");
+    led_on(LED_EXT_BLUE_0);
+    led_on(LED_EXT_BLUE_1);
+    led_on(LED_EXT_BLUE_2);
+    led_on(LED_EXT_BLUE_3);
     master_init();
+    led_off(LED_EXT_BLUE_0);
+    led_off(LED_EXT_BLUE_1);
+    led_off(LED_EXT_BLUE_2);
+    led_off(LED_EXT_BLUE_3);
 
+    Pin pin_3v3_enable = PIN_3V3_ENABLE;
     if(PIO_Get(&pin_master_detect)) {
+    	pin_3v3_enable.type = PIO_OUTPUT_1;
+    	PIO_Configure(&pin_3v3_enable, 1);
 		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));
 
     	master_mode |= MASTER_MODE_MASTER;
@@ -154,6 +176,8 @@ int main() {
 						(xTaskHandle *)NULL);
     	}
     } else {
+    	pin_3v3_enable.type = PIO_OUTPUT_0;
+    	PIO_Configure(&pin_3v3_enable, 1);
     	PIO_Configure(twi_stack_pullup_slave_pins,
     	              PIO_LISTSIZE(twi_stack_pullup_slave_pins));
     	master_mode |= MASTER_MODE_SLAVE;
@@ -171,11 +195,6 @@ int main() {
 
 	brick_init_start_tick_task();
 	logsi("Starting Scheduler\n\r");
-
-	Pin pins_wifi_spi[] = {PINS_WIFI_SPI};
-    pins_wifi_spi[WIFI_DATA_RDY].type = PIO_INPUT;
-
-    PIO_Configure(&pins_wifi_spi[WIFI_DATA_RDY], 1);
 
 	vTaskStartScheduler();
 }

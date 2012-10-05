@@ -57,6 +57,10 @@ extern uint8_t eap_type;
 extern uint32_t wifi_data_ringbuffer_overflow;
 extern uint16_t wifi_data_ringbuffer_low_watermark;
 
+extern uint16_t master_usb_voltage;
+extern uint16_t master_stack_voltage;
+extern uint16_t master_stack_current;
+
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
 
@@ -64,7 +68,7 @@ void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	gsvr.type          = data->type;
 	gsvr.length        = sizeof(GetStackVoltageReturn);
 
-	gsvr.voltage = adc_channel_get_data(STACK_VOLTAGE_CHANNEL) *
+	gsvr.voltage = master_stack_voltage *
 	               STACK_VOLTAGE_REFERENCE *
 	               STACK_VOLTAGE_MULTIPLIER /
 	               VOLTAGE_MAX_VALUE;
@@ -83,7 +87,7 @@ void get_stack_current(uint8_t com, const GetStackCurrent *data) {
 	gscr.type          = data->type;
 	gscr.length        = sizeof(GetStackCurrentReturn);
 
-	uint16_t voltage = adc_channel_get_data(STACK_VOLTAGE_CHANNEL) *
+	uint16_t voltage = master_stack_voltage *
 	                   STACK_VOLTAGE_REFERENCE *
 	                   STACK_VOLTAGE_MULTIPLIER /
 	                   VOLTAGE_MAX_VALUE;
@@ -91,7 +95,7 @@ void get_stack_current(uint8_t com, const GetStackCurrent *data) {
 	if(voltage < VOLTAGE_EPSILON) {
 		gscr.current = 0;
 	} else {
-		gscr.current = adc_channel_get_data(STACK_CURRENT_CHANNEL) *
+		gscr.current = master_stack_current *
 		               STACK_CURRENT_REFERENCE *
 		               STACK_CURRENT_MULTIPLIER /
 		               VOLTAGE_MAX_VALUE;
@@ -731,7 +735,7 @@ void get_usb_voltage(uint8_t com, const GetUSBVoltage *data) {
 	guvr.stack_id        = data->stack_id;
 	guvr.type            = data->type;
 	guvr.length          = sizeof(guvr);
-	guvr.voltage         = adc_channel_get_data(USB_VOLTAGE_CHANNEL)*USB_VOLTAGE_REFERENCE*USB_VOLTAGE_MULTIPLIER/(VOLTAGE_MAX_VALUE*USB_VOLTAGE_DIVISOR);
+	guvr.voltage         = master_usb_voltage*USB_VOLTAGE_REFERENCE*USB_VOLTAGE_MULTIPLIER/(VOLTAGE_MAX_VALUE*USB_VOLTAGE_DIVISOR);
 
 	send_blocking_with_timeout(&guvr, sizeof(guvr), com);
 	logwifii("get_usb_voltage: %d\n\r", guvr.voltage);

@@ -32,10 +32,11 @@
 
 #define at91sam3s4c
 
-#define BRICK_HARDWARE_NAME "Master Brick 1.0"
+#define BRICK_HARDWARE_NAME10 "Master Brick 1.0"
+#define BRICK_HARDWARE_NAME20 "Master Brick 2.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
-#define BRICK_FIRMWARE_VERSION_MINOR 3
-#define BRICK_FIRMWARE_VERSION_REVISION 6
+#define BRICK_FIRMWARE_VERSION_MINOR 4
+#define BRICK_FIRMWARE_VERSION_REVISION 0
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
@@ -102,7 +103,27 @@
 
 // USB
 // USB VBUS monitoring pin for USB plug and play
-#define PIN_USB_DETECT  {1 << 17, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PIN_USB_DETECT      {1 << 17, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PIN_MASTER20_DETECT {1 << 28, PIOC, ID_PIOC, PIO_INPUT, PIO_PULLUP}
+// High if master in stack
+#define PIN_3V3_ENABLE      {1 << 16, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}
+
+
+#define ADC_CAL_SUM 10
+
+#define PIN_ADC_CAL_LOW     {1 << 3,  PIOB, ID_PIOB, PIO_INPUT, PIO_DEFAULT}
+#define ADC_CAL_LOW_CHANNEL 7
+#define ADC_CAL_LOW_MULTIPLIER 1
+#define ADC_CAL_LOW_DIVISOR 11
+#define ADC_CAL_LOW_REFERENCE 3300
+
+#define PIN_ADC_CAL_HIGH    {1 << 15, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT}
+#define ADC_CAL_HIGH_CHANNEL 11
+#define ADC_CAL_HIGH_MULTIPLIER 10
+#define ADC_CAL_HIGH_DIVISOR 11
+#define ADC_CAL_HIGH_REFERENCE 3300
+
+
 // USB product descriptor (name of brick)
 #define PRODUCT_DESCRIPTOR { \
 	USBStringDescriptor_LENGTH(12), \
@@ -139,19 +160,10 @@
 #define PIN_SPI_SELECT_MASTER_5 {1 << 1, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
 #define PIN_SPI_SELECT_MASTER_6 {1 << 2, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
 #ifndef CONSOLE_USART_USE_UART1
-#define PIN_SPI_SELECT_MASTER_7 {1 << 3, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_7_20 {1 << 31, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
+#define PIN_SPI_SELECT_MASTER_7_10 {1 << 3, PIOB, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT}
 #endif
 
-#ifndef CONSOLE_USART_USE_UART1
-#define PINS_SPI_SELECT_MASTER   PIN_SPI_SELECT_MASTER_0, \
-                                 PIN_SPI_SELECT_MASTER_1, \
-                                 PIN_SPI_SELECT_MASTER_2, \
-                                 PIN_SPI_SELECT_MASTER_3, \
-                                 PIN_SPI_SELECT_MASTER_4, \
-                                 PIN_SPI_SELECT_MASTER_5, \
-                                 PIN_SPI_SELECT_MASTER_6, \
-                                 PIN_SPI_SELECT_MASTER_7
-#else
 #define PINS_SPI_SELECT_MASTER   PIN_SPI_SELECT_MASTER_0, \
                                  PIN_SPI_SELECT_MASTER_1, \
                                  PIN_SPI_SELECT_MASTER_2, \
@@ -159,7 +171,6 @@
                                  PIN_SPI_SELECT_MASTER_4, \
                                  PIN_SPI_SELECT_MASTER_5, \
                                  PIN_SPI_SELECT_MASTER_6
-#endif
 
 // LED
 #define PIN_LED_STD_BLUE    {1 << 18, PIOC, ID_PIOC, PIO_OUTPUT_1, PIO_DEFAULT}
