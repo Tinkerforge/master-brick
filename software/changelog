@@ -25,3 +25,4 @@
 1.3.5: Add GetUSBVoltage API, add autorestart after 3min without answer from GS1011, add support for "," in passphrase
 1.3.6: Use WSEC=1 instead of auth mode = open for no encryption
 1.4.0: Fix reset when multiple masters in a stack are used, add support for Master Brick 2.0
+1.4.1: Fix bug in RS485 code (rs485 recv pin was set by wifi code)

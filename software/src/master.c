@@ -117,17 +117,6 @@ void master_init(void) {
 		const int32_t offset = -((uint32_t)((uint32_t)measured_low_sum*(uint32_t)gain_mul)/gain_div) + correct_low_sum;
 		adc_set_calibration(offset, gain_mul, gain_div);
 
-		measured_low_sum = 0;
-		measured_high_sum = 0;
-		for(uint8_t i = 0; i < ADC_CAL_SUM*10; i++) {
-			SLEEP_MS(1);
-			measured_low_sum += adc_channel_get_data(ADC_CAL_LOW_CHANNEL);
-			measured_high_sum += adc_channel_get_data(ADC_CAL_HIGH_CHANNEL);
-		}
-
-		measured_low_sum /= 10;
-		measured_high_sum /= 10;
-
 		adc_channel_disable(ADC_CAL_LOW_CHANNEL);
 		adc_channel_disable(ADC_CAL_HIGH_CHANNEL);
 	}

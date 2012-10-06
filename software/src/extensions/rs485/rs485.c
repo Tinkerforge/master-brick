@@ -103,6 +103,9 @@ bool rs485_init(void) {
     const Pin pins_rs485[] = PINS_RS485;
     PIO_Configure(pins_rs485, PIO_LISTSIZE(pins_rs485));
 
+    const Pin pin_recv = PIN_RS485_RECV;
+    PIO_Configure(&pin_recv, 1);
+
     uint32_t mode = US_MR_USART_MODE_RS485 |
                     US_MR_USCLKS_MCK       |
                     US_MR_CHRL_8_BIT       |
