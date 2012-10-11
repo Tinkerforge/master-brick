@@ -35,9 +35,35 @@ extern uint8_t chibi_master_address;
 extern uint8_t chibi_frequency_mode;
 extern uint8_t chibi_channel;
 
+extern Pin extension_pins[];
+
+uint8_t CHIBI_SELECT = CHIBI_SELECT_0;
+uint8_t CHIBI_RESET = CHIBI_RESET_0;
+uint8_t CHIBI_INT = CHIBI_INT_0;
+uint8_t CHIBI_SLP_TR = CHIBI_SLP_TR_0;
+
 void chibi_init_masterslave(uint8_t extension) {
-	Pin chibi_select_pin = PIN_CHIBI_SELECT;
-	PIO_Clear(&chibi_select_pin);
+	if(extension == 0) {
+		CHIBI_SELECT = CHIBI_SELECT_0;
+		CHIBI_RESET = CHIBI_RESET_0;
+		CHIBI_INT = CHIBI_INT_0;
+		CHIBI_SLP_TR = CHIBI_SLP_TR_0;
+	} else if(extension == 1) {
+		CHIBI_SELECT = CHIBI_SELECT_1;
+		CHIBI_RESET = CHIBI_RESET_1;
+		CHIBI_INT = CHIBI_INT_1;
+		CHIBI_SLP_TR = CHIBI_SLP_TR_1;
+	}
+
+
+	extension_pins[CHIBI_RESET].type = PIO_OUTPUT_0;
+    extension_pins[CHIBI_SLP_TR].type = PIO_OUTPUT_1;
+    PIO_Configure(&extension_pins[CHIBI_SELECT_0], 4);
+
+    extension_pins[CHIBI_MISO].type = PIO_PERIPH_A;
+    extension_pins[CHIBI_MOSI].type = PIO_PERIPH_A;
+    extension_pins[CHIBI_CLK].type = PIO_PERIPH_B;
+    PIO_Configure(&extension_pins[CHIBI_MISO], 3);
 
 	extension_i2c_read(extension,
 	                   CHIBI_ADDRESS_FREQUENCY,

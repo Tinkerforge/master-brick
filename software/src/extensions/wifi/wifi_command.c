@@ -134,7 +134,8 @@ static const uint8_t wifi_command_length[] = {
 };
 
 extern WifiConfiguration wifi_configuration;
-extern Pin pins_wifi_spi[];
+extern Pin extension_pins[];
+extern uint8_t WIFI_DATA_RDY;
 
 void wifi_command_send(const WIFICommand command) {
 	wifi_low_level_write_buffer(wifi_command_str[command],
@@ -405,7 +406,7 @@ uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout) {
 	uint8_t last_byte = 0;
 
 	for(uint32_t counter = 0; counter < timeout; counter++) {
-		if(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+		if(!PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
 			continue;
 		}
 		uint8_t b = wifi_low_level_read_byte();
@@ -419,7 +420,7 @@ uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout) {
 				// TODO: handle XON/XOFF etc
 
 				if(b == WIFI_LOW_LEVEL_SPI_ESC_CHAR) {
-					while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
+					while(!PIO_Get(&extension_pins[WIFI_DATA_RDY]));
 					b = wifi_low_level_read_byte() ^ 0x20;
 				} else {
 					last_byte = b;

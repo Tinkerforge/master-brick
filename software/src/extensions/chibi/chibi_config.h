@@ -24,25 +24,20 @@
 
 #include "extensions/extension_config.h"
 
-#define PIN_CHIBI_RESET   PIN_EXT_0_GP_0
-#define PIN_CHIBI_INT     PIN_EXT_0_GP_1
-#define PIN_CHIBI_SLP_TR  PIN_EXT_0_GP_2
-#define PIN_CHIBI_MISO    PIN_EXT_RXD
-#define PIN_CHIBI_MOSI    PIN_EXT_TXD
-#define PIN_CHIBI_SCK     PIN_EXT_SCK
-#define PIN_CHIBI_SELECT  PIN_EXT_0_SELECT
+#define CHIBI_SELECT_0    0
+#define CHIBI_SELECT_1    4
+#define CHIBI_RESET_0     1
+#define CHIBI_RESET_1     5
+#define CHIBI_INT_0       2
+#define CHIBI_INT_1       6
+#define CHIBI_SLP_TR_0    3
+#define CHIBI_SLP_TR_1    7
 
-#define PINS_CHIBI        PIN_CHIBI_RESET,  \
-                          PIN_CHIBI_INT,    \
-                          PIN_CHIBI_SLP_TR, \
-                          PIN_CHIBI_MISO,   \
-                          PIN_CHIBI_MOSI,   \
-                          PIN_CHIBI_SCK,    \
-                          PIN_CHIBI_SELECT
+#define CHIBI_MISO        8
+#define CHIBI_MOSI        9
+#define CHIBI_CLK        10
 
 #define CHIBI_USART_SPI_CLOCK 8000000 // 8 Mhz
-
-
 
 #define CHIBI_PAN_ID               0x1234
 

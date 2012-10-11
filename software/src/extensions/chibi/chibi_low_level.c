@@ -47,6 +47,12 @@ extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_master_address;
 extern bool chibi_enumerate_ready;
 
+extern Pin extension_pins[];
+extern uint8_t CHIBI_SELECT;
+extern uint8_t CHIBI_RESET;
+extern uint8_t CHIBI_INT;
+extern uint8_t CHIBI_SLP_TR;
+
 uint16_t chibi_underrun = 0;
 uint16_t chibi_crc_error = 0;
 uint16_t chibi_no_ack = 0;
@@ -65,23 +71,19 @@ uint16_t chibi_last_destination_address = 0;
 
 uint8_t chibi_transfer_status = CHIBI_ERROR_OK;
 volatile uint16_t chibi_send_counter = 0;
-Pin chibi_reset_pin = PIN_CHIBI_RESET;
-Pin chibi_sleep_pin = PIN_CHIBI_SLP_TR;
-Pin chibi_interrupt_pin = PIN_CHIBI_INT;
-Pin chibi_select_pin = PIN_CHIBI_SELECT;
 
 void chibi_select(void) {
 	// Disable IRQ between chibi selects to make sure that there is no
 	// chibi interrupt between the select.
 	__disable_irq();
 
-	PIO_Clear(&chibi_select_pin);
+	PIO_Clear(&extension_pins[CHIBI_SELECT]);
 //	USART0->US_CR = US_CR_FCS;
 }
 
 void chibi_deselect(void) {
 //	USART0->US_CR = US_CR_RCS;
-	PIO_Set(&chibi_select_pin);
+	PIO_Set(&extension_pins[CHIBI_SELECT]);
 	__enable_irq();
 	SLEEP_NS(CHIBI_TIME_BETWEEN_SELECT);
 }
@@ -190,32 +192,32 @@ void chibi_write_frame(const uint8_t *header,
 
 void chibi_start_tx(void) {
 	// Toggle sleep pin to start transfer
-	PIO_Set(&chibi_sleep_pin);
+	PIO_Set(&extension_pins[CHIBI_SLP_TR]);
 	SLEEP_NS(CHIBI_TIME_SLEEP_PULSE);
-	PIO_Clear(&chibi_sleep_pin);
+	PIO_Clear(&extension_pins[CHIBI_SLP_TR]);
 }
 
 bool chibi_is_sleeping(void) {
-	return PIO_Get(&chibi_sleep_pin);
+	return PIO_Get(&extension_pins[CHIBI_SLP_TR]);
 }
 
 void chibi_sleep(void) {
-	PIO_Set(&chibi_sleep_pin);
+	PIO_Set(&extension_pins[CHIBI_SLP_TR]);
 	SLEEP_NS(CHIBI_TIME_SLEEP_PULSE);
 }
 
 void chibi_wakeup(void) {
-	PIO_Clear(&chibi_sleep_pin);
+	PIO_Clear(&extension_pins[CHIBI_SLP_TR]);
 	SLEEP_NS(CHIBI_TIME_SLEEP_PULSE);
 }
 
 void chibi_reset_enable(void) {
-	PIO_Clear(&chibi_reset_pin);
+	PIO_Clear(&extension_pins[CHIBI_SLP_TR]);
 	SLEEP_NS(CHIBI_TIME_RESET_PULSE);
 }
 
 void chibi_reset_disable(void) {
-	PIO_Set(&chibi_reset_pin);
+	PIO_Set(&extension_pins[CHIBI_RESET]);
 	SLEEP_NS(CHIBI_TIME_RESET_PULSE);
 }
 
@@ -580,9 +582,9 @@ void chibi_low_level_init(void) {
 	chibi_reset();
 
 	// Configure chibi interrupt pin
-	chibi_interrupt_pin.attribute = PIO_IT_RISE_EDGE;
-    PIO_Configure(&chibi_interrupt_pin, 1);
-    PIO_ConfigureIt(&chibi_interrupt_pin, chibi_interrupt);
+	extension_pins[CHIBI_INT].attribute = PIO_IT_RISE_EDGE;
+    PIO_Configure(&extension_pins[CHIBI_INT], 1);
+    PIO_ConfigureIt(&extension_pins[CHIBI_INT], chibi_interrupt);
 
 	// Disable chibi Interrupts
 	chibi_write_register(CHIBI_REGISTER_IRQ_MASK, 0);
@@ -644,7 +646,7 @@ void chibi_low_level_init(void) {
 
 	// Interrupts on tx end
 	chibi_write_register(CHIBI_REGISTER_IRQ_MASK, CHIBI_IRQ_MASK_TRX_END);
-	PIO_EnableIt(&chibi_interrupt_pin);
+	PIO_EnableIt(&extension_pins[CHIBI_INT]);
 
 	// Set state according to usage of CRC
 #ifdef CHIBI_USE_PROMISCUOUS_MODE

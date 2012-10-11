@@ -26,3 +26,4 @@
 1.3.6: Use WSEC=1 instead of auth mode = open for no encryption
 1.4.0: Fix reset when multiple masters in a stack are used, add support for Master Brick 2.0
 1.4.1: Fix bug in RS485 code (rs485 recv pin was set by wifi code)
+1.4.2: Add support for usage of two extensions at the same time

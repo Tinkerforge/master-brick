@@ -51,6 +51,18 @@ extern uint8_t chibi_type;
 extern uint8_t rs485_slave_address[];
 extern uint8_t rs485_type;
 
+Pin extension_pins[] = {PIN_EXT_0_SELECT,
+		                PIN_EXT_0_GP_0,
+		                PIN_EXT_0_GP_1,
+		                PIN_EXT_0_GP_2,
+		                PIN_EXT_1_SELECT,
+					    PIN_EXT_1_GP_0,
+					    PIN_EXT_1_GP_1,
+					    PIN_EXT_1_GP_2,
+					    PIN_EXT_RXD,
+					    PIN_EXT_TXD,
+					    PIN_EXT_SCK};
+
 uint8_t extension_get_slave_address(const uint8_t extension,
                                     const uint8_t num) {
 	uint8_t address;
@@ -119,19 +131,10 @@ void extension_set_type(const uint8_t extension, uint32_t type) {
 
 uint8_t extension_init(void) {
 	logexti("Start extension initialization\n\r");
-	Pin extension_pins [] = {PIN_EXT_0_SELECT,
-			                 PIN_EXT_0_GP_0,
-			                 PIN_EXT_0_GP_1,
-			                 PIN_EXT_0_GP_2,
-			                 PIN_EXT_1_SELECT,
-						     PIN_EXT_1_GP_0,
-						     PIN_EXT_1_GP_1,
-						     PIN_EXT_1_GP_2};
-
 	PIO_Configure(extension_pins, PIO_LISTSIZE(extension_pins));
 
 	extension_i2c_init();
-	for(uint8_t i = 0; i < 1; i++) {
+	for(uint8_t i = 0; i < 2; i++) {
 		if(extension_is_present(i)) {
 			uint8_t type = extension_get_type(i);
 			logexti("Extension %d present: %d\n\r", i, type);

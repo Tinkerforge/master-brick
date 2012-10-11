@@ -36,7 +36,7 @@
 #define BRICK_HARDWARE_NAME20 "Master Brick 2.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
 #define BRICK_FIRMWARE_VERSION_MINOR 4
-#define BRICK_FIRMWARE_VERSION_REVISION 1
+#define BRICK_FIRMWARE_VERSION_REVISION 2
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
@@ -295,10 +295,9 @@
 #define PINS_EXT          PIN_EXT_0_GP_0, PIN_EXT_0_GP_1, PIN_EXT_0_GP_2, \
                           PIN_EXT_1_GP_0, PIN_EXT_1_GP_1, PIN_EXT_1_GP_2
 
-#define PIN_EXT_RXD       {1 << 5, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
-#define PIN_EXT_TXD       {1 << 6, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
-#define PIN_EXT_SCK       {1 << 2, PIOA, ID_PIOA, PIO_PERIPH_B, PIO_DEFAULT}
-
+#define PIN_EXT_RXD       {1 << 5, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PIN_EXT_TXD       {1 << 6, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
+#define PIN_EXT_SCK       {1 << 2, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
 
 // ************** MASTER DEBUGGING **************
 #if(DEBUG_MASTER)

@@ -41,30 +41,22 @@
 #define WIFI_MAX_DATA_LENGTH 64
 #define WIFI_BUFFER_SIZE WIFI_MAX_DATA_LENGTH
 
-#define PIN_WIFI_RESET       PIN_EXT_0_GP_0
-#define PIN_WIFI_LED         PIN_EXT_0_GP_1
-#define PIN_WIFI_DATA_RDY    PIN_EXT_0_GP_2
-
-#define PIN_WIFI_SPI_MISO    PIN_EXT_RXD
-#define PIN_WIFI_SPI_MOSI    PIN_EXT_TXD
-#define PIN_WIFI_SPI_CLK     PIN_EXT_SCK
-#define PIN_WIFI_SPI_CS      PIN_EXT_0_SELECT
-
 #define USART_WIFI_SPI       USART0
 #define ID_WIFI_SPI          ID_USART0
 #define IRQ_WIFI_SPI         USART0_IRQn
-#define PINS_WIFI_SPI        PIN_WIFI_SPI_MISO, \
-                             PIN_WIFI_SPI_MOSI, \
-                             PIN_WIFI_SPI_CLK, \
-                             PIN_WIFI_SPI_CS, \
-                             PIN_WIFI_RESET, \
-                             PIN_WIFI_LED, \
-                             PIN_WIFI_DATA_RDY
 
-#define WIFI_RESET 4
-#define WIFI_LED 5
-#define WIFI_DATA_RDY 6
+#define WIFI_CS_0        0
+#define WIFI_CS_1        4
+#define WIFI_RESET_0     1
+#define WIFI_RESET_1     5
+#define WIFI_LED_0       2
+#define WIFI_LED_1       6
+#define WIFI_DATA_RDY_0  3
+#define WIFI_DATA_RDY_1  7
 
+#define WIFI_MISO        8
+#define WIFI_MOSI        9
+#define WIFI_CLK        10
 
 #define WIFI_SPI_CLOCK 2000000
 

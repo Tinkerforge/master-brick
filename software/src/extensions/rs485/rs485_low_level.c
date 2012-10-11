@@ -57,8 +57,8 @@ volatile uint8_t rs485_low_level_buffer_to_transfer = 0;
 uint8_t rs485_state = RS485_STATE_NONE;
 uint8_t rs485_last_sequence_number = 0;
 
-Pin pin_rs485_low_level_recv = PIN_RS485_RECV;
-
+extern Pin extension_pins[];
+extern uint8_t RS485_RECV;
 
 static const uint8_t crc_lookup_high[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
@@ -151,7 +151,7 @@ void rs485_low_level_send(uint8_t address, uint8_t sequence_number, bool nodata)
 		}
 	}
 
-	PIO_Set(&pin_rs485_low_level_recv);
+	PIO_Set(&extension_pins[RS485_RECV]);
 	USART_WriteBuffer(USART_RS485,
 	                  rs485_low_level_buffer_send,
 	                  rs485_low_level_buffer_to_transfer);
@@ -171,7 +171,7 @@ void rs485_low_level_set_mode_receive(void) {
     rs485_mode = RS485_MODE_RECEIVE;
 	USART1->US_IDR = 0xFFFFFFFF;
 
-	PIO_Clear(&pin_rs485_low_level_recv);
+	PIO_Clear(&extension_pins[RS485_RECV]);
 	USART_EnableIt(USART_RS485, US_IER_ENDRX);
 }
 
@@ -179,13 +179,13 @@ void rs485_low_level_set_mode_send(void) {
 	rs485_mode = RS485_MODE_NONE;
 	USART1->US_IDR = 0xFFFFFFFF;
 
-	PIO_Set(&pin_rs485_low_level_recv);
+	PIO_Set(&extension_pins[RS485_RECV]);
 	volatile uint8_t state =  USART_RS485->US_CSR;
     USART_EnableIt(USART_RS485, US_IER_TXEMPTY);
 }
 
 void rs485_low_level_set_mode_send_from_task(void) {
-	PIO_Set(&pin_rs485_low_level_recv);
+	PIO_Set(&extension_pins[RS485_RECV]);
     rs485_mode = RS485_MODE_SEND;
 }
 
@@ -353,7 +353,7 @@ void USART1_IrqHandler() {
     	switch(rs485_state) {
 			case RS485_STATE_RECV_DATA_BEGIN: {
 				if(rs485_low_level_message_complete(rs485_low_level_buffer_recv)) {
-					PIO_Set(&pin_rs485_low_level_recv);
+					PIO_Set(&extension_pins[RS485_RECV]);
 					rs485_low_level_handle_message(rs485_low_level_buffer_recv);
 				} else {
 					rs485_state = RS485_STATE_RECV_DATA_END;
@@ -402,7 +402,7 @@ uint16_t rs485_low_level_crc16(uint8_t *data, uint8_t length) {
 
 void rs485_low_level_resync(void) {
 	USART_RS485->US_IDR = 0xFFFFFFFF;
-	PIO_Clear(&pin_rs485_low_level_recv);
+	PIO_Clear(&extension_pins[RS485_RECV]);
 
 	volatile uint8_t data;
 

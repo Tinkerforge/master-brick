@@ -29,7 +29,8 @@
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/utility/util_definitions.h"
 
-Pin wifi_cs = PIN_WIFI_SPI_CS;
+extern Pin extension_pins[];
+extern uint8_t WIFI_CS;
 
 bool wifi_low_level_is_byte_stuffing(char value) {
 	return ((WIFI_LOW_LEVEL_SPI_ESC_CHAR	          == value) ||
@@ -116,12 +117,12 @@ void wifi_low_level_write_buffer(const char *buffer, const uint8_t length) {
 
 void wifi_low_level_select(void) {
 	SLEEP_NS(250);
-	PIO_Clear(&wifi_cs);
+	PIO_Clear(&extension_pins[WIFI_CS]);
 	SLEEP_NS(250);
 }
 
 void wifi_low_level_deselect(void) {
 	SLEEP_NS(250);
-	PIO_Set(&wifi_cs);
+	PIO_Set(&extension_pins[WIFI_CS]);
 	SLEEP_NS(250);
 }

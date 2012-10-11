@@ -39,7 +39,8 @@
 #include <task.h>
 
 extern ComType com_current;
-
+extern uint8_t com_last_ext_id[];
+extern ComType com_ext[];
 extern uint8_t com_stack_id;
 extern uint8_t com_last_spi_stack_id;
 
@@ -94,6 +95,16 @@ void rs485_slave_message_loop_return(char *data, uint16_t length) {
 
 	if(stack_id <= com_last_spi_stack_id) {
 		send_blocking_with_timeout(data, length, COM_SPI_STACK);
+		return;
+	}
+
+	if(stack_id <= com_last_ext_id[0]) {
+		send_blocking_with_timeout(data, length, com_ext[0]);
+		return;
+	}
+
+	if(stack_id <= com_last_ext_id[1]) {
+		send_blocking_with_timeout(data, length, com_ext[1]);
 		return;
 	}
 }

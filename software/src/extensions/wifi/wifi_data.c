@@ -42,11 +42,13 @@ int8_t  wifi_data_current_cid = -1;
 char wifi_data_length_buffer[4] = {0};
 extern uint8_t wifi_buffer_recv[];
 extern uint16_t wifi_buffer_size_recv;
-extern Pin pins_wifi_spi[];
+extern Pin extension_pins[];
 extern WifiStatus wifi_status;
 extern int8_t wifi_new_cid;
 
-uint16_t wifi_data_lenght_mul[4] = {1000, 100, 10, 1};
+extern uint8_t WIFI_DATA_RDY;
+
+static const uint16_t wifi_data_lenght_mul[4] = {1000, 100, 10, 1};
 
 bool wifi_data_currently_stuffing = false;
 
@@ -91,7 +93,7 @@ void wifi_data_next(const char data, bool transceive) {
 	char ndata = data;
 	if(transceive) {
 		if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
-			if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+			if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
 				ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
 			} else {
 				return;
@@ -112,7 +114,7 @@ void wifi_data_next(const char data, bool transceive) {
 					}
 				}
 
-				if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+				if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
 					ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
 				} else {
 					return;
@@ -143,7 +145,7 @@ void wifi_data_next(const char data, bool transceive) {
 					wifi_buffer_size_recv = length;
 					return;
 				} else {
-					if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+					if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
 						ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
 					} else {
 						return;
@@ -359,7 +361,7 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 void wifi_data_poll(void) {
 	uint8_t i = 0;
 	if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
-		if((wifi_buffer_size_recv != 0) || !PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+		if((wifi_buffer_size_recv != 0) || !PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
 			return;
 		}
 	}

@@ -60,12 +60,11 @@ void extension_i2c_write_zeros(const uint8_t extension) {
 }
 
 void extension_i2c_select(const uint8_t extension) {
-	PIO_Clear(&extension_select[extension == 0 ? 1 : 1]);
+	PIO_Clear(&extension_select[extension == 0 ? 1 : 0]);
 	PIO_Set(&extension_select[extension]);
 }
 
 void extension_i2c_deselect(const uint8_t extension) {
-	PIO_Clear(&extension_select[extension == 0 ? 1 : 1]);
 	PIO_Clear(&extension_select[extension]);
 }
 

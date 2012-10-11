@@ -60,9 +60,6 @@ uint8_t chibi_get_receiver_address(uint8_t stack_id) {
 }
 
 bool chibi_init(void) {
-	Pin chibi_pins[] = {PINS_CHIBI};
-	PIO_Configure(chibi_pins, PIO_LISTSIZE(chibi_pins));
-
 	// Enable peripheral clock
 	PMC->PMC_PCER0 = 1 << ID_USART0;
 

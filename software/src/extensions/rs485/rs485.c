@@ -61,6 +61,8 @@ RS485Config rs485_config = {
 };
 
 extern uint8_t master_routing_table[];
+extern Pin extension_pins[];
+uint8_t RS485_RECV = RS485_RECV_0;
 
 uint16_t rs485_wait_time(void) {
 	uint16_t t = 4*1000*64*8/9600;
@@ -92,6 +94,18 @@ void rs485_init_masterslave(uint8_t extension) {
 	                                rs485_config.parity,
 	                                rs485_config.stopbits);
 
+	if(extension == 0) {
+		RS485_RECV = RS485_RECV_0;
+	} else if(extension == 1) {
+		RS485_RECV = RS485_RECV_1;
+	}
+
+    const Pin pins_rs485[] = PINS_RS485;
+    PIO_Configure(pins_rs485, PIO_LISTSIZE(pins_rs485));
+
+    extension_pins[RS485_RECV].type = PIO_OUTPUT_0;
+    PIO_Configure(&extension_pins[RS485_RECV], 1);
+
 	if(rs485_address == 0) {
 		rs485_master_init();
 	} else {
@@ -100,12 +114,6 @@ void rs485_init_masterslave(uint8_t extension) {
 }
 
 bool rs485_init(void) {
-    const Pin pins_rs485[] = PINS_RS485;
-    PIO_Configure(pins_rs485, PIO_LISTSIZE(pins_rs485));
-
-    const Pin pin_recv = PIN_RS485_RECV;
-    PIO_Configure(&pin_recv, 1);
-
     uint32_t mode = US_MR_USART_MODE_RS485 |
                     US_MR_USCLKS_MCK       |
                     US_MR_CHRL_8_BIT       |

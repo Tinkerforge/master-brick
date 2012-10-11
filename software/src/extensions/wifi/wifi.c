@@ -44,6 +44,7 @@
 #include "extensions/extension_i2c.h"
 
 extern ComType com_ext[];
+extern uint8_t com_last_ext_id[];
 extern uint32_t led_rxtx;
 extern uint32_t led_ext3_rxtx;
 extern ComType com_current;
@@ -63,7 +64,7 @@ bool wifi_task_created = false;
 uint8_t wifi_buffer_recv[WIFI_BUFFER_SIZE] = {0};
 uint16_t wifi_buffer_size_recv = 0;
 
-Pin pins_wifi_spi[] = {PINS_WIFI_SPI};
+extern Pin extension_pins[];
 
 WifiConfiguration wifi_configuration = {
 	"TinkerforgeWLAN",
@@ -95,12 +96,22 @@ WifiStatus wifi_status = {
 	WIFI_STATE_NO_STARTUP,
 };
 
-bool wifi_init(void) {
-    pins_wifi_spi[WIFI_RESET].type = PIO_INPUT;
-    pins_wifi_spi[WIFI_LED].type = PIO_OUTPUT_1;
-    pins_wifi_spi[WIFI_DATA_RDY].type = PIO_INPUT;
+uint8_t WIFI_CS = WIFI_CS_0;
+uint8_t WIFI_RESET = WIFI_RESET_0;
+uint8_t WIFI_LED = WIFI_LED_0;
+uint8_t WIFI_DATA_RDY = WIFI_DATA_RDY_0;
 
-    PIO_Configure(pins_wifi_spi, PIO_LISTSIZE(pins_wifi_spi));
+bool wifi_init(void) {
+	extension_pins[WIFI_CS].type = PIO_OUTPUT_0;
+	extension_pins[WIFI_RESET].type = PIO_INPUT;
+    extension_pins[WIFI_LED].type = PIO_OUTPUT_1;
+    extension_pins[WIFI_DATA_RDY].type = PIO_INPUT;
+    PIO_Configure(&extension_pins[WIFI_CS], 4);
+
+    extension_pins[WIFI_MISO].type = PIO_PERIPH_A;
+    extension_pins[WIFI_MOSI].type = PIO_PERIPH_A;
+    extension_pins[WIFI_CLK].type = PIO_PERIPH_B;
+    PIO_Configure(&extension_pins[WIFI_MISO], 3);
 
     led_off(LED_EXT_BLUE_3);
 
@@ -126,21 +137,21 @@ bool wifi_init(void) {
 
     uint32_t i = 0;
     for(i = 0; i < 500000; i++) {
-    	if(PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY])) {
+    	if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
     		break;
     	}
     }
 
     wifi_command_flush();
 
-	pins_wifi_spi[WIFI_RESET].type = PIO_OUTPUT_0;
-	PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
+    extension_pins[WIFI_RESET].type = PIO_OUTPUT_0;
+	PIO_Configure(&extension_pins[WIFI_RESET], 1);
 	SLEEP_MS(10);
-	pins_wifi_spi[WIFI_RESET].type = PIO_INPUT;
-	PIO_Configure(&pins_wifi_spi[WIFI_RESET], 1);
+	extension_pins[WIFI_RESET].type = PIO_INPUT;
+	PIO_Configure(&extension_pins[WIFI_RESET], 1);
 
 	SLEEP_MS(1);
-    while(!PIO_Get(&pins_wifi_spi[WIFI_DATA_RDY]));
+    while(!PIO_Get(&extension_pins[WIFI_DATA_RDY]));
 
     wifi_command_flush();
 
@@ -512,6 +523,18 @@ void wifi_refresh_status(void) {
 }
 
 void wifi_init_extension(uint8_t extension) {
+	if(extension == 0) {
+		WIFI_CS = WIFI_CS_0;
+		WIFI_RESET = WIFI_RESET_0;
+		WIFI_LED = WIFI_LED_0;
+		WIFI_DATA_RDY = WIFI_DATA_RDY_0;
+	} else if(extension == 1) {
+		WIFI_CS = WIFI_CS_1;
+		WIFI_RESET = WIFI_RESET_1;
+		WIFI_LED = WIFI_LED_1;
+		WIFI_DATA_RDY = WIFI_DATA_RDY_1;
+	}
+
 	wifi_init();
 }
 
@@ -588,6 +611,16 @@ void wifi_message_loop_return(char *data, uint16_t length) {
 
 	if(stack_id <= com_last_spi_stack_id) {
 		send_blocking_with_timeout(data, length, COM_SPI_STACK);
+		return;
+	}
+
+	if(stack_id <= com_last_ext_id[0]) {
+		send_blocking_with_timeout(data, length, com_ext[0]);
+		return;
+	}
+
+	if(stack_id <= com_last_ext_id[1]) {
+		send_blocking_with_timeout(data, length, com_ext[1]);
 		return;
 	}
 }
@@ -712,7 +745,7 @@ void wifi_tick(uint8_t tick_type) {
 	switch(wifi_status.state) {
 		case WIFI_STATE_STARTUP_ERROR: {
 			led_off(LED_EXT_BLUE_3);
-			PIO_Set(&pins_wifi_spi[WIFI_LED]);
+			PIO_Set(&extension_pins[WIFI_LED]);
 			wifi_counter++;
 			if(wifi_counter >= 2000) {
 				wifi_counter = 0;
@@ -733,9 +766,9 @@ void wifi_tick(uint8_t tick_type) {
 
 			const uint8_t wifi_counter_mod =  wifi_counter % 200;
 			if(wifi_counter_mod == 0) {
-				PIO_Clear(&pins_wifi_spi[WIFI_LED]);
+				PIO_Clear(&extension_pins[WIFI_LED]);
 			} else if(wifi_counter_mod == 100) {
-				PIO_Set(&pins_wifi_spi[WIFI_LED]);
+				PIO_Set(&extension_pins[WIFI_LED]);
 			}
 
 			led_off(LED_EXT_BLUE_3);
@@ -771,13 +804,13 @@ void wifi_tick(uint8_t tick_type) {
 				wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
 				wifi_new_cid = -1;
 			}*/
-			PIO_Clear(&pins_wifi_spi[WIFI_LED]);
+			PIO_Clear(&extension_pins[WIFI_LED]);
 			break;
 		}
 
 		case WIFI_STATE_DISASSOCIATED: {
 			led_off(LED_EXT_BLUE_3);
-			PIO_Set(&pins_wifi_spi[WIFI_LED]);
+			PIO_Set(&extension_pins[WIFI_LED]);
 
 			wifi_status.bssid[0] = 0;
 			wifi_status.bssid[1] = 0;
