@@ -13,7 +13,7 @@
  - check sequence number to eliminate duplicates
  - different negotiation of send and recv states (now more messages from master to slave possible should be possible)
 1.2.0: Add RS485 support
-1.2.1: Add get_temperature and reset function
+1.2.1: Add get_chip_temperature and reset function
 1.2.2: Add USB hotplug support (through bricklib)
 1.2.3: Use dynamically calculated timeouts for RS485, improve Bricklet readout
 1.2.4: Send empty message if slave has timeout, to allow slave to process buffer

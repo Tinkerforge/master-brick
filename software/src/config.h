@@ -30,8 +30,6 @@
 #include "extensions/extension_config.h"
 #include "bricklib/drivers/board/sam3s/SAM3S.h"
 
-#define at91sam3s4c
-
 #define BRICK_HARDWARE_NAME10 "Master Brick 1.0"
 #define BRICK_HARDWARE_NAME20 "Master Brick 2.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
