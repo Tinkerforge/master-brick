@@ -46,7 +46,7 @@ void chibi_slave_init(void) {
 	logchibii("Configuring chibi extension as Slave\n\r");
 	chibi_type = CHIBI_TYPE_SLAVE;
 
-    chibi_init();
+	chibi_low_level_init();
 
 	xTaskCreate(chibi_slave_message_loop,
 				(signed char *)"chs_ml",

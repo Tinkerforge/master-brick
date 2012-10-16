@@ -38,7 +38,7 @@ void chibi_master_init(void) {
 	chibi_type = CHIBI_TYPE_MASTER;
 	logchibii("Configuring chibi extension as Master\n\r");
 
-    chibi_init();
+	chibi_low_level_init();
 
 	xTaskCreate(chibi_master_message_loop,
 				(signed char *)"chm_ml",

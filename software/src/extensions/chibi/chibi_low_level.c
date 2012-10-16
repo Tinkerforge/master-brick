@@ -576,9 +576,6 @@ void chibi_interrupt(const Pin *pin) {
 }
 
 void chibi_low_level_init(void) {
-	Pin chibi_select = PIN_EXT_0_SELECT;
-	PIO_Clear(&chibi_select);
-
 	chibi_reset();
 
 	// Configure chibi interrupt pin

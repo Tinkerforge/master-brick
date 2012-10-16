@@ -58,7 +58,7 @@ void chibi_init_masterslave(uint8_t extension) {
 
 	extension_pins[CHIBI_RESET].type = PIO_OUTPUT_0;
     extension_pins[CHIBI_SLP_TR].type = PIO_OUTPUT_1;
-    PIO_Configure(&extension_pins[CHIBI_SELECT_0], 4);
+    PIO_Configure(&extension_pins[CHIBI_SELECT], 4);
 
     extension_pins[CHIBI_MISO].type = PIO_PERIPH_A;
     extension_pins[CHIBI_MOSI].type = PIO_PERIPH_A;
@@ -91,7 +91,7 @@ void chibi_init_masterslave(uint8_t extension) {
 		}
 	}
 
-	// TODO: initialize chibi pins according to extension
+	chibi_init();
 
 	if(chibi_address == chibi_master_address) {
 		if(chibi_slave_address[0] == 0) {

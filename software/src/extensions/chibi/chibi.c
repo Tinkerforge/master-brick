@@ -46,9 +46,6 @@ uint8_t chibi_slave_address[CHIBI_NUM_SLAVE_ADDRESS] = {0};
 uint8_t chibi_master_address = 0;
 extern uint8_t chibi_type;
 
-extern Pin chibi_interrupt_pin;
-
-
 uint8_t chibi_get_receiver_address(uint8_t stack_id) {
 	if(chibi_type == CHIBI_TYPE_MASTER) {
 		return master_routing_table[stack_id];
@@ -79,8 +76,6 @@ bool chibi_init(void) {
 	// Enable receiver and transmitter
 	USART0->US_CR = US_CR_TXEN;
 	USART0->US_CR = US_CR_RXEN;
-
-	chibi_low_level_init();
 
 	return true;
 }
