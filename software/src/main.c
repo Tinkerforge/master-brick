@@ -84,6 +84,9 @@ void blinkenlights(const uint8_t length) {
     }
 }
 
+#include "extensions/ethernet/ethernet.h"
+#include "extensions/ethernet/ethernet_low_level.h"
+
 int main() {
 	Pin twi_stack_pullup_master_pins[] = {PINS_TWI_PULLUP_MASTER};
 	Pin twi_stack_pullup_slave_pins[] = {PINS_TWI_PULLUP_SLAVE};

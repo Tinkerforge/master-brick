@@ -27,6 +27,7 @@
 #include "extensions/chibi/chibi.h"
 #include "extensions/rs485/rs485.h"
 #include "extensions/wifi/wifi.h"
+#include "extensions/ethernet/ethernet.h"
 #include "extensions/extension_config.h"
 #include "bricklib/drivers/board/sam3s/SAM3S.h"
 
@@ -34,7 +35,7 @@
 #define BRICK_HARDWARE_NAME20 "Master Brick 2.0"
 #define BRICK_FIRMWARE_VERSION_MAJOR 1
 #define BRICK_FIRMWARE_VERSION_MINOR 4
-#define BRICK_FIRMWARE_VERSION_REVISION 2
+#define BRICK_FIRMWARE_VERSION_REVISION 3
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
