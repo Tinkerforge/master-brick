@@ -360,7 +360,7 @@ bool wifi_init(void) {
 	}
 
 	if(wifi_configuration.connection == CONNECTION_AP_DHCP ||
-	   wifi_configuration.connection == CONNECTION_ADHOC_DHCP) {
+	   wifi_configuration.connection == CONNECTION_AP_STATIC_IP) {
 		if(startup) {
 			logwifid("AT+WM=2\n\r");
 			if(wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_WM_AP) != WIFI_ANSWER_OK) {
@@ -368,7 +368,7 @@ bool wifi_init(void) {
 				startup = false;
 			}
 		}
-	} else if(wifi_configuration.connection == CONNECTION_AP_STATIC_IP ||
+	} else if(wifi_configuration.connection == CONNECTION_ADHOC_DHCP ||
 	          wifi_configuration.connection == CONNECTION_ADHOC_STATIC_IP) {
 		if(startup) {
 			logwifid("AT+WM=1\n\r");

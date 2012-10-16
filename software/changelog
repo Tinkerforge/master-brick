@@ -27,3 +27,4 @@
 1.4.0: Fix reset when multiple masters in a stack are used, add support for Master Brick 2.0
 1.4.1: Fix bug in RS485 code (rs485 recv pin was set by wifi code)
 1.4.2: Add support for usage of two extensions at the same time
+1.4.3: Fix mixup between Ad Hoc DHCP and AP Static IP
