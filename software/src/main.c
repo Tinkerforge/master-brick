@@ -84,9 +84,6 @@ void blinkenlights(const uint8_t length) {
     }
 }
 
-#include "extensions/ethernet/ethernet.h"
-#include "extensions/ethernet/ethernet_low_level.h"
-
 int main() {
 	Pin twi_stack_pullup_master_pins[] = {PINS_TWI_PULLUP_MASTER};
 	Pin twi_stack_pullup_slave_pins[] = {PINS_TWI_PULLUP_SLAVE};
@@ -148,9 +145,9 @@ int main() {
         logsi("Master Routing table created\n\r");
 
         extension_init();
-    	if(usb_init()) {
-    		master_create_routing_table_extensions();
+    	master_create_routing_table_extensions();
 
+    	if(usb_init()) {
 			xTaskCreate(usb_message_loop,
 						(signed char *)"usb_ml",
 						MESSAGE_LOOP_SIZE,
