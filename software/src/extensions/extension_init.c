@@ -38,6 +38,7 @@
 #include "extensions/rs485/rs485_slave.h"
 
 #include "extensions/wifi/wifi.h"
+#include "extensions/ethernet/ethernet.h"
 
 #include <stdio.h>
 
@@ -161,9 +162,17 @@ uint8_t extension_init(void) {
 					break;
 				}
 
+				case EXTENSION_TYPE_ETHERNET: {
+					com_ext[i] = COM_ETHERNET;
+					ethernet_init_extension(i);
+
+					break;
+				}
+
 				case EXTENSION_TYPE_NONE:
 				default: {
 					com_ext[i] = COM_NONE;
+					break;
 				}
 			}
 		} else {

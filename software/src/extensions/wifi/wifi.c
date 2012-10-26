@@ -28,7 +28,6 @@
 #include "wifi_config.h"
 #include "wifi_command.h"
 #include "wifi_data.h"
-#include "wifi_brickd.h"
 #include "wifi_low_level.h"
 
 #include "bricklib/com/com.h"
@@ -42,6 +41,7 @@
 #include "bricklib/bricklet/bricklet_config.h"
 #include "extensions/extension_init.h"
 #include "extensions/extension_i2c.h"
+#include "extensions/brickd.h"
 
 extern ComType com_ext[];
 extern uint8_t com_last_ext_id[];
@@ -115,7 +115,7 @@ bool wifi_init(void) {
 
     led_off(LED_EXT_BLUE_3);
 
-    wifi_brickd_init();
+    brickd_init();
     wifi_low_level_deselect();
 
     wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);

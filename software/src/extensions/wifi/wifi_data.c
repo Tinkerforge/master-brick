@@ -23,12 +23,13 @@
 
 #include "wifi_low_level.h"
 #include "wifi_command.h"
-#include "wifi_brickd.h"
 
 #include "bricklib/com/com_messages.h"
 #include "bricklib/utility/led.h"
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/logging/logging.h"
+
+#include "extensions/brickd.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -135,8 +136,8 @@ void wifi_data_next(const char data, bool transceive) {
 				}
 
 				if(i == length) {
-					wifi_brickd_route_from(wifi_buffer_recv,
-					                       wifi_data_ringbuffer[wifi_data_ringbuffer_start]);
+					brickd_route_from(wifi_buffer_recv,
+					                  wifi_data_ringbuffer[wifi_data_ringbuffer_start]);
 					wifi_data_ringbuffer_start++;
 					if(wifi_data_ringbuffer_start >= WIFI_DATA_RINGBUFFER_SIZE) {
 						wifi_data_ringbuffer_start = 0;
@@ -279,7 +280,7 @@ void wifi_data_next(const char data, bool transceive) {
 
 					if(in_recv_buffer) {
 						wifi_buffer_size_recv = wifi_buffer_size_counter;
-						wifi_brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
+						brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
 					} else {
 						wifi_data_ringbuffer[wifi_data_ringbuffer_end] = wifi_data_current_cid;
 						wifi_data_ringbuffer_end++;
@@ -344,7 +345,7 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 }
 
 void wifi_data_send_escape(const char *data, const uint16_t length) {
-	int8_t cid = wifi_brickd_route_to((const uint8_t*)data);
+	int8_t cid = brickd_route_to((const uint8_t*)data);
 
 	if(cid == -1) {
 		for(uint8_t i = 1; i < WIFI_DATA_MAX_CID; i++) {
@@ -402,6 +403,6 @@ char wifi_data_int_to_hex(int8_t c) {
 void wifi_data_disconnect(uint8_t cid) {
 	if(cid > 0 && cid < 16) {
 		wifi_data_cid_present[cid] = false;
-		wifi_brickd_disconnect(cid);
+		brickd_disconnect(cid);
 	}
 }

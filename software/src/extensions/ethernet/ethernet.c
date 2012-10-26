@@ -23,10 +23,15 @@
 
 #include "ethernet_config.h"
 #include "ethernet_low_level.h"
+#include "ethernet_dhcp.h"
+
+#include "extensions/brickd.h"
 
 #include "bricklib/com/com.h"
 #include "bricklib/com/com_common.h"
 #include "bricklib/bricklet/bricklet_config.h"
+#include "bricklib/utility/init.h"
+#include "bricklib/utility/util_definitions.h"
 
 #include "bricklib/drivers/usart/usart.h"
 
@@ -46,6 +51,8 @@ uint8_t ETHERNET_CS = ETHERNET_CS_0;
 uint8_t ETHERNET_RESET = ETHERNET_RESET_0;
 uint8_t ETHERNET_INT = ETHERNET_INT_0;
 uint8_t ETHERNET_PWDN = ETHERNET_PWDN_0;
+
+bool ethernet_dhcp_server = true;
 
 void ethernet_init_extension(uint8_t extension) {
 	if(extension == 0) {
@@ -97,15 +104,53 @@ bool ethernet_init(void) {
 
 	ethernet_low_level_init();
 
+	brickd_init();
+
+	xTaskCreate(ethernet_message_loop,
+				(signed char *)"eth_ml",
+				MESSAGE_LOOP_SIZE,
+				NULL,
+				1,
+				(xTaskHandle *)NULL);
+
+	logethi("Ethernet initialized\n\r");
+
 	return true;
 }
 
 uint16_t ethernet_send(const void *data, const uint16_t length) {
-	return 0;
+	const int8_t socket = brickd_route_to((const uint8_t*)data);
+	if(socket == -1) {
+		for(uint8_t socket_i = 0; socket_i < ETHERNET_MAX_SOCKETS; socket_i++) {
+			ethernet_low_level_write_data_tcp(socket_i, data, length);
+		}
+
+		return length;
+	}
+
+	return ethernet_low_level_write_data_tcp(socket, data, length);
 }
 
 uint16_t ethernet_recv(void *data, const uint16_t length) {
-	return 0;
+	static uint8_t socket = 0;
+	if(socket >= ETHERNET_MAX_SOCKETS) {
+		socket = 0;
+	}
+
+	uint8_t read_length = 0;
+	for(; socket < ETHERNET_MAX_SOCKETS; socket++) {
+		read_length = ethernet_low_level_read_data_tcp(socket, data, length);
+		if(read_length != 0) {
+			break;
+		}
+	}
+
+	if(read_length != 0) {
+		brickd_route_from((const uint8_t*)data, socket);
+		socket++;
+	}
+
+	return read_length;
 }
 
 void ethernet_message_loop(void *parameters) {
@@ -147,5 +192,44 @@ void ethernet_message_loop_return(char *data, uint16_t length) {
 	if(stack_id <= com_last_ext_id[1]) {
 		send_blocking_with_timeout(data, length, com_ext[1]);
 		return;
+	}
+}
+
+void ethernet_tick(uint8_t tick_type) {
+	static uint8_t ethernet_counter = 0;
+
+	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
+		return;
+	}
+
+	ethernet_counter++;
+
+	if(ethernet_dhcp_server) {
+		dhcp_tick(tick_type);
+		if(ethernet_counter >= 10) {
+			dhcp_check_state(DHCP_SOCKET);
+		}
+	}
+
+	if(ethernet_counter >= 10) {
+		ethernet_counter = 0;
+		for(uint8_t socket = 0; socket < ETHERNET_MAX_SOCKETS; socket++) {
+			uint16_t status = ethernet_low_level_get_status(socket);
+			switch(status) {
+				case ETH_VAL_SN_SR_SOCK_CLOSE_WAIT: {
+					ethernet_low_level_disconnect(socket);
+					brickd_disconnect(socket);
+					break;
+				}
+
+				case ETH_VAL_SN_SR_SOCK_CLOSED: {
+					ethernet_low_level_socket_init(socket);
+					ethernet_low_level_socket_listen(socket);
+					brickd_disconnect(socket);
+
+					break;
+				}
+			}
+		}
 	}
 }

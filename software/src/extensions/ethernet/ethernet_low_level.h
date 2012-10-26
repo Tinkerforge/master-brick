@@ -134,6 +134,22 @@
 
 void ethernet_low_level_reset(void);
 void ethernet_low_level_init(void);
+void ethernet_low_level_disconnect(uint8_t socket);
+uint8_t ethernet_low_level_get_status(uint8_t socket);
+void ethernet_low_level_socket_init(uint8_t socket);
+void ethernet_low_level_socket_listen(uint8_t socket);
+uint16_t ethernet_low_level_get_received_data_length(uint8_t socket);
+uint16_t ethernet_low_level_get_free_data_length(uint8_t socket);
+uint16_t ethernet_low_level_get_transmit_pointer(uint8_t socket);
+void ethernet_low_level_set_transmit_pointer(uint8_t socket, uint16_t pointer);
+uint8_t ethernet_low_level_read_data_tcp(uint8_t socket, uint8_t *buffer, uint8_t length);
+uint8_t ethernet_low_level_write_data_tcp(uint8_t socket, uint8_t *buffer, uint8_t length);
+uint16_t ethernet_low_level_read_data_udp(uint8_t socket, uint8_t *buffer, uint16_t length, uint8_t ip[4], uint16_t *port);
+uint16_t ethernet_low_level_write_data_udp(uint8_t socket, uint8_t *buffer, uint16_t length, uint8_t ip[4], uint16_t port);
+uint16_t ethernet_low_level_get_receive_pointer(uint8_t socket);
+void ethernet_low_level_set_receive_pointer(uint8_t socket, uint16_t pointer);
+void ethernet_low_level_set_retry_time(uint16_t retry_time);
+void ethernet_low_level_set_retry_count(uint8_t retry_count);
 void ethernet_select(void);
 void ethernet_deselect(void);
 uint8_t ethernet_transceive_byte(const uint8_t value);
@@ -141,10 +157,10 @@ uint8_t ethernet_read_register(const uint16_t address);
 void ethernet_write_register(const uint16_t address, const uint8_t value);
 uint8_t ethernet_read_buffer(const uint16_t address,
                              uint8_t *buffer,
-                             const uint8_t length);
+                             const uint16_t length);
 
 uint8_t ethernet_write_buffer(const uint16_t address,
                               const uint8_t *buffer,
-                              const uint8_t length);
+                              const uint16_t length);
 
 #endif

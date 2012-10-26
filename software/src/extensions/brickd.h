@@ -19,27 +19,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef WIFI_BRICKD_H
-#define WIFI_BRICKD_H
+#ifndef BRICKD_H
+#define BRICKD_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#define WIFI_BRICKD_ROUTING_TABLE_SIZE 10
+#define BRICKD_ROUTING_TABLE_SIZE 10
 
-typedef struct WifiRouting WifiRouting;
+typedef struct BrickdRouting BrickdRouting;
 
-struct WifiRouting{
+struct BrickdRouting {
 	uint8_t stack_id;
 	uint8_t func_id;
 	int8_t cid;
 	uint32_t counter;
 };
 
-void wifi_brickd_init(void);
-uint32_t wifi_brickd_counter_diff(uint32_t new, uint32_t old);
-void wifi_brickd_route_from(const uint8_t *data, const uint8_t cid);
-int8_t wifi_brickd_route_to(const uint8_t *data);
-void wifi_brickd_disconnect(uint8_t cid);
+void brickd_init(void);
+uint32_t brickd_counter_diff(uint32_t new, uint32_t old);
+void brickd_route_from(const uint8_t *data, const uint8_t cid);
+int8_t brickd_route_to(const uint8_t *data);
+void brickd_disconnect(uint8_t cid);
 
 #endif
