@@ -30,3 +30,4 @@
 1.4.3: Fix mixup between Ad Hoc DHCP and AP Static IP
 1.4.4: Fix Chibi Extension initialization sequence
 1.4.5: Fix Problem with RS485 + WIFI + Step Down PS combination
+1.4.6: Change Bricklet Context size from 250 to 256 (through bricklib)
