@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * chibi_slave.c: chibi protocol implementation for slave (no PC connection)
  *
@@ -65,7 +65,7 @@ void chibi_slave_message_loop(void *parameters) {
 }
 
 void chibi_slave_message_loop_return(char *data, uint16_t length) {
-	const uint8_t stack_id = get_stack_id_from_data(data);
+/*	const uint8_t stack_id = get_stack_id_from_data(data);
 
 	if(stack_id == com_stack_id || stack_id == 0) {
 		const ComMessage *com_message = get_com_from_data(data);
@@ -94,5 +94,5 @@ void chibi_slave_message_loop_return(char *data, uint16_t length) {
 	if(stack_id <= com_last_ext_id[1]) {
 		send_blocking_with_timeout(data, length, com_ext[1]);
 		return;
-	}
+	}*/
 }

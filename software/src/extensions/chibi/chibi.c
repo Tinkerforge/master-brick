@@ -38,7 +38,7 @@
 extern uint8_t chibi_buffer_recv[];
 extern uint8_t chibi_buffer_size_recv;
 extern bool chibi_transfer_end;
-extern uint8_t master_routing_table[];
+//extern uint8_t master_routing_table[];
 
 static uint8_t chibi_sequence_number = 0;
 uint8_t chibi_address = 0;
@@ -48,7 +48,9 @@ extern uint8_t chibi_type;
 
 uint8_t chibi_get_receiver_address(uint8_t stack_id) {
 	if(chibi_type == CHIBI_TYPE_MASTER) {
-		return master_routing_table[stack_id];
+		// TODO Protocol V2.0
+		return 0;
+//		return master_routing_table[stack_id];
 	} else if(chibi_type == CHIBI_TYPE_SLAVE) {
 		return chibi_master_address;
 	}

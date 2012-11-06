@@ -1,7 +1,7 @@
 /* master-brick
- * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
  *
- * master.h: Master specific functions
+ * routing.h: Master Brick specific routing functions
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,24 +19,24 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef MASTER_H
-#define MASTER_H
+#ifndef ROUTING_H
+#define ROUTING_H
 
 #include <stdint.h>
 
-#define MAX_STACK_IDS 256
+#define ROUTING_TABLE_SIZE  64
 
-#define MASTER_MODE_NONE 0
-#define MASTER_MODE_SLAVE 1
-#define MASTER_MODE_MASTER 2
+#define ROUTING_STACK_MIN    1
+#define ROUTING_STACK_MAX    8
+#define ROUTING_EXTENSION_1  9
+#define ROUTING_EXTENSION_2 10
 
-void master_create_routing_table_rs485(uint8_t extension);
-uint8_t master_get_hardware_version(void);
-void master_create_routing_table_chibi(uint8_t extension);
-void master_create_routing_table_extensions(void);
-void master_init(void);
-void new_connection(void);
-void spi_connection_established(void);
-void tick_task(uint8_t tick_type);
+typedef struct {
+	uint32_t uid;
+	uint8_t route_to;
+} RoutingTable;
+
+void routing_table_create_stack(void);
+void routing_master_from_pc(char *data, uint16_t length);
 
 #endif

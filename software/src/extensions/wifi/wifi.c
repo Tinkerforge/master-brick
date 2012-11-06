@@ -592,7 +592,7 @@ void wifi_message_loop(void *parameters) {
 }
 
 void wifi_message_loop_return(char *data, uint16_t length) {
-	const uint8_t stack_id = get_stack_id_from_data(data);
+/*	const uint8_t stack_id = get_stack_id_from_data(data);
 
 	if(stack_id == com_stack_id || stack_id == 0) {
 		const ComMessage *com_message = get_com_from_data(data);
@@ -622,7 +622,7 @@ void wifi_message_loop_return(char *data, uint16_t length) {
 	if(stack_id <= com_last_ext_id[1]) {
 		send_blocking_with_timeout(data, length, com_ext[1]);
 		return;
-	}
+	}*/
 }
 
 uint32_t wifi_read_key(void) {

@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.c: Implementation of Master-Brick specific messages
  *
@@ -64,9 +64,8 @@ extern uint16_t master_stack_current;
 void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
 
-	gsvr.stack_id      = data->stack_id;
-	gsvr.type          = data->type;
-	gsvr.length        = sizeof(GetStackVoltageReturn);
+	gsvr.header        = data->header;
+	gsvr.header.length = sizeof(GetStackVoltageReturn);
 
 	gsvr.voltage = master_stack_voltage *
 	               STACK_VOLTAGE_REFERENCE *
@@ -83,9 +82,8 @@ void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 void get_stack_current(uint8_t com, const GetStackCurrent *data) {
 	GetStackCurrentReturn gscr;
 
-	gscr.stack_id      = data->stack_id;
-	gscr.type          = data->type;
-	gscr.length        = sizeof(GetStackCurrentReturn);
+	gscr.header        = data->header;
+	gscr.header.length = sizeof(GetStackCurrentReturn);
 
 	uint16_t voltage = master_stack_voltage *
 	                   STACK_VOLTAGE_REFERENCE *
@@ -113,9 +111,8 @@ void set_extension_type(uint8_t com, const SetExtensionType *data) {
 void get_extension_type(uint8_t com, const GetExtensionType *data) {
 	GetExtensionTypeReturn getr;
 
-	getr.stack_id      = data->stack_id;
-	getr.type          = data->type;
-	getr.length        = sizeof(GetExtensionTypeReturn);
+	getr.header        = data->header;
+	getr.header.length = sizeof(GetExtensionTypeReturn);
 	getr.exttype       = extension_get_type(data->extension);
 
 	send_blocking_with_timeout(&getr, sizeof(GetExtensionTypeReturn), com);
@@ -125,9 +122,8 @@ void get_extension_type(uint8_t com, const GetExtensionType *data) {
 void is_chibi_present(uint8_t com, const IsChibiPresent *data) {
 	IsChibiPresentReturn icpr;
 
-	icpr.stack_id      = data->stack_id;
-	icpr.type          = data->type;
-	icpr.length        = sizeof(IsChibiPresentReturn);
+	icpr.header        = data->header;
+	icpr.header.length = sizeof(IsChibiPresentReturn);
 	icpr.present       = com_ext[0] == COM_CHIBI || com_ext[1] == COM_CHIBI;
 
 	send_blocking_with_timeout(&icpr, sizeof(IsChibiPresentReturn), com);
@@ -162,9 +158,8 @@ void get_chibi_address(uint8_t com, const GetChibiAddress *data) {
 		return;
 	}
 
-	gcar.stack_id      = data->stack_id;
-	gcar.type          = data->type;
-	gcar.length        = sizeof(GetChibiAddressReturn);
+	gcar.header        = data->header;
+	gcar.header.length = sizeof(GetChibiAddressReturn);
 	gcar.address       = extension_get_address(extension);
 
 	send_blocking_with_timeout(&gcar, sizeof(GetChibiAddressReturn), com);
@@ -199,9 +194,8 @@ void get_chibi_master_address(uint8_t com, const GetChibiMasterAddress *data) {
 		return;
 	}
 
-	gcmar.stack_id      = data->stack_id;
-	gcmar.type          = data->type;
-	gcmar.length        = sizeof(GetChibiMasterAddressReturn);
+	gcmar.header        = data->header;
+	gcmar.header.length = sizeof(GetChibiMasterAddressReturn);
 	gcmar.address       = extension_get_master_address(extension);
 
 	send_blocking_with_timeout(&gcmar, sizeof(GetChibiMasterAddressReturn), com);
@@ -236,9 +230,8 @@ void get_chibi_slave_address(uint8_t com, const GetChibiSlaveAddress *data) {
 		return;
 	}
 
-	gcsar.stack_id      = data->stack_id;
-	gcsar.type          = data->type;
-	gcsar.length        = sizeof(GetChibiSlaveAddressReturn);
+	gcsar.header        = data->header;
+	gcsar.header.length = sizeof(GetChibiSlaveAddressReturn);
 	gcsar.address       = extension_get_slave_address(extension, data->num);
 
 	send_blocking_with_timeout(&gcsar, sizeof(GetChibiSlaveAddressReturn), com);
@@ -248,9 +241,8 @@ void get_chibi_slave_address(uint8_t com, const GetChibiSlaveAddress *data) {
 void get_chibi_signal_strength(uint8_t com, const GetChibiSignalStrength *data) {
 	GetChibiSignalStrengthReturn gcssr;
 
-	gcssr.stack_id        = data->stack_id;
-	gcssr.type            = data->type;
-	gcssr.length          = sizeof(GetChibiSignalStrengthReturn);
+	gcssr.header          = data->header;
+	gcssr.header.length   = sizeof(GetChibiSignalStrengthReturn);
 	gcssr.signal_strength = chibi_receiver_input_power;
 
 	send_blocking_with_timeout(&gcssr, sizeof(GetChibiSignalStrengthReturn), com);
@@ -260,9 +252,8 @@ void get_chibi_signal_strength(uint8_t com, const GetChibiSignalStrength *data) 
 void get_chibi_error_log(uint8_t com, const GetChibiErrorLog *data) {
 	GetChibiErrorLogReturn gcelr;
 
-	gcelr.stack_id        = data->stack_id;
-	gcelr.type            = data->type;
-	gcelr.length          = sizeof(GetChibiErrorLogReturn);
+	gcelr.header          = data->header;
+	gcelr.header.length   = sizeof(GetChibiErrorLogReturn);
 	gcelr.underrun        = chibi_underrun;
 	gcelr.crc_error       = chibi_crc_error;
 	gcelr.no_ack          = chibi_no_ack;
@@ -305,9 +296,8 @@ void set_chibi_frequency(uint8_t com, const SetChibiFrequency *data) {
 void get_chibi_frequency(uint8_t com, const GetChibiFrequency *data) {
 	GetChibiFrequencyReturn gcfr;
 
-	gcfr.stack_id        = data->stack_id;
-	gcfr.type            = data->type;
-	gcfr.length          = sizeof(GetChibiFrequencyReturn);
+	gcfr.header          = data->header;
+	gcfr.header.length   = sizeof(GetChibiFrequencyReturn);
 	gcfr.frequency       = chibi_frequency_mode;
 
 	send_blocking_with_timeout(&gcfr, sizeof(GetChibiFrequencyReturn), com);
@@ -344,9 +334,8 @@ void set_chibi_channel(uint8_t com, const SetChibiChannel *data) {
 void get_chibi_channel(uint8_t com, const GetChibiChannel *data) {
 	GetChibiChannelReturn gccr;
 
-	gccr.stack_id        = data->stack_id;
-	gccr.type            = data->type;
-	gccr.length          = sizeof(GetChibiChannelReturn);
+	gccr.header          = data->header;
+	gccr.header.length   = sizeof(GetChibiChannelReturn);
 	gccr.channel         = chibi_channel;
 
 	send_blocking_with_timeout(&gccr, sizeof(GetChibiChannelReturn), com);
@@ -356,9 +345,8 @@ void get_chibi_channel(uint8_t com, const GetChibiChannel *data) {
 void is_rs485_present(uint8_t com, const IsRS485Present *data) {
 	IsRS485PresentReturn irpr;
 
-	irpr.stack_id      = data->stack_id;
-	irpr.type          = data->type;
-	irpr.length        = sizeof(IsRS485PresentReturn);
+	irpr.header        = data->header;
+	irpr.header.length = sizeof(IsRS485PresentReturn);
 	irpr.present       = com_ext[0] == COM_RS485 || com_ext[1] == COM_RS485;
 
 	send_blocking_with_timeout(&irpr, sizeof(IsRS485PresentReturn), com);
@@ -393,9 +381,8 @@ void get_rs485_address(uint8_t com, const GetRS485Address *data) {
 		return;
 	}
 
-	grar.stack_id      = data->stack_id;
-	grar.type          = data->type;
-	grar.length        = sizeof(GetRS485AddressReturn);
+	grar.header        = data->header;
+	grar.header.length = sizeof(GetRS485AddressReturn);
 	grar.address       = extension_get_address(extension);
 
 	send_blocking_with_timeout(&grar, sizeof(GetRS485AddressReturn), com);
@@ -430,9 +417,8 @@ void get_rs485_slave_address(uint8_t com, const GetRS485SlaveAddress *data) {
 		return;
 	}
 
-	grsar.stack_id      = data->stack_id;
-	grsar.type          = data->type;
-	grsar.length        = sizeof(GetRS485SlaveAddressReturn);
+	grsar.header        = data->header;
+	grsar.header.length = sizeof(GetRS485SlaveAddressReturn);
 	grsar.address       = extension_get_slave_address(extension, data->num);
 
 	send_blocking_with_timeout(&grsar, sizeof(GetRS485SlaveAddressReturn), com);
@@ -442,9 +428,8 @@ void get_rs485_slave_address(uint8_t com, const GetRS485SlaveAddress *data) {
 void get_rs485_error_log(uint8_t com, const GetRS485ErrorLog *data) {
 	GetRS485ErrorLogReturn grelr;
 
-	grelr.stack_id        = data->stack_id;
-	grelr.type            = data->type;
-	grelr.length          = sizeof(GetRS485ErrorLogReturn);
+	grelr.header          = data->header;
+	grelr.header.length   = sizeof(GetRS485ErrorLogReturn);
 	grelr.crc_error       = rs485_error_crc;
 
 	send_blocking_with_timeout(&grelr, sizeof(GetRS485ErrorLogReturn), com);
@@ -481,9 +466,8 @@ void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data) {
 
 	GetRS485ConfigurationReturn grcr;
 
-	grcr.stack_id        = data->stack_id;
-	grcr.type            = data->type;
-	grcr.length          = sizeof(GetRS485ConfigurationReturn);
+	grcr.header        = data->header;
+	grcr.header.length = sizeof(GetRS485ConfigurationReturn);
 	extension_i2c_read(extension, EXTENSION_POS_ANY, (char*)&grcr.speed, 6);
 
 	send_blocking_with_timeout(&grcr, sizeof(GetRS485ConfigurationReturn), com);
@@ -496,9 +480,8 @@ void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data) {
 void is_wifi_present(uint8_t com, const IsWifiPresent *data) {
 	IsWifiPresentReturn iwpr;
 
-	iwpr.stack_id      = data->stack_id;
-	iwpr.type          = data->type;
-	iwpr.length        = sizeof(IsWifiPresentReturn);
+	iwpr.header        = data->header;
+	iwpr.header.length = sizeof(IsWifiPresentReturn);
 	iwpr.present       = com_ext[0] == COM_WIFI || com_ext[1] == COM_WIFI;
 
 	send_blocking_with_timeout(&iwpr, sizeof(IsWifiPresentReturn), com);
@@ -521,9 +504,8 @@ void set_wifi_configuration(uint8_t com, const SetWifiConfiguration *data) {
 void get_wifi_configuration(uint8_t com, const GetWifiConfiguration *data) {
 	GetWifiConfigurationReturn gwcr;
 
-	gwcr.stack_id        = data->stack_id;
-	gwcr.type            = data->type;
-	gwcr.length          = sizeof(GetWifiConfigurationReturn);
+	gwcr.header        = data->header;
+	gwcr.header.length = sizeof(GetWifiConfigurationReturn);
 	wifi_read_config(((char*)&gwcr) + 4,
 	                 sizeof(GetWifiConfigurationReturn)-4,
 	                 WIFI_CONFIGURATION_POS);
@@ -549,9 +531,8 @@ void set_wifi_encryption(uint8_t com, const SetWifiEncryption *data) {
 void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data) {
 	GetWifiEncryptionReturn gwer;
 
-	gwer.stack_id        = data->stack_id;
-	gwer.type            = data->type;
-	gwer.length          = sizeof(GetWifiEncryptionReturn);
+	gwer.header        = data->header;
+	gwer.header.length = sizeof(GetWifiEncryptionReturn);
 	wifi_read_config(((char*)&gwer) + 4,
 	                 sizeof(GetWifiEncryptionReturn) - 4,
 	                 WIFI_ENCRYPTION_POS);
@@ -564,9 +545,8 @@ void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data) {
 void get_wifi_status(uint8_t com, const GetWifiStatus *data) {
 	GetWifiStatusReturn gwsr;
 
-	gwsr.stack_id        = data->stack_id;
-	gwsr.type            = data->type;
-	gwsr.length          = sizeof(GetWifiStatusReturn);
+	gwsr.header        = data->header;
+	gwsr.header.length = sizeof(GetWifiStatusReturn);
 	memcpy(((char*)&gwsr)+4, &wifi_status, sizeof(GetWifiStatusReturn)-4);
 
 	send_blocking_with_timeout(&gwsr, sizeof(GetWifiStatusReturn), com);
@@ -614,9 +594,8 @@ void set_wifi_certificate(uint8_t com, const SetWifiCertificate *data) {
 void get_wifi_certificate(uint8_t com, const GetWifiCertificate *data) {
 	GetWifiCertificateReturn gwcr;
 
-	gwcr.stack_id        = data->stack_id;
-	gwcr.type            = data->type;
-	gwcr.length          = sizeof(GetWifiCertificateReturn);
+	gwcr.header          = data->header;
+	gwcr.header.length   = sizeof(GetWifiCertificateReturn);
 
 	gwcr.data_length     = 0;
 	if(data->index == 0xFFFF) {
@@ -684,9 +663,8 @@ void set_wifi_power_mode(uint8_t com, const SetWifiPowerMode *data) {
 void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data) {
 	GetWifiPowerModeReturn gwpmr;
 
-	gwpmr.stack_id        = data->stack_id;
-	gwpmr.type            = data->type;
-	gwpmr.length          = sizeof(GetWifiPowerModeReturn);
+	gwpmr.header          = data->header;
+	gwpmr.header.length   = sizeof(GetWifiPowerModeReturn);
 	gwpmr.mode            = wifi_power_mode;
 
 	send_blocking_with_timeout(&gwpmr, sizeof(GetWifiPowerModeReturn), com);
@@ -696,9 +674,8 @@ void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data) {
 void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data) {
 	GetWifiBufferInfoReturn gwbir;
 
-	gwbir.stack_id        = data->stack_id;
-	gwbir.type            = data->type;
-	gwbir.length          = sizeof(GetWifiBufferInfoReturn);
+	gwbir.header          = data->header;
+	gwbir.header.length   = sizeof(GetWifiBufferInfoReturn);
 	gwbir.overflow        = wifi_data_ringbuffer_overflow;
 	gwbir.low_watermark   = wifi_data_ringbuffer_low_watermark;
 	gwbir.used            = wifi_data_get_ringbuffer_diff();
@@ -720,9 +697,8 @@ void set_wifi_regulatory_domain(uint8_t com, const SetWifiRegulatoryDomain *data
 void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data) {
 	GetWifiRegulatoryDomainReturn gwrdr;
 
-	gwrdr.stack_id        = data->stack_id;
-	gwrdr.type            = data->type;
-	gwrdr.length          = sizeof(GetWifiRegulatoryDomainReturn);
+	gwrdr.header        = data->header;
+	gwrdr.header.length = sizeof(GetWifiRegulatoryDomainReturn);
 	wifi_read_config((char*)&gwrdr.domain, 1, WIFI_REGULATORY_DOMAIN_POS);
 
 	send_blocking_with_timeout(&gwrdr, sizeof(GetWifiRegulatoryDomainReturn), com);
@@ -732,11 +708,10 @@ void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data
 void get_usb_voltage(uint8_t com, const GetUSBVoltage *data) {
 	GetUSBVoltageReturn guvr;
 
-	guvr.stack_id        = data->stack_id;
-	guvr.type            = data->type;
-	guvr.length          = sizeof(guvr);
+	guvr.header          = data->header;
+	guvr.header.length   = sizeof(GetUSBVoltageReturn);
 	guvr.voltage         = master_usb_voltage*USB_VOLTAGE_REFERENCE*USB_VOLTAGE_MULTIPLIER/(VOLTAGE_MAX_VALUE*USB_VOLTAGE_DIVISOR);
 
-	send_blocking_with_timeout(&guvr, sizeof(guvr), com);
+	send_blocking_with_timeout(&guvr, sizeof(GetUSBVoltageReturn), com);
 	logwifii("get_usb_voltage: %d\n\r", guvr.voltage);
 }

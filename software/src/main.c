@@ -48,6 +48,7 @@
 
 #include "config.h"
 #include "master.h"
+#include "routing.h"
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
 #include "extensions/rs485/rs485.h"
@@ -92,6 +93,10 @@ int main() {
     PIO_Configure(&pin_detect, 1);
     PIO_Configure(&pin_master_detect, 1);
 
+    Pin pin_3v3_enable = PIN_3V3_ENABLE;
+	pin_3v3_enable.type = PIO_OUTPUT_1;
+	PIO_Configure(&pin_3v3_enable, 1);
+
     Pin pins_extension[] = {PINS_EXT};
     PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
 
@@ -125,7 +130,7 @@ int main() {
     led_off(LED_EXT_BLUE_2);
     led_off(LED_EXT_BLUE_3);
 
-    Pin pin_3v3_enable = PIN_3V3_ENABLE;
+    //Pin pin_3v3_enable = PIN_3V3_ENABLE;
     if(PIO_Get(&pin_master_detect)) {
     	pin_3v3_enable.type = PIO_OUTPUT_1;
     	PIO_Configure(&pin_3v3_enable, 1);
@@ -141,11 +146,11 @@ int main() {
         spi_stack_master_init();
     	logsi("SPI Stack for Master initialized\n\r");
 
-        master_create_routing_table_stack();
+        routing_table_create_stack();
         logsi("Master Routing table created\n\r");
 
-        extension_init();
-    	master_create_routing_table_extensions();
+        //extension_init();
+    	//master_create_routing_table_extensions();
 
     	if(usb_init()) {
 			xTaskCreate(usb_message_loop,
@@ -160,7 +165,7 @@ int main() {
     		logsi("No USB connection\n\r");
     	}
 
-    	if(com_last_stack_address > 0) {
+    	/*if(com_last_stack_address > 0) {
 			xTaskCreate(spi_stack_master_state_machine_loop,
 						(signed char *)"spi_sm",
 						500,
@@ -174,7 +179,7 @@ int main() {
 						NULL,
 						1,
 						(xTaskHandle *)NULL);
-    	}
+    	}*/
     } else {
     	pin_3v3_enable.type = PIO_OUTPUT_0;
     	PIO_Configure(&pin_3v3_enable, 1);

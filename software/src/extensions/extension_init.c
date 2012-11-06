@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * extension_init: Implementation of Extension initialization
  *
@@ -188,7 +188,7 @@ bool extension_is_present(const uint8_t extension) {
 }
 
 void extension_enumerate_chibi(uint8_t com, const Enumerate *data, uint8_t com_num) {
-	if(!(chibi_type & CHIBI_TYPE_MASTER)) {
+/*	if(!(chibi_type & CHIBI_TYPE_MASTER)) {
 		return;
 	}
 
@@ -210,16 +210,16 @@ void extension_enumerate_chibi(uint8_t com, const Enumerate *data, uint8_t com_n
 		if(id <= com_last_ext_id[com_num]) {
 			Enumerate e = {
 				id,
-				TYPE_ENUMERATE,
+				FID_ENUMERATE,
 				sizeof(Enumerate),
 			};
 			send_blocking_with_timeout(&e, sizeof(Enumerate), com_ext[com_num]);
 		}
-	}
+	}*/
 }
 
 void extension_enumerate_rs485(uint8_t com, const Enumerate *data, uint8_t com_num) {
-	if(!(rs485_type & RS485_TYPE_MASTER)) {
+/*	if(!(rs485_type & RS485_TYPE_MASTER)) {
 		return;
 	}
 
@@ -241,12 +241,12 @@ void extension_enumerate_rs485(uint8_t com, const Enumerate *data, uint8_t com_n
 		if(id <= com_last_ext_id[com_num]) {
 			Enumerate e = {
 				id,
-				TYPE_ENUMERATE,
+				FID_ENUMERATE,
 				sizeof(Enumerate),
 			};
 			send_blocking_with_timeout(&e, sizeof(Enumerate), com_ext[com_num]);
 		}
-	}
+	}*/
 }
 
 void extension_enumerate(uint8_t com, const Enumerate *data) {
@@ -258,89 +258,6 @@ void extension_enumerate(uint8_t com, const Enumerate *data) {
 			}
 			case COM_RS485: {
 				extension_enumerate_rs485(com, data, com_num);
-				break;
-			}
-			default: {
-				break;
-			}
-		}
-	}
-}
-
-void extension_stack_id_chibi(uint8_t com, const GetStackID *data, uint8_t com_num) {
-	if(!(chibi_type & CHIBI_TYPE_MASTER)) {
-		return;
-	}
-
-	for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
-		uint8_t slave_address = chibi_slave_address[i];
-		if(slave_address == 0) {
-			return;
-		}
-
-		uint16_t id;
-		// TODO: if com_num = 2: from com_last_ext_id[1] to com_last_ext_id[2]
-		for(id = com_last_spi_stack_id+1; id <= com_last_ext_id[com_num]; id++) {
-			if(master_routing_table[id] == slave_address) {
-				break;
-			}
-		}
-
-		if(id <= com_last_ext_id[com_num]) {
-			GetStackID gsid = {
-				id,
-				TYPE_GET_STACK_ID,
-				sizeof(GetStackID),
-				data->uid
-			};
-			send_blocking_with_timeout(&gsid, sizeof(GetStackID), com_ext[com_num]);
-		}
-	}
-}
-
-void extension_stack_id_rs485(uint8_t com, const GetStackID *data, uint8_t com_num) {
-	if(!(rs485_type & RS485_TYPE_MASTER)) {
-		return;
-	}
-
-	for(uint8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
-		uint8_t slave_address = rs485_slave_address[i];
-		logrsi("Extension Get Stack %d\n\r", slave_address);
-		if(slave_address == 0) {
-			return;
-		}
-
-		uint16_t id;
-		// TODO: if com_num = 2: from com_last_ext_id[1] to com_last_ext_id[2]
-		for(id = com_last_spi_stack_id+1; id <= com_last_ext_id[com_num]; id++) {
-			if(master_routing_table[id] == slave_address) {
-				break;
-			}
-		}
-		logrsi("Extension Get Stack ID %d %d\n\r", id, slave_address);
-
-		if(id <= com_last_ext_id[com_num]) {
-			GetStackID gsid = {
-				id,
-				TYPE_GET_STACK_ID,
-				sizeof(GetStackID),
-				data->uid
-			};
-
-			send_blocking_with_timeout(&gsid, sizeof(GetStackID), com_ext[com_num]);
-		}
-	}
-}
-
-void extension_stack_id(uint8_t com, const GetStackID *data) {
-	for(uint8_t com_num = 0; com_num < 2; com_num++) {
-		switch(com_ext[com_num]) {
-			case COM_CHIBI: {
-				extension_stack_id_chibi(com, data, com_num);
-				break;
-			}
-			case COM_RS485: {
-				extension_stack_id_rs485(com, data, com_num);
 				break;
 			}
 			default: {

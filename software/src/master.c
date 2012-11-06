@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * master.c: Master specific functions
  *
@@ -53,7 +53,6 @@ extern ComType com_ext[];
 extern uint16_t spi_stack_buffer_size_send;
 extern uint8_t com_last_spi_stack_id;
 
-uint8_t master_routing_table[MAX_STACK_IDS] = {0};
 uint8_t master_mode = MASTER_MODE_NONE;
 
 extern uint8_t chibi_address;
@@ -134,7 +133,7 @@ uint8_t master_get_hardware_version(void) {
 }
 
 void master_create_routing_table_rs485(uint8_t extension) {
-	logrsi("Start routing table creation\n\r");
+/*	logrsi("Start routing table creation\n\r");
 	com_last_ext_id[extension] = com_last_spi_stack_id;
 
 	for(int8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
@@ -229,11 +228,11 @@ void master_create_routing_table_rs485(uint8_t extension) {
 
 		com_last_ext_id[extension] = ser->stack_id_upto;
 		logrsi("last ext id %d for slave/ext %d/%d\n\r", ser->stack_id_upto, slave_address, extension);
-	}
+	}*/
 }
 
 void master_create_routing_table_chibi(uint8_t extension) {
-	com_last_ext_id[extension] = com_last_spi_stack_id;
+/*	com_last_ext_id[extension] = com_last_spi_stack_id;
 
 	for(int8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
 		uint8_t slave_address = chibi_slave_address[i];
@@ -298,7 +297,7 @@ void master_create_routing_table_chibi(uint8_t extension) {
 		com_last_ext_id[extension] = ser->stack_id_upto;
 
 		logchibii("last ext id %d for slave/ext %d/%d\n\r", ser->stack_id_upto, slave_address, extension);
-	}
+	}*/
 }
 
 void master_create_routing_table_extensions(void) {
@@ -327,70 +326,6 @@ void master_create_routing_table_extensions(void) {
 			}
 		}
 	}
-}
-
-void master_create_routing_table_stack(void) {
-	for(uint16_t i = 0; i < MAX_STACK_IDS; i++) {
-		master_routing_table[i] = 0;
-	}
-
-	uint8_t stack_address = 0;
-	uint8_t tries = 0;
-	while(stack_address <= 8) {
-		StackEnumerate se = {
-			0,
-			TYPE_STACK_ENUMERATE,
-			sizeof(StackEnumerate),
-			com_last_spi_stack_id + 1
-		};
-
-		if(spi_stack_send(&se, sizeof(StackEnumerate)) != 0) {
-			spi_stack_select(stack_address + 1);
-
-			tries = 0;
-			while(!spi_stack_master_transceive() && tries < 10) {
-				SLEEP_MS(50);
-				tries++;
-			}
-			if(tries == 10) {
-				break;
-			}
-
-			spi_stack_deselect();
-
-			spi_stack_buffer_size_recv = 0;
-		}
-
-		StackEnumerateReturn ser;
-		tries = 0;
-		while(tries < 10) {
-			SLEEP_MS(50);
-			spi_stack_select(stack_address + 1);
-			spi_stack_master_transceive();
-			spi_stack_deselect();
-			if(spi_stack_recv(&ser, sizeof(StackEnumerateReturn))) {
-				break;
-			}
-			tries++;
-		}
-
-		if(tries == 10) {
-			logspise("Did not receive answer for Stack Enumerate\n\r");
-			break;
-		}
-
-		logspisi("New Stack participant (from, to): %d, %d\n\r",
-		        com_last_spi_stack_id + 1,
-		        ser.stack_id_upto);
-		stack_address++;
-		for(uint8_t i = com_last_spi_stack_id + 1; i <= ser.stack_id_upto; i++) {
-			master_routing_table[i] = stack_address;
-		}
-		com_last_spi_stack_id = ser.stack_id_upto;
-	}
-
-	spi_stack_buffer_size_send = 0;
-	com_last_stack_address = stack_address;
 }
 
 void tick_task(uint8_t tick_type) {

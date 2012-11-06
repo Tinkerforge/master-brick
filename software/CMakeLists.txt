@@ -112,6 +112,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet.c"
 	"${PROJECT_SOURCE_DIR}/src/main.c"
 	"${PROJECT_SOURCE_DIR}/src/master.c"
+	"${PROJECT_SOURCE_DIR}/src/routing.c"
 )
 
 MESSAGE(STATUS "\nFound following source files:\n ${SOURCES}\n")

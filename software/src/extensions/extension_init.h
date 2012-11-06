@@ -43,6 +43,5 @@ bool extension_is_present(const uint8_t extension);
 uint8_t extension_init(void);
 
 void extension_enumerate(uint8_t com, const Enumerate *data);
-void extension_stack_id(uint8_t com, const GetStackID *data);
 
 #endif
