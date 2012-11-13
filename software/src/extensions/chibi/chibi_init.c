@@ -42,7 +42,7 @@ uint8_t CHIBI_RESET = CHIBI_RESET_0;
 uint8_t CHIBI_INT = CHIBI_INT_0;
 uint8_t CHIBI_SLP_TR = CHIBI_SLP_TR_0;
 
-void chibi_init_masterslave(uint8_t extension) {
+void chibi_init_masterslave(const uint8_t extension) {
 	if(extension == 0) {
 		CHIBI_SELECT = CHIBI_SELECT_0;
 		CHIBI_RESET = CHIBI_RESET_0;

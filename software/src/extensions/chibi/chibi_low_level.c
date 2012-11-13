@@ -34,8 +34,8 @@
 #include "bricklib/logging/logging.h"
 #include "config.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -43,8 +43,8 @@
 
 extern uint8_t chibi_type;
 extern uint8_t chibi_address;
-extern uint8_t chibi_slave_address[];
-extern uint8_t chibi_master_address;
+//extern uint8_t chibi_slave_address[];
+//extern uint8_t chibi_master_address;
 extern bool chibi_enumerate_ready;
 
 extern Pin extension_pins[];

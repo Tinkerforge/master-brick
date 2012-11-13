@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * chibi.c: High-level chibi protocol implementation
  *
@@ -29,16 +29,14 @@
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/logging/logging.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
 #include <string.h>
 #include <stdbool.h>
 
 extern uint8_t chibi_buffer_recv[];
 extern uint8_t chibi_buffer_size_recv;
-extern bool chibi_transfer_end;
-//extern uint8_t master_routing_table[];
 
 static uint8_t chibi_sequence_number = 0;
 uint8_t chibi_address = 0;
@@ -46,7 +44,7 @@ uint8_t chibi_slave_address[CHIBI_NUM_SLAVE_ADDRESS] = {0};
 uint8_t chibi_master_address = 0;
 extern uint8_t chibi_type;
 
-uint8_t chibi_get_receiver_address(uint8_t stack_id) {
+uint8_t chibi_get_receiver_address(const uint8_t stack_id) {
 	if(chibi_type == CHIBI_TYPE_MASTER) {
 		// TODO Protocol V2.0
 		return 0;
@@ -82,7 +80,7 @@ bool chibi_init(void) {
 	return true;
 }
 
-uint16_t chibi_send(const void *data, const uint16_t length) {
+uint16_t chibi_send(const void *data, const uint16_t length, uint32_t *options) {
 	uint8_t send_length = MIN(length, CHIBI_MAX_DATA_LENGTH);
 
 	const uint8_t stack_id = ((uint8_t*)data)[0];
@@ -108,7 +106,7 @@ uint16_t chibi_send(const void *data, const uint16_t length) {
 	}
 }
 
-uint16_t chibi_recv(void *data, const uint16_t length) {
+uint16_t chibi_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(chibi_buffer_size_recv == 0) {
 		return 0;
 	}

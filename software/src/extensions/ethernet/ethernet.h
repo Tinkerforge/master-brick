@@ -27,8 +27,8 @@
 
 void ethernet_init_extension(uint8_t extension);
 bool ethernet_init(void);
-uint16_t ethernet_send(const void *data, const uint16_t length);
-uint16_t ethernet_recv(void *data, const uint16_t length);
+uint16_t ethernet_send(const void *data, const uint16_t length, uint32_t *options);
+uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options);
 void ethernet_message_loop(void *parameters);
 void ethernet_message_loop_return(char *data, uint16_t length);
 void ethernet_tick(uint8_t tick_type);

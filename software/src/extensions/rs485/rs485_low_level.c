@@ -34,8 +34,6 @@
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/usart/usart.h"
 
-extern ComType com_current;
-
 extern uint8_t rs485_buffer_recv[];
 extern uint8_t rs485_buffer_send[];
 extern uint16_t rs485_buffer_size_send;
@@ -180,7 +178,8 @@ void rs485_low_level_set_mode_send(void) {
 	USART1->US_IDR = 0xFFFFFFFF;
 
 	PIO_Set(&extension_pins[RS485_RECV]);
-	volatile uint8_t state =  USART_RS485->US_CSR;
+
+	__attribute__((unused)) volatile uint8_t state =  USART_RS485->US_CSR;
     USART_EnableIt(USART_RS485, US_IER_TXEMPTY);
 }
 
@@ -404,7 +403,7 @@ void rs485_low_level_resync(void) {
 	USART_RS485->US_IDR = 0xFFFFFFFF;
 	PIO_Clear(&extension_pins[RS485_RECV]);
 
-	volatile uint8_t data;
+	__attribute__((unused)) volatile uint8_t data;
 
 	while(true) {
 		uint32_t counter = 2*8*BOARD_MCK/rs485_config.speed;

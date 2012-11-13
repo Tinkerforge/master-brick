@@ -35,16 +35,12 @@
 
 #include "bricklib/drivers/usart/usart.h"
 
-extern ComType com_ext[];
-extern uint8_t com_last_ext_id[];
-extern uint32_t led_rxtx;
+/*extern uint32_t led_rxtx;
 extern uint32_t led_ext3_rxtx;
 extern ComType com_current;
 
-extern uint8_t com_stack_id;
-extern uint8_t com_last_spi_stack_id;
 extern BrickletSettings bs[];
-extern const BrickletAddress baddr[];
+extern const BrickletAddress baddr[]*/;
 
 extern Pin extension_pins[];
 uint8_t ETHERNET_CS = ETHERNET_CS_0;
@@ -118,7 +114,7 @@ bool ethernet_init(void) {
 	return true;
 }
 
-uint16_t ethernet_send(const void *data, const uint16_t length) {
+uint16_t ethernet_send(const void *data, const uint16_t length, uint32_t *options) {
 	const int8_t socket = brickd_route_to((const uint8_t*)data);
 	if(socket == -1) {
 		for(uint8_t socket_i = 0; socket_i < ETHERNET_MAX_SOCKETS; socket_i++) {
@@ -131,7 +127,7 @@ uint16_t ethernet_send(const void *data, const uint16_t length) {
 	return ethernet_low_level_write_data_tcp(socket, data, length);
 }
 
-uint16_t ethernet_recv(void *data, const uint16_t length) {
+uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
 	static uint8_t socket = 0;
 	if(socket >= ETHERNET_MAX_SOCKETS) {
 		socket = 0;

@@ -261,7 +261,7 @@ void wifi_data_next(const char data, bool transceive) {
 			if(wifi_buffer_size_counter >= 4) {
 				uint16_t length;
 				if(in_recv_buffer) {
-					length = ((MessageHeader*)&wifi_buffer_recv)->length;
+					length = wifi_buffer_recv[MESSAGE_HEADER_LENGTH_POSITION];
 				} else {
 					uint16_t pos;
 					if(wifi_data_ringbuffer_end > wifi_buffer_size_counter) {

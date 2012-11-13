@@ -33,12 +33,11 @@
 #include "bricklib/utility/pearson_hash.h"
 #include "bricklib/utility/util_definitions.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
 extern ComType com_current;
 
-extern uint8_t rs485_buffer_recv[];
 extern uint8_t rs485_buffer_send[];
 extern uint16_t rs485_buffer_size_send;
 extern uint16_t rs485_buffer_size_recv;
@@ -50,9 +49,6 @@ extern uint8_t rs485_address;
 extern uint8_t master_routing_table[];
 extern uint8_t rs485_slave_address[];
 extern uint8_t rs485_last_sequence_number;
-
-extern bool rs485_low_level_buffer_ack;
-extern uint16_t spi_stack_buffer_size_send;
 
 uint16_t rs485_master_recv_counter = 3;
 xTaskHandle rs485_handle_master_message_loop;

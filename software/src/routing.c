@@ -34,17 +34,18 @@ extern ComType com_ext[];
 
 RoutingTable routing_table[ROUTING_TABLE_SIZE] = {{0, 0}};
 uint8_t routing_table_max = 0;
-uint8_t routing_stack_address_max = 0;
+extern uint8_t com_last_stack_address;
 
 
 void routing_table_create_stack(void) {
 	uint8_t stack_address = 0;
 	uint8_t tries = 0;
-	while(stack_address <= 8) {
+	while(stack_address < ROUTING_STACK_MAX) {
 		StackEnumerate se;
-		com_make_default_header(&se, 0, FID_STACK_ENUMERATE, sizeof(StackEnumerate));
+		com_make_default_header(&se, 0, sizeof(StackEnumerate), FID_STACK_ENUMERATE);
 
-		if(spi_stack_send(&se, sizeof(StackEnumerate)) != 0) {
+		uint32_t options = stack_address + 1;
+		if(spi_stack_send(&se, sizeof(StackEnumerate), &options) != 0) {
 			spi_stack_select(stack_address + 1);
 
 			tries = 0;
@@ -68,7 +69,7 @@ void routing_table_create_stack(void) {
 			spi_stack_select(stack_address + 1);
 			spi_stack_master_transceive();
 			spi_stack_deselect();
-			if(spi_stack_recv(&ser, sizeof(StackEnumerateReturn))) {
+			if(spi_stack_recv(&ser, sizeof(StackEnumerateReturn), NULL)) {
 				break;
 			}
 			tries++;
@@ -80,7 +81,7 @@ void routing_table_create_stack(void) {
 		}
 
 		stack_address++;
-		routing_stack_address_max = stack_address;
+		com_last_stack_address = stack_address;
 
 		for(uint8_t i = 0; i < STACK_ENUMERATE_MAX_UIDS; i++) {
 			if(ser.uids[i] != 0) {
@@ -90,7 +91,7 @@ void routing_table_create_stack(void) {
 				routing_table[routing_table_max].uid = ser.uids[i];
 				routing_table[routing_table_max].route_to = stack_address;
 				routing_table_max++;
-				logspisi("New Stack participant (sa, uid): %d, %d\n\r", stack_address, ser.uids[i]);
+				logspisi("New Stack participant (sa, uid): %d, %lu\n\r", stack_address, ser.uids[i]);
 			}
 		}
 	}
@@ -98,7 +99,7 @@ void routing_table_create_stack(void) {
 	spi_stack_buffer_size_send = 0;
 }
 
-uint8_t routing_route_to(uint32_t uid) {
+uint8_t routing_route_to(const uint32_t uid) {
 	for(uint8_t i = 0; i < routing_table_max; i++) {
 		if(routing_table[i].uid == uid) {
 			return routing_table[i].route_to;
@@ -108,12 +109,13 @@ uint8_t routing_route_to(uint32_t uid) {
 	return 0;
 }
 
-void routing_master_from_pc(char *data, uint16_t length) {
+void routing_master_from_pc(const char *data, const uint16_t length) {
 	uint32_t uid = ((MessageHeader*)data)->uid;
 	// Broadcast
 	if(uid == 0) {
-		for(uint8_t i = 0; i < routing_stack_address_max; i++) {
-			send_blocking_with_timeout(data, length, COM_SPI_STACK);
+		for(uint8_t i = ROUTING_STACK_MIN; i <= com_last_stack_address; i++) {
+			uint32_t options = i;
+			send_blocking_with_timeout_options(data, length, COM_SPI_STACK, &options);
 		}
 		send_blocking_with_timeout(data, length, com_ext[0]);
 		send_blocking_with_timeout(data, length, com_ext[1]);
@@ -121,7 +123,8 @@ void routing_master_from_pc(char *data, uint16_t length) {
 	} else {
 		uint8_t route_to = routing_route_to(uid);
 		if(route_to >= ROUTING_STACK_MIN && route_to <= ROUTING_STACK_MAX) {
-			send_blocking_with_timeout(data, length, COM_SPI_STACK);
+			uint32_t options = route_to;
+			send_blocking_with_timeout_options(data, length, COM_SPI_STACK, &options);
 		} else if(master_mode & MASTER_MODE_MASTER) {
 			if(route_to == ROUTING_EXTENSION_1) {
 				send_blocking_with_timeout(data, length, com_ext[0]);

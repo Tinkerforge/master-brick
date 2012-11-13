@@ -45,14 +45,10 @@ extern uint8_t chibi_frequency_mode;
 extern uint8_t chibi_channel;
 
 extern uint16_t rs485_error_crc;
-extern uint32_t rs485_config_speed;
-extern char rs485_config_parity;
-extern uint8_t rs485_config_stopbits;
 
 extern WifiStatus wifi_status;
 extern WifiConfiguration wifi_configuration;
 extern uint8_t wifi_power_mode;
-extern uint8_t eap_type;
 
 extern uint32_t wifi_data_ringbuffer_overflow;
 extern uint16_t wifi_data_ringbuffer_low_watermark;
@@ -61,7 +57,7 @@ extern uint16_t master_usb_voltage;
 extern uint16_t master_stack_voltage;
 extern uint16_t master_stack_current;
 
-void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
+void get_stack_voltage(const ComType com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
 
 	gsvr.header        = data->header;
@@ -79,7 +75,7 @@ void get_stack_voltage(uint8_t com, const GetStackVoltage *data) {
 	logmasteri("get_stack_voltage: %d\n\r", gsvr.voltage);
 }
 
-void get_stack_current(uint8_t com, const GetStackCurrent *data) {
+void get_stack_current(const ComType com, const GetStackCurrent *data) {
 	GetStackCurrentReturn gscr;
 
 	gscr.header        = data->header;
@@ -103,12 +99,12 @@ void get_stack_current(uint8_t com, const GetStackCurrent *data) {
 	logmasteri("get_stack_current: %d\n\r", gscr.current);
 }
 
-void set_extension_type(uint8_t com, const SetExtensionType *data) {
+void set_extension_type(const ComType com, const SetExtensionType *data) {
 	extension_set_type(data->extension, data->exttype);
-	logmasteri("set_extension_type: %d\n\r", data->exttype);
+	logmasteri("set_extension_type: %lu\n\r", data->exttype);
 }
 
-void get_extension_type(uint8_t com, const GetExtensionType *data) {
+void get_extension_type(const ComType com, const GetExtensionType *data) {
 	GetExtensionTypeReturn getr;
 
 	getr.header        = data->header;
@@ -116,10 +112,10 @@ void get_extension_type(uint8_t com, const GetExtensionType *data) {
 	getr.exttype       = extension_get_type(data->extension);
 
 	send_blocking_with_timeout(&getr, sizeof(GetExtensionTypeReturn), com);
-	logmasteri("get_extension_type: %d\n\r", getr.exttype);
+	logmasteri("get_extension_type: %lu\n\r", getr.exttype);
 }
 
-void is_chibi_present(uint8_t com, const IsChibiPresent *data) {
+void is_chibi_present(const ComType com, const IsChibiPresent *data) {
 	IsChibiPresentReturn icpr;
 
 	icpr.header        = data->header;
@@ -130,7 +126,7 @@ void is_chibi_present(uint8_t com, const IsChibiPresent *data) {
 	logchibii("is_chibi_present: %d\n\r", icpr.present);
 }
 
-void set_chibi_address(uint8_t com, const SetChibiAddress *data) {
+void set_chibi_address(const ComType com, const SetChibiAddress *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_CHIBI) {
 		extension = 0;
@@ -145,7 +141,7 @@ void set_chibi_address(uint8_t com, const SetChibiAddress *data) {
 	logchibii("set_chibi_address: %d\n\r", data->address);
 }
 
-void get_chibi_address(uint8_t com, const GetChibiAddress *data) {
+void get_chibi_address(const ComType com, const GetChibiAddress *data) {
 	GetChibiAddressReturn gcar;
 
 	uint8_t extension;
@@ -166,7 +162,7 @@ void get_chibi_address(uint8_t com, const GetChibiAddress *data) {
 	logchibii("get_chibi_address: %d\n\r", gcar.address);
 }
 
-void set_chibi_master_address(uint8_t com, const SetChibiMasterAddress *data) {
+void set_chibi_master_address(const ComType com, const SetChibiMasterAddress *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_CHIBI) {
 		extension = 0;
@@ -181,7 +177,7 @@ void set_chibi_master_address(uint8_t com, const SetChibiMasterAddress *data) {
 	logchibii("set_chibi_address: %d\n\r", data->address);
 }
 
-void get_chibi_master_address(uint8_t com, const GetChibiMasterAddress *data) {
+void get_chibi_master_address(const ComType com, const GetChibiMasterAddress *data) {
 	GetChibiMasterAddressReturn gcmar;
 
 	uint8_t extension;
@@ -202,7 +198,7 @@ void get_chibi_master_address(uint8_t com, const GetChibiMasterAddress *data) {
 	logchibii("get_chibi_master_address: %d\n\r", gcmar.address);
 }
 
-void set_chibi_slave_address(uint8_t com, const SetChibiSlaveAddress *data) {
+void set_chibi_slave_address(const ComType com, const SetChibiSlaveAddress *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_CHIBI) {
 		extension = 0;
@@ -217,7 +213,7 @@ void set_chibi_slave_address(uint8_t com, const SetChibiSlaveAddress *data) {
 	logchibii("set_chibi_slave_address: %d, %d\n\r", data->num, data->address);
 }
 
-void get_chibi_slave_address(uint8_t com, const GetChibiSlaveAddress *data) {
+void get_chibi_slave_address(const ComType com, const GetChibiSlaveAddress *data) {
 	GetChibiSlaveAddressReturn gcsar;
 
 	uint8_t extension;
@@ -238,7 +234,7 @@ void get_chibi_slave_address(uint8_t com, const GetChibiSlaveAddress *data) {
 	logchibii("get_chibi_slave_address: %d, %d\n\r", data->num, gcsar.address);
 }
 
-void get_chibi_signal_strength(uint8_t com, const GetChibiSignalStrength *data) {
+void get_chibi_signal_strength(const ComType com, const GetChibiSignalStrength *data) {
 	GetChibiSignalStrengthReturn gcssr;
 
 	gcssr.header          = data->header;
@@ -249,7 +245,7 @@ void get_chibi_signal_strength(uint8_t com, const GetChibiSignalStrength *data) 
 	logchibii("get_chibi_signal_strength: %d\n\r", gcssr.signal_strength);
 }
 
-void get_chibi_error_log(uint8_t com, const GetChibiErrorLog *data) {
+void get_chibi_error_log(const ComType com, const GetChibiErrorLog *data) {
 	GetChibiErrorLogReturn gcelr;
 
 	gcelr.header          = data->header;
@@ -266,7 +262,7 @@ void get_chibi_error_log(uint8_t com, const GetChibiErrorLog *data) {
 	                                                   gcelr.overflow);
 }
 
-void set_chibi_frequency(uint8_t com, const SetChibiFrequency *data) {
+void set_chibi_frequency(const ComType com, const SetChibiFrequency *data) {
 	if(data->frequency > 3) {
 		return;
 	}
@@ -293,7 +289,7 @@ void set_chibi_frequency(uint8_t com, const SetChibiFrequency *data) {
 	logchibii("set_chibi_frequency: %d\n\r", data->frequency);
 }
 
-void get_chibi_frequency(uint8_t com, const GetChibiFrequency *data) {
+void get_chibi_frequency(const ComType com, const GetChibiFrequency *data) {
 	GetChibiFrequencyReturn gcfr;
 
 	gcfr.header          = data->header;
@@ -304,7 +300,7 @@ void get_chibi_frequency(uint8_t com, const GetChibiFrequency *data) {
 	logchibii("get_chibi_frequency: %d\n\r", gcfr.frequency);
 }
 
-void set_chibi_channel(uint8_t com, const SetChibiChannel *data) {
+void set_chibi_channel(const ComType com, const SetChibiChannel *data) {
 	if(data->channel > 10) {
 		return;
 	}
@@ -331,7 +327,7 @@ void set_chibi_channel(uint8_t com, const SetChibiChannel *data) {
 	logchibii("set_chibi_channel: %d\n\r", data->channel);
 }
 
-void get_chibi_channel(uint8_t com, const GetChibiChannel *data) {
+void get_chibi_channel(const ComType com, const GetChibiChannel *data) {
 	GetChibiChannelReturn gccr;
 
 	gccr.header          = data->header;
@@ -342,7 +338,7 @@ void get_chibi_channel(uint8_t com, const GetChibiChannel *data) {
 	logchibii("get_chibi_channel: %d\n\r", gccr.channel);
 }
 
-void is_rs485_present(uint8_t com, const IsRS485Present *data) {
+void is_rs485_present(const ComType com, const IsRS485Present *data) {
 	IsRS485PresentReturn irpr;
 
 	irpr.header        = data->header;
@@ -353,7 +349,7 @@ void is_rs485_present(uint8_t com, const IsRS485Present *data) {
 	logrsi("is_rs485_present: %d\n\r", irpr.present);
 }
 
-void set_rs485_address(uint8_t com, const SetRS485Address *data) {
+void set_rs485_address(const ComType com, const SetRS485Address *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_RS485) {
 		extension = 0;
@@ -368,7 +364,7 @@ void set_rs485_address(uint8_t com, const SetRS485Address *data) {
 	logrsi("set_rs485_address: %d\n\r", data->address);
 }
 
-void get_rs485_address(uint8_t com, const GetRS485Address *data) {
+void get_rs485_address(const ComType com, const GetRS485Address *data) {
 	GetRS485AddressReturn grar;
 
 	uint8_t extension;
@@ -389,7 +385,7 @@ void get_rs485_address(uint8_t com, const GetRS485Address *data) {
 	logrsi("get_rs485_address: %d\n\r", grar.address);
 }
 
-void set_rs485_slave_address(uint8_t com, const SetRS485SlaveAddress *data) {
+void set_rs485_slave_address(const ComType com, const SetRS485SlaveAddress *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_RS485) {
 		extension = 0;
@@ -404,7 +400,7 @@ void set_rs485_slave_address(uint8_t com, const SetRS485SlaveAddress *data) {
 	logrsi("set_rs485_slave_address: %d, %d\n\r", data->num, data->address);
 }
 
-void get_rs485_slave_address(uint8_t com, const GetRS485SlaveAddress *data) {
+void get_rs485_slave_address(const ComType com, const GetRS485SlaveAddress *data) {
 	GetRS485SlaveAddressReturn grsar;
 
 	uint8_t extension;
@@ -425,7 +421,7 @@ void get_rs485_slave_address(uint8_t com, const GetRS485SlaveAddress *data) {
 	logrsi("get_rs485_slave_address: %d, %d\n\r", data->num, grsar.address);
 }
 
-void get_rs485_error_log(uint8_t com, const GetRS485ErrorLog *data) {
+void get_rs485_error_log(const ComType com, const GetRS485ErrorLog *data) {
 	GetRS485ErrorLogReturn grelr;
 
 	grelr.header          = data->header;
@@ -435,7 +431,7 @@ void get_rs485_error_log(uint8_t com, const GetRS485ErrorLog *data) {
 	send_blocking_with_timeout(&grelr, sizeof(GetRS485ErrorLogReturn), com);
 }
 
-void set_rs485_configuration(uint8_t com, const SetRS485Configuration *data) {
+void set_rs485_configuration(const ComType com, const SetRS485Configuration *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_RS485) {
 		extension = 0;
@@ -448,12 +444,12 @@ void set_rs485_configuration(uint8_t com, const SetRS485Configuration *data) {
 
 	extension_i2c_write(extension, EXTENSION_POS_ANY, (char*)&data->speed, 6);
 
-	logrsi("set_rs485_configuration: %d, %c, %d\n\r", data->speed,
-	                                                  data->parity,
-	                                                  data->stopbits);
+	logrsi("set_rs485_configuration: %lu, %c, %d\n\r", data->speed,
+	                                                   data->parity,
+	                                                   data->stopbits);
 }
 
-void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data) {
+void get_rs485_configuration(const ComType com, const GetRS485Configuration *data) {
 	uint8_t extension;
 	if(com_ext[0] == COM_RS485) {
 		extension = 0;
@@ -472,12 +468,12 @@ void get_rs485_configuration(uint8_t com, const GetRS485Configuration *data) {
 
 	send_blocking_with_timeout(&grcr, sizeof(GetRS485ConfigurationReturn), com);
 
-	logrsi("get_rs485_configuration: %d, %c, %d\n\r", grcr.speed,
-	                                                  grcr.parity,
-	                                                  grcr.stopbits);
+	logrsi("get_rs485_configuration: %lu, %c, %d\n\r", grcr.speed,
+	                                                   grcr.parity,
+	                                                   grcr.stopbits);
 }
 
-void is_wifi_present(uint8_t com, const IsWifiPresent *data) {
+void is_wifi_present(const ComType com, const IsWifiPresent *data) {
 	IsWifiPresentReturn iwpr;
 
 	iwpr.header        = data->header;
@@ -488,7 +484,7 @@ void is_wifi_present(uint8_t com, const IsWifiPresent *data) {
 	logwifii("is_wifi_present: %d\n\r", iwpr.present);
 }
 
-void set_wifi_configuration(uint8_t com, const SetWifiConfiguration *data) {
+void set_wifi_configuration(const ComType com, const SetWifiConfiguration *data) {
 	wifi_write_config(((char*)data) + 4,
 	                  sizeof(SetWifiConfiguration)-4,
 	                  WIFI_CONFIGURATION_POS);
@@ -501,7 +497,7 @@ void set_wifi_configuration(uint8_t com, const SetWifiConfiguration *data) {
 	                                                           data->port);
 }
 
-void get_wifi_configuration(uint8_t com, const GetWifiConfiguration *data) {
+void get_wifi_configuration(const ComType com, const GetWifiConfiguration *data) {
 	GetWifiConfigurationReturn gwcr;
 
 	gwcr.header        = data->header;
@@ -520,7 +516,7 @@ void get_wifi_configuration(uint8_t com, const GetWifiConfiguration *data) {
 	                                                           gwcr.port);
 }
 
-void set_wifi_encryption(uint8_t com, const SetWifiEncryption *data) {
+void set_wifi_encryption(const ComType com, const SetWifiEncryption *data) {
 	wifi_write_config(((char*)data) + 4,
 	                  sizeof(SetWifiEncryption) - 4,
 	                  WIFI_ENCRYPTION_POS);
@@ -528,7 +524,7 @@ void set_wifi_encryption(uint8_t com, const SetWifiEncryption *data) {
 	logwifii("set_wifi_encryption: %d\n\r", data->encryption);
 }
 
-void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data) {
+void get_wifi_encryption(const ComType com, const GetWifiEncryption *data) {
 	GetWifiEncryptionReturn gwer;
 
 	gwer.header        = data->header;
@@ -542,7 +538,7 @@ void get_wifi_encryption(uint8_t com, const GetWifiEncryption *data) {
 	logwifii("get_wifi_encryption: %d\n\r", gwer.encryption);
 }
 
-void get_wifi_status(uint8_t com, const GetWifiStatus *data) {
+void get_wifi_status(const ComType com, const GetWifiStatus *data) {
 	GetWifiStatusReturn gwsr;
 
 	gwsr.header        = data->header;
@@ -552,12 +548,12 @@ void get_wifi_status(uint8_t com, const GetWifiStatus *data) {
 	send_blocking_with_timeout(&gwsr, sizeof(GetWifiStatusReturn), com);
 }
 
-void refresh_wifi_status(uint8_t com, const RefreshWifiStatus *data) {
+void refresh_wifi_status(const ComType com, const RefreshWifiStatus *data) {
 	wifi_refresh_status();
 	logwifii("wifi_refresh_status\n\r");
 }
 
-void set_wifi_certificate(uint8_t com, const SetWifiCertificate *data) {
+void set_wifi_certificate(const ComType com, const SetWifiCertificate *data) {
 	if(data->data_length > 32) {
 		return;
 	}
@@ -591,7 +587,7 @@ void set_wifi_certificate(uint8_t com, const SetWifiCertificate *data) {
 	logwifii("set_wifi_certificate: %d %d\n\r", data->index, data->data_length);
 }
 
-void get_wifi_certificate(uint8_t com, const GetWifiCertificate *data) {
+void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
 	GetWifiCertificateReturn gwcr;
 
 	gwcr.header          = data->header;
@@ -655,12 +651,12 @@ void get_wifi_certificate(uint8_t com, const GetWifiCertificate *data) {
 	logwifii("get_wifi_certificate: %d %d\n\r", data->index, gwcr.data_length);
 }
 
-void set_wifi_power_mode(uint8_t com, const SetWifiPowerMode *data) {
+void set_wifi_power_mode(const ComType com, const SetWifiPowerMode *data) {
 	wifi_set_power_mode(data->mode);
 	logwifii("set_wifi_power_mode: %d\n\r", data->mode);
 }
 
-void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data) {
+void get_wifi_power_mode(const ComType com, const GetWifiPowerMode *data) {
 	GetWifiPowerModeReturn gwpmr;
 
 	gwpmr.header          = data->header;
@@ -671,7 +667,7 @@ void get_wifi_power_mode(uint8_t com, const GetWifiPowerMode *data) {
 	logwifii("get_wifi_power_mode: %d\n\r", gwpmr.mode);
 }
 
-void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data) {
+void get_wifi_buffer_info(const ComType com, const GetWifiBufferInfo *data) {
 	GetWifiBufferInfoReturn gwbir;
 
 	gwbir.header          = data->header;
@@ -681,12 +677,12 @@ void get_wifi_buffer_info(uint8_t com, const GetWifiBufferInfo *data) {
 	gwbir.used            = wifi_data_get_ringbuffer_diff();
 
 	send_blocking_with_timeout(&gwbir, sizeof(GetWifiBufferInfoReturn), com);
-	logwifii("get_wifi_buffer_info: %d %d %d\n\r", gwbir.overflow,
+	logwifii("get_wifi_buffer_info: %lu %d %d\n\r", gwbir.overflow,
 	                                               gwbir.low_watermark,
 	                                               gwbir.used);
 }
 
-void set_wifi_regulatory_domain(uint8_t com, const SetWifiRegulatoryDomain *data) {
+void set_wifi_regulatory_domain(const ComType com, const SetWifiRegulatoryDomain *data) {
 	if(data->domain < 4) {
 		wifi_write_config((char*)&data->domain, 1, WIFI_REGULATORY_DOMAIN_POS);
 		wifi_configuration.regulatory_domain = data->domain;
@@ -694,7 +690,7 @@ void set_wifi_regulatory_domain(uint8_t com, const SetWifiRegulatoryDomain *data
 	}
 }
 
-void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data) {
+void get_wifi_regulatory_domain(const ComType com, const GetWifiRegulatoryDomain *data) {
 	GetWifiRegulatoryDomainReturn gwrdr;
 
 	gwrdr.header        = data->header;
@@ -705,7 +701,7 @@ void get_wifi_regulatory_domain(uint8_t com, const GetWifiRegulatoryDomain *data
 	logwifii("get_wifi_regulatory_domain: %d\n\r", gwrdr.domain);
 }
 
-void get_usb_voltage(uint8_t com, const GetUSBVoltage *data) {
+void get_usb_voltage(const ComType com, const GetUSBVoltage *data) {
 	GetUSBVoltageReturn guvr;
 
 	guvr.header          = data->header;

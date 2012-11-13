@@ -44,13 +44,10 @@
 
 extern ComType com_ext[];
 
-extern uint8_t com_last_ext_id[];
-extern uint8_t com_last_spi_stack_id;
-extern uint8_t master_routing_table[];
-extern uint8_t chibi_slave_address[];
+/*extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_type;
 extern uint8_t rs485_slave_address[];
-extern uint8_t rs485_type;
+extern uint8_t rs485_type;*/
 
 Pin extension_pins[] = {PIN_EXT_0_SELECT,
 		                PIN_EXT_0_GP_0,

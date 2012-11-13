@@ -90,7 +90,7 @@ void rs485_init_masterslave(uint8_t extension) {
 		rs485_config.speed = RS485_BAUDRATE;
 	}
 
-	logrsi("config %d, %c, %d\n\r", rs485_config.speed,
+	logrsi("config %lu, %c, %d\n\r", rs485_config.speed,
 	                                rs485_config.parity,
 	                                rs485_config.stopbits);
 
@@ -145,7 +145,7 @@ bool rs485_init(void) {
     return true;
 }
 
-uint16_t rs485_send(const void *data, const uint16_t length) {
+uint16_t rs485_send(const void *data, const uint16_t length, uint32_t *options) {
 	if(rs485_buffer_size_send > 0) {
 		return 0;
 	}
@@ -160,7 +160,7 @@ uint16_t rs485_send(const void *data, const uint16_t length) {
 	return send_length;
 }
 
-uint16_t rs485_recv(void *data, const uint16_t length) {
+uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(rs485_buffer_size_recv == 0) {
 		return 0;
 	}

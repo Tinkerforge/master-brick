@@ -24,9 +24,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pio/pio.h>
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
 #include "bricklib/com/i2c/i2c_pca9549/i2c_pca9549.h"
 #include "bricklib/com/spi/spi_stack/spi_stack_master.h"
@@ -38,6 +37,7 @@
 #include "bricklib/logging/logging.h"
 #include "bricklib/bricklet/bricklet_init.h"
 #include "bricklib/drivers/uid/uid.h"
+#include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/adc/adc.h"
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/utility/init.h"
@@ -63,8 +63,9 @@
 
 extern uint8_t com_last_stack_address;
 extern uint8_t master_mode;
+extern bool master_first_usb_connection;
 
-char brick_hardware_name[17] = {'\0'};
+uint8_t brick_hardware_version[3];
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
 	logf("Stack Overflow\n\r");
@@ -93,20 +94,20 @@ int main() {
     PIO_Configure(&pin_detect, 1);
     PIO_Configure(&pin_master_detect, 1);
 
-    Pin pin_3v3_enable = PIN_3V3_ENABLE;
-	pin_3v3_enable.type = PIO_OUTPUT_1;
-	PIO_Configure(&pin_3v3_enable, 1);
-
     Pin pins_extension[] = {PINS_EXT};
     PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
 
     if(master_get_hardware_version() == 10) {
-    	strcpy(brick_hardware_name, BRICK_HARDWARE_NAME10);
+    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_10;
+    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_10;
+    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_10;
     } else {
     	// Set dummy calibration, to make sure that calibration is not read
     	// from flash in Master Brick HW Version 2.0
     	adc_set_calibration(0, 1, 1);
-    	strcpy(brick_hardware_name, BRICK_HARDWARE_NAME20);
+    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_20;
+    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_20;
+    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_20;
     }
 
 	brick_init();
@@ -130,7 +131,7 @@ int main() {
     led_off(LED_EXT_BLUE_2);
     led_off(LED_EXT_BLUE_3);
 
-    //Pin pin_3v3_enable = PIN_3V3_ENABLE;
+    Pin pin_3v3_enable = PIN_3V3_ENABLE;
     if(PIO_Get(&pin_master_detect)) {
     	pin_3v3_enable.type = PIO_OUTPUT_1;
     	PIO_Configure(&pin_3v3_enable, 1);
@@ -162,10 +163,11 @@ int main() {
 
 			logsi("USB initialized\n\r");
     	} else {
+    		master_first_usb_connection = false;
     		logsi("No USB connection\n\r");
     	}
 
-    	/*if(com_last_stack_address > 0) {
+    	if(com_last_stack_address > 0) {
 			xTaskCreate(spi_stack_master_state_machine_loop,
 						(signed char *)"spi_sm",
 						500,
@@ -179,8 +181,9 @@ int main() {
 						NULL,
 						1,
 						(xTaskHandle *)NULL);
-    	}*/
+    	}
     } else {
+    	master_first_usb_connection = false;
     	pin_3v3_enable.type = PIO_OUTPUT_0;
     	PIO_Configure(&pin_3v3_enable, 1);
     	PIO_Configure(twi_stack_pullup_slave_pins,

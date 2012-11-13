@@ -30,17 +30,11 @@
 #include "bricklib/com/com_common.h"
 #include "bricklib/com/com_messages.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
-extern uint8_t com_stack_id;
 extern uint8_t chibi_type;
-extern uint8_t com_last_spi_stack_id;
-extern uint8_t com_last_ext_id[];
-extern ComType com_ext[];
-
-extern BrickletSettings bs[];
-extern const BrickletAddress baddr[];
+//extern ComType com_ext[];
 
 void chibi_slave_init(void) {
 	logchibii("Configuring chibi extension as Slave\n\r");
@@ -64,7 +58,7 @@ void chibi_slave_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
-void chibi_slave_message_loop_return(char *data, uint16_t length) {
+void chibi_slave_message_loop_return(char *data, const uint16_t length) {
 /*	const uint8_t stack_id = get_stack_id_from_data(data);
 
 	if(stack_id == com_stack_id || stack_id == 0) {

@@ -84,8 +84,8 @@ typedef struct {
 } __attribute__((__packed__)) WifiStatus;
 
 bool wifi_init(void);
-uint16_t wifi_send(const void *data, const uint16_t length);
-uint16_t wifi_recv(void *data, const uint16_t length);
+uint16_t wifi_send(const void *data, const uint16_t length, uint32_t *options);
+uint16_t wifi_recv(void *data, const uint16_t length, uint32_t *options);
 void wifi_establish_connection(void);
 void wifi_message_loop(void *parameters);
 void wifi_message_loop_return(char *data, uint16_t length);

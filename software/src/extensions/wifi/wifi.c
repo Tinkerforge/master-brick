@@ -44,16 +44,8 @@
 #include "extensions/brickd.h"
 
 extern ComType com_ext[];
-extern uint8_t com_last_ext_id[];
 extern uint32_t led_rxtx;
 extern uint32_t led_ext3_rxtx;
-extern ComType com_current;
-
-extern uint8_t com_stack_id;
-extern uint8_t com_last_spi_stack_id;
-
-extern BrickletSettings bs[];
-extern const BrickletAddress baddr[];
 
 extern uint8_t eap_type;
 
@@ -510,14 +502,14 @@ void wifi_refresh_status(void) {
 			ptr += strlen("Rx Count=");
 			wifi_status.rx_count = atoi(ptr);
 
-			logwifii("rx_count: %d\n\r", wifi_status.rx_count);
+			logwifii("rx_count: %lu\n\r", wifi_status.rx_count);
 		}
 
 		if((ptr = strcasestr(data, "Tx Count=")) != NULL) {
 			ptr += strlen("Tx Count=");
 			wifi_status.tx_count = atoi(ptr);
 
-			logwifii("tx_count: %d\n\r", wifi_status.tx_count);
+			logwifii("tx_count: %lu\n\r", wifi_status.tx_count);
 		}
 	}
 }
@@ -538,7 +530,7 @@ void wifi_init_extension(uint8_t extension) {
 	wifi_init();
 }
 
-uint16_t wifi_send(const void *data, const uint16_t length) {
+uint16_t wifi_send(const void *data, const uint16_t length, uint32_t *options) {
 	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
 		return 0;
 	}
@@ -553,7 +545,7 @@ uint16_t wifi_send(const void *data, const uint16_t length) {
 	return send_length;
 }
 
-uint16_t wifi_recv(void *data, const uint16_t length) {
+uint16_t wifi_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
 		return 0;
 	}

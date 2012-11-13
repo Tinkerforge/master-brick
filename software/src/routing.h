@@ -26,17 +26,18 @@
 
 #define ROUTING_TABLE_SIZE  64
 
-#define ROUTING_STACK_MIN    1
-#define ROUTING_STACK_MAX    8
-#define ROUTING_EXTENSION_1  9
-#define ROUTING_EXTENSION_2 10
+#define ROUTING_STACK_MIN    SPI_ADDRESS_MIN
+#define ROUTING_STACK_MAX    SPI_ADDRESS_MAX
+#define ROUTING_EXTENSION_1  (SPI_ADDRESS_MAX+1)
+#define ROUTING_EXTENSION_2  (ROUTING_EXTENSION_1+1)
 
 typedef struct {
 	uint32_t uid;
 	uint8_t route_to;
 } RoutingTable;
 
+uint8_t routing_route_to(const uint32_t uid);
 void routing_table_create_stack(void);
-void routing_master_from_pc(char *data, uint16_t length);
+void routing_master_from_pc(const char *data, const uint16_t length);
 
 #endif

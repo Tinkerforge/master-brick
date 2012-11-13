@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * chibi.h: High-level chibi protocol implementation
  *
@@ -25,9 +25,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-uint8_t chibi_get_receiver_address(uint8_t stack_id);
+uint8_t chibi_get_receiver_address(const uint8_t stack_id);
 bool chibi_init(void);
-uint16_t chibi_send(const void *data, const uint16_t length);
-uint16_t chibi_recv(void *data, const uint16_t length);
+uint16_t chibi_send(const void *data, const uint16_t length, uint32_t *options);
+uint16_t chibi_recv(void *data, const uint16_t length, uint32_t *options);
 
 #endif

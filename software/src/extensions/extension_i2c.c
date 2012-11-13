@@ -25,8 +25,8 @@
 #include "bricklib/com/i2c/i2c_eeprom/i2c_eeprom_common.h"
 #include "bricklib/com/i2c/i2c_clear_bus.h"
 
-#include <twi/twi.h>
-#include <twi/twid.h>
+#include "bricklib/drivers/twi/twi.h"
+#include "bricklib/drivers/twi/twid.h"
 
 Pin extension_select[] = {PIN_EXT_0_SELECT, PIN_EXT_1_SELECT};
 

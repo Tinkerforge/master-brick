@@ -19,10 +19,6 @@ SET(CMAKE_BUILD_TYPE None)
 
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/free_rtos"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/free_rtos/include"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/free_rtos/portable/GCC/ARM_CM3"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/drivers/"
 )
 
 # find source files
@@ -83,7 +79,6 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/usb/usb_callbacks.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/usb/usb.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/com_common.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_common.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_clear_bus.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_common.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_slave.c"

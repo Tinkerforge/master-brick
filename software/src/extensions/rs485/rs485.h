@@ -34,8 +34,8 @@ typedef struct {
 uint16_t rs485_wait_time(void);
 void rs485_init_masterslave(uint8_t extension);
 bool rs485_init(void);
-uint16_t rs485_send(const void *data, const uint16_t length);
-uint16_t rs485_recv(void *data, const uint16_t length);
+uint16_t rs485_send(const void *data, const uint16_t length, uint32_t *options);
+uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options);
 uint8_t rs485_get_receiver_address(uint8_t stack_id);
 
 #endif

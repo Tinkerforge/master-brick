@@ -54,14 +54,14 @@ static uint32_t dhcp_time, next_dhcp_time;
 static uint32_t dhcp_xid;
 static uint8_t dhcp_socket = 7;
 
-uint16_t htons(uint16_t hostshort) {
+uint16_t htons(const uint16_t hostshort) {
 	uint16_t ret = 0;
 	ret = (hostshort & 0xFF) << 8;
 	ret |= ((hostshort >> 8)& 0xFF);
 	return ret;
 }
 
-uint32_t htonl(uint32_t hostlong) {
+uint32_t htonl(const uint32_t hostlong) {
 	uint32_t ret=0;
 	ret = (hostlong & 0xFF) << 24;
 	ret |= ((hostlong >> 8) & 0xFF) << 16;
@@ -70,7 +70,7 @@ uint32_t htonl(uint32_t hostlong) {
 	return ret;
 }
 
-uint32_t ntohl(uint32_t netlong) {
+uint32_t ntohl(const uint32_t netlong) {
 	return htonl(netlong);
 }
 
@@ -94,7 +94,7 @@ void dhcp_reset_time(void) {
 }
 
 
-void dhcp_send_discover(uint8_t s) {
+void dhcp_send_discover(const uint8_t s) {
 	DHCPMessage dhcp_message = {0};
 
 	dhcp_dns_server_ip[0] = 0;
@@ -173,7 +173,7 @@ void dhcp_send_discover(uint8_t s) {
 }
 
 
-void dhcp_send_request(uint8_t s) {
+void dhcp_send_request(const uint8_t s) {
 	DHCPMessage dhcp_message = {0};
 
 	dhcp_message.op = DHCP_BOOTREQUEST;
@@ -282,7 +282,7 @@ void dhcp_send_request(uint8_t s) {
 }
 
 
-void dhcp_send_release_decline(uint8_t s, char msgtype) {
+void dhcp_send_release_decline(const uint8_t s, const char msgtype) {
 	DHCPMessage dhcp_message = {0};
 
 	dhcp_message.op = DHCP_BOOTREQUEST;
@@ -359,7 +359,7 @@ void dhcp_send_release_decline(uint8_t s, char msgtype) {
 }
 
 
-char dhcp_parse_msg(uint8_t s, uint32_t length) {
+char dhcp_parse_msg(const uint8_t s, const uint32_t length) {
 	uint8_t svr_addr[6];
 	uint16_t svr_port;
 
@@ -475,7 +475,7 @@ char dhcp_parse_msg(uint8_t s, uint32_t length) {
 }
 
 
-bool dhcp_create_socket(uint8_t s) {
+bool dhcp_create_socket(const uint8_t s) {
 	logethd("DHCP Socket %d: start initialization\n\r", s);
 	if(ethernet_low_level_get_status(s) != ETH_VAL_SN_SR_SOCK_CLOSED) {
 		return false;
@@ -492,7 +492,7 @@ bool dhcp_create_socket(uint8_t s) {
 	return true;
 }
 
-void dhcp_check_state(uint8_t s) {
+void dhcp_check_state(const uint8_t s) {
 	if(dhcp_state == STATE_DHCP_DISCOVER && DHCP_timeout == 1) {
 		DHCP_timeout = 0;
 		logethw("DHCP timeout, trying again\n\r");
@@ -555,7 +555,7 @@ void dhcp_check_state(uint8_t s) {
 
 		case STATE_DHCP_REREQUEST: {
 			if(type == DHCP_ACK) {
-				memcmp(dhcp_old_ip, ethernet_low_level_ip, 4);
+				memcpy(dhcp_old_ip, ethernet_low_level_ip, 4);
 
 				dhcp_reset_time();
 				dhcp_state = STATE_DHCP_LEASED;
@@ -643,7 +643,7 @@ void dhcp_get_ip(void) {
 	DHCP_timeout = 0;
 }
 
-void dhcp_tick(uint8_t tick_type) {
+void dhcp_tick(const uint8_t tick_type) {
 	static uint16_t counter = 0;
 	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
 		return;
@@ -656,7 +656,7 @@ void dhcp_tick(uint8_t tick_type) {
 	}
 }
 
-uint32_t dhcp_init_socket(uint8_t s) {
+uint32_t dhcp_init_socket(const uint8_t s) {
 	dhcp_xid = DHCP_START_XID;
 	memset(ehternet_low_level_subnet_mask, 0, 4);
 	memset(ethernet_low_level_gw, 0, 4);

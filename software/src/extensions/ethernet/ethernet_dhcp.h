@@ -165,19 +165,18 @@ typedef union LeaseTime {
 	uint8_t  c_val[4];
 } LeaseTime;
 
-void dhcp_tick(uint8_t tick_type);
-void dhcp_send_discover(uint8_t s);
-void dhcp_send_request(uint8_t s);
-void dhcp_send_release_decline(uint8_t s, char msgtype);
-char dhcp_parse_msg(uint8_t s, uint32_t length);
-bool dhcp_create_socket(uint8_t s);
-void dhcp_check_state(uint8_t s);
+void dhcp_tick(const uint8_t tick_type);
+void dhcp_send_discover(const uint8_t s);
+void dhcp_send_request(const uint8_t s);
+void dhcp_send_release_decline(const uint8_t s, const char msgtype);
+char dhcp_parse_msg(const uint8_t s, const uint32_t length);
+bool dhcp_create_socket(const uint8_t s);
+void dhcp_check_state(const uint8_t s);
 void dhcp_check_timeout(void);
 void dhcp_set_network(void);
 char dhcp_check_leased_ip(void);
 void dhcp_get_ip(void);
-void dhcp_init_client(uint8_t s, void(*ip_update)(void), void(*ip_conflict)(void));
-uint32_t dhcp_init_socket(uint8_t s);
+uint32_t dhcp_init_socket(const uint8_t s);
 
 
 #endif

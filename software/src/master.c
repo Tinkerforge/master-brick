@@ -29,6 +29,7 @@
 #include "bricklib/com/spi/spi_stack/spi_stack_common.h"
 #include "bricklib/com/spi/spi_stack/spi_stack_select.h"
 #include "bricklib/drivers/adc/adc.h"
+#include "bricklib/drivers/usb/USBD_HAL.h"
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/logging/logging.h"
 #include "bricklib/utility/util_definitions.h"
@@ -46,31 +47,30 @@
 
 #include "config.h"
 
-extern uint8_t com_stack_id;
-extern uint8_t com_last_stack_address;
-extern uint8_t com_last_ext_id[];
 extern ComType com_ext[];
-extern uint16_t spi_stack_buffer_size_send;
-extern uint8_t com_last_spi_stack_id;
+
+//extern uint16_t spi_stack_buffer_size_send;
+//extern uint8_t com_last_spi_stack_id;
 
 uint8_t master_mode = MASTER_MODE_NONE;
 
-extern uint8_t chibi_address;
-extern uint8_t chibi_slave_address[];
+//extern uint8_t chibi_address;
+//extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_type;
 
-extern uint8_t rs485_slave_address[];
-extern uint8_t rs485_address;
+//extern uint8_t rs485_slave_address[];
+//extern uint8_t rs485_address;
 extern uint8_t rs485_type;
-extern uint8_t rs485_mode;
+//extern uint8_t rs485_mode;
 
-extern uint16_t chibi_wait_for_recv;
-extern uint16_t spi_stack_buffer_size_recv;
-extern uint8_t rs485_buffer_size_send;
-extern uint8_t rs485_last_sequence_number;
+//extern uint16_t chibi_wait_for_recv;
+//extern uint16_t spi_stack_buffer_size_recv;
+//extern uint8_t rs485_buffer_size_send;
+//extern uint8_t rs485_last_sequence_number;
 
-extern xTaskHandle rs485_handle_master_message_loop;
-extern xTaskHandle rs485_handle_master_state_machine_loop;
+//extern xTaskHandle rs485_handle_master_message_loop;
+//extern xTaskHandle rs485_handle_master_state_machine_loop;
+extern ComType com_current;
 
 bool chibi_enumerate_ready = false;
 
@@ -81,6 +81,8 @@ uint16_t master_stack_voltage = 0;
 uint16_t master_stack_current = 0;
 
 uint8_t master_restart_counter = 0;
+
+bool master_first_usb_connection = true;
 
 void master_init(void) {
 	Pin power_pins[] = {PIN_STACK_VOLTAGE, PIN_STACK_CURRENT};
@@ -132,7 +134,7 @@ uint8_t master_get_hardware_version(void) {
 	}
 }
 
-void master_create_routing_table_rs485(uint8_t extension) {
+void master_create_routing_table_rs485(const uint8_t extension) {
 /*	logrsi("Start routing table creation\n\r");
 	com_last_ext_id[extension] = com_last_spi_stack_id;
 
@@ -231,7 +233,7 @@ void master_create_routing_table_rs485(uint8_t extension) {
 	}*/
 }
 
-void master_create_routing_table_chibi(uint8_t extension) {
+void master_create_routing_table_chibi(const uint8_t extension) {
 /*	com_last_ext_id[extension] = com_last_spi_stack_id;
 
 	for(int8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
@@ -328,7 +330,8 @@ void master_create_routing_table_extensions(void) {
 	}
 }
 
-void tick_task(uint8_t tick_type) {
+void tick_task(const uint8_t tick_type) {
+	static uint8_t message_counter = 0;
 	static uint8_t sum_counter = 0;
 	static uint32_t usb_voltage_sum = 0;
 	static uint32_t stack_voltage_sum = 0;
@@ -356,6 +359,17 @@ void tick_task(uint8_t tick_type) {
 			}
 		} else {
 			master_restart_counter = 0;
+		}
+	} else if(tick_type & TICK_TASK_TYPE_MESSAGE) {
+		if(master_first_usb_connection && !usbd_hal_is_disabled(IN_EP)) {
+			message_counter++;
+			if(message_counter >= 100) {
+				message_counter = 0;
+				if(brick_init_enumeration(COM_USB)) {
+					master_first_usb_connection = false;
+					com_current = COM_USB;
+				}
+			}
 		}
 	}
 

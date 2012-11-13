@@ -35,21 +35,9 @@
 
 #include "bricklib/bricklet/bricklet_config.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
-extern ComType com_current;
-extern uint8_t com_last_ext_id[];
-extern ComType com_ext[];
-extern uint8_t com_stack_id;
-extern uint8_t com_last_spi_stack_id;
-
-extern BrickletSettings bs[];
-extern const BrickletAddress baddr[];
-
-extern uint8_t rs485_address;
-
-extern uint8_t rs485_mode;
 extern uint8_t rs485_type;
 
 void rs485_slave_init(void) {

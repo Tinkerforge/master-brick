@@ -24,6 +24,6 @@
 
 #include <stdint.h>
 
-void chibi_init_masterslave(uint8_t extension);
+void chibi_init_masterslave(const uint8_t extension);
 
 #endif
