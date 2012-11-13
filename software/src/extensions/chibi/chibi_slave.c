@@ -58,7 +58,7 @@ void chibi_slave_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
-void chibi_slave_message_loop_return(char *data, const uint16_t length) {
+void chibi_slave_message_loop_return(const char *data, const uint16_t length) {
 /*	const uint8_t stack_id = get_stack_id_from_data(data);
 
 	if(stack_id == com_stack_id || stack_id == 0) {

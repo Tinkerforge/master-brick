@@ -150,7 +150,7 @@ int main() {
         routing_table_create_stack();
         logsi("Master Routing table created\n\r");
 
-        //extension_init();
+        extension_init();
     	//master_create_routing_table_extensions();
 
     	if(usb_init()) {

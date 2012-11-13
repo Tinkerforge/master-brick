@@ -157,7 +157,7 @@ void ethernet_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
-void ethernet_message_loop_return(char *data, uint16_t length) {
+void ethernet_message_loop_return(const char *data, uint16_t length) {
 /*	const uint8_t stack_id = get_stack_id_from_data(data);
 
 	if(stack_id == com_stack_id || stack_id == 0) {

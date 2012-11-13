@@ -26,6 +26,6 @@
 
 void chibi_slave_init(void);
 void chibi_slave_message_loop(void *parameters);
-void chibi_slave_message_loop_return(char *data, const uint16_t length);
+void chibi_slave_message_loop_return(const char *data, const uint16_t length);
 
 #endif

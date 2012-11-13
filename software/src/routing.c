@@ -117,8 +117,14 @@ void routing_master_from_pc(const char *data, const uint16_t length) {
 			uint32_t options = i;
 			send_blocking_with_timeout_options(data, length, COM_SPI_STACK, &options);
 		}
-		send_blocking_with_timeout(data, length, com_ext[0]);
-		send_blocking_with_timeout(data, length, com_ext[1]);
+
+		// TODO: Protocol v2.0 -> save slave/master information somewhere, to make this more efficient
+		if(com_ext[0] != COM_NONE && com_ext[0] != COM_WIFI && com_ext[0] != COM_ETHERNET) {
+			send_blocking_with_timeout(data, length, com_ext[0]);
+		}
+		if(com_ext[1] != COM_NONE && com_ext[1] != COM_WIFI && com_ext[1] != COM_ETHERNET) {
+			send_blocking_with_timeout(data, length, com_ext[1]);
+		}
 	// Discover Route
 	} else {
 		uint8_t route_to = routing_route_to(uid);

@@ -358,7 +358,7 @@ void USART1_IrqHandler() {
 					rs485_state = RS485_STATE_RECV_DATA_END;
 					const uint16_t length = rs485_low_level_get_length_from_message(rs485_low_level_buffer_recv);
 					// TODO: What is the right thing to do here? Something is definitely wrong!
-					if(length > 64) {
+					if(length > RS485_MAX_DATA_LENGTH) {
 						rs485_low_level_resync();
 						return;
 					}

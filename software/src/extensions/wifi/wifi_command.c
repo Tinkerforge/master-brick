@@ -33,7 +33,6 @@
 #include "wifi_low_level.h"
 
 extern WifiStatus wifi_status;
-extern int8_t wifi_new_cid;
 
 uint8_t eap_type = 0xFF;
 
@@ -307,7 +306,7 @@ void wifi_command_send(const WIFICommand command) {
 			break;
 		}
 
-		case WIFI_COMMAND_ID_AT_SETSOCKOPT_SO: {
+/*		case WIFI_COMMAND_ID_AT_SETSOCKOPT_SO: {
 			char str[20] = {'\0'};
 
 			sprintf(str, "%d,65535,8,1,4", wifi_new_cid);
@@ -323,7 +322,7 @@ void wifi_command_send(const WIFICommand command) {
 			wifi_low_level_write_buffer(str, strlen(str));
 
 			break;
-		}
+		}*/
 
 		case WIFI_COMMAND_ID_AT_ATS: {
 			char str[20] = {'\0'};

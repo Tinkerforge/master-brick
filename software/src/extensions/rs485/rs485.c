@@ -65,7 +65,7 @@ extern Pin extension_pins[];
 uint8_t RS485_RECV = RS485_RECV_0;
 
 uint16_t rs485_wait_time(void) {
-	uint16_t t = 4*1000*64*8/9600;
+	uint16_t t = 4*1000*RS485_MAX_DATA_LENGTH*8/9600;
 	if(t < 3) {
 		return 3;
 	}

@@ -46,7 +46,6 @@ extern uint8_t rs485_mode;
 extern uint8_t rs485_type;
 extern uint8_t rs485_address;
 
-extern uint8_t master_routing_table[];
 extern uint8_t rs485_slave_address[];
 extern uint8_t rs485_last_sequence_number;
 
@@ -83,7 +82,7 @@ void rs485_master_init(void) {
 }
 
 void rs485_master_state_machine_loop(void *arg) {
-	if(rs485_slave_address[0] == 0) {
+/*	if(rs485_slave_address[0] == 0) {
 		return;
 	}
 
@@ -137,7 +136,7 @@ void rs485_master_state_machine_loop(void *arg) {
 				}
 			}
     	}
-    }
+    }*/
 }
 
 void rs485_master_message_loop(void *parameters) {
@@ -148,6 +147,6 @@ void rs485_master_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
-void rs485_master_message_loop_return(char *data, uint16_t length) {
+void rs485_master_message_loop_return(const char *data, uint16_t length) {
 	send_blocking_with_timeout(data, length, com_current);
 }

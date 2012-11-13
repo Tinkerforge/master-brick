@@ -102,6 +102,8 @@ void get_stack_current(const ComType com, const GetStackCurrent *data) {
 void set_extension_type(const ComType com, const SetExtensionType *data) {
 	extension_set_type(data->extension, data->exttype);
 	logmasteri("set_extension_type: %lu\n\r", data->exttype);
+
+	com_return_setter(com, data);
 }
 
 void get_extension_type(const ComType com, const GetExtensionType *data) {
@@ -133,12 +135,14 @@ void set_chibi_address(const ComType com, const SetChibiAddress *data) {
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
 	extension_set_address(extension, data->address);
 	logchibii("set_chibi_address: %d\n\r", data->address);
+
+	com_return_setter(com, data);
 }
 
 void get_chibi_address(const ComType com, const GetChibiAddress *data) {
@@ -150,7 +154,7 @@ void get_chibi_address(const ComType com, const GetChibiAddress *data) {
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -169,12 +173,14 @@ void set_chibi_master_address(const ComType com, const SetChibiMasterAddress *da
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
 	extension_set_master_address(extension, data->address);
 	logchibii("set_chibi_address: %d\n\r", data->address);
+
+	com_return_setter(com, data);
 }
 
 void get_chibi_master_address(const ComType com, const GetChibiMasterAddress *data) {
@@ -186,7 +192,7 @@ void get_chibi_master_address(const ComType com, const GetChibiMasterAddress *da
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -205,12 +211,14 @@ void set_chibi_slave_address(const ComType com, const SetChibiSlaveAddress *data
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
 	extension_set_slave_address(extension, data->num, data->address);
 	logchibii("set_chibi_slave_address: %d, %d\n\r", data->num, data->address);
+
+	com_return_setter(com, data);
 }
 
 void get_chibi_slave_address(const ComType com, const GetChibiSlaveAddress *data) {
@@ -222,7 +230,7 @@ void get_chibi_slave_address(const ComType com, const GetChibiSlaveAddress *data
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -273,7 +281,7 @@ void set_chibi_frequency(const ComType com, const SetChibiFrequency *data) {
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -287,6 +295,8 @@ void set_chibi_frequency(const ComType com, const SetChibiFrequency *data) {
 	chibi_set_mode(chibi_frequency_mode);
 
 	logchibii("set_chibi_frequency: %d\n\r", data->frequency);
+
+	com_return_setter(com, data);
 }
 
 void get_chibi_frequency(const ComType com, const GetChibiFrequency *data) {
@@ -302,6 +312,7 @@ void get_chibi_frequency(const ComType com, const GetChibiFrequency *data) {
 
 void set_chibi_channel(const ComType com, const SetChibiChannel *data) {
 	if(data->channel > 10) {
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -311,7 +322,7 @@ void set_chibi_channel(const ComType com, const SetChibiChannel *data) {
 	} else if(com_ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -325,6 +336,8 @@ void set_chibi_channel(const ComType com, const SetChibiChannel *data) {
 	chibi_set_channel(chibi_channel);
 
 	logchibii("set_chibi_channel: %d\n\r", data->channel);
+
+	com_return_setter(com, data);
 }
 
 void get_chibi_channel(const ComType com, const GetChibiChannel *data) {
@@ -356,12 +369,14 @@ void set_rs485_address(const ComType com, const SetRS485Address *data) {
 	} else if(com_ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
 	extension_set_address(extension, data->address);
 	logrsi("set_rs485_address: %d\n\r", data->address);
+
+	com_return_setter(com, data);
 }
 
 void get_rs485_address(const ComType com, const GetRS485Address *data) {
@@ -373,7 +388,7 @@ void get_rs485_address(const ComType com, const GetRS485Address *data) {
 	} else if(com_ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -392,12 +407,14 @@ void set_rs485_slave_address(const ComType com, const SetRS485SlaveAddress *data
 	} else if(com_ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
 	extension_set_slave_address(extension, data->num, data->address);
 	logrsi("set_rs485_slave_address: %d, %d\n\r", data->num, data->address);
+
+	com_return_setter(com, data);
 }
 
 void get_rs485_slave_address(const ComType com, const GetRS485SlaveAddress *data) {
@@ -409,7 +426,7 @@ void get_rs485_slave_address(const ComType com, const GetRS485SlaveAddress *data
 	} else if(com_ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -438,7 +455,7 @@ void set_rs485_configuration(const ComType com, const SetRS485Configuration *dat
 	} else if(com_ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -447,6 +464,8 @@ void set_rs485_configuration(const ComType com, const SetRS485Configuration *dat
 	logrsi("set_rs485_configuration: %lu, %c, %d\n\r", data->speed,
 	                                                   data->parity,
 	                                                   data->stopbits);
+
+	com_return_setter(com, data);
 }
 
 void get_rs485_configuration(const ComType com, const GetRS485Configuration *data) {
@@ -456,7 +475,7 @@ void get_rs485_configuration(const ComType com, const GetRS485Configuration *dat
 	} else if(com_ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		// TODO: Error?
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -485,8 +504,8 @@ void is_wifi_present(const ComType com, const IsWifiPresent *data) {
 }
 
 void set_wifi_configuration(const ComType com, const SetWifiConfiguration *data) {
-	wifi_write_config(((char*)data) + 4,
-	                  sizeof(SetWifiConfiguration)-4,
+	wifi_write_config(((char*)data) + sizeof(MessageHeader),
+	                  sizeof(SetWifiConfiguration) - sizeof(MessageHeader),
 	                  WIFI_CONFIGURATION_POS);
 
 	logwifii("set_wifi_configuration: %d, %d.%d.%d.%d:%d\n\r", data->connection,
@@ -495,6 +514,8 @@ void set_wifi_configuration(const ComType com, const SetWifiConfiguration *data)
 	                                                           data->ip[1],
 	                                                           data->ip[0],
 	                                                           data->port);
+
+	com_return_setter(com, data);
 }
 
 void get_wifi_configuration(const ComType com, const GetWifiConfiguration *data) {
@@ -502,8 +523,8 @@ void get_wifi_configuration(const ComType com, const GetWifiConfiguration *data)
 
 	gwcr.header        = data->header;
 	gwcr.header.length = sizeof(GetWifiConfigurationReturn);
-	wifi_read_config(((char*)&gwcr) + 4,
-	                 sizeof(GetWifiConfigurationReturn)-4,
+	wifi_read_config(((char*)&gwcr) + sizeof(MessageHeader),
+	                 sizeof(GetWifiConfigurationReturn) - sizeof(MessageHeader),
 	                 WIFI_CONFIGURATION_POS);
 
 	send_blocking_with_timeout(&gwcr, sizeof(GetWifiConfigurationReturn), com);
@@ -517,11 +538,13 @@ void get_wifi_configuration(const ComType com, const GetWifiConfiguration *data)
 }
 
 void set_wifi_encryption(const ComType com, const SetWifiEncryption *data) {
-	wifi_write_config(((char*)data) + 4,
-	                  sizeof(SetWifiEncryption) - 4,
+	wifi_write_config(((char*)data) + sizeof(MessageHeader),
+	                  sizeof(SetWifiEncryption) - sizeof(MessageHeader),
 	                  WIFI_ENCRYPTION_POS);
 
 	logwifii("set_wifi_encryption: %d\n\r", data->encryption);
+
+	com_return_setter(com, data);
 }
 
 void get_wifi_encryption(const ComType com, const GetWifiEncryption *data) {
@@ -529,8 +552,8 @@ void get_wifi_encryption(const ComType com, const GetWifiEncryption *data) {
 
 	gwer.header        = data->header;
 	gwer.header.length = sizeof(GetWifiEncryptionReturn);
-	wifi_read_config(((char*)&gwer) + 4,
-	                 sizeof(GetWifiEncryptionReturn) - 4,
+	wifi_read_config(((char*)&gwer) + sizeof(MessageHeader),
+	                 sizeof(GetWifiEncryptionReturn) - sizeof(MessageHeader),
 	                 WIFI_ENCRYPTION_POS);
 
 	send_blocking_with_timeout(&gwer, sizeof(GetWifiEncryptionReturn), com);
@@ -543,7 +566,7 @@ void get_wifi_status(const ComType com, const GetWifiStatus *data) {
 
 	gwsr.header        = data->header;
 	gwsr.header.length = sizeof(GetWifiStatusReturn);
-	memcpy(((char*)&gwsr)+4, &wifi_status, sizeof(GetWifiStatusReturn)-4);
+	memcpy(((char*)&gwsr) + sizeof(MessageHeader), &wifi_status, sizeof(GetWifiStatusReturn) - sizeof(MessageHeader));
 
 	send_blocking_with_timeout(&gwsr, sizeof(GetWifiStatusReturn), com);
 }
@@ -551,10 +574,13 @@ void get_wifi_status(const ComType com, const GetWifiStatus *data) {
 void refresh_wifi_status(const ComType com, const RefreshWifiStatus *data) {
 	wifi_refresh_status();
 	logwifii("wifi_refresh_status\n\r");
+
+	com_return_setter(com, data);
 }
 
 void set_wifi_certificate(const ComType com, const SetWifiCertificate *data) {
 	if(data->data_length > 32) {
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 		return;
 	}
 
@@ -585,6 +611,8 @@ void set_wifi_certificate(const ComType com, const SetWifiCertificate *data) {
 	}
 
 	logwifii("set_wifi_certificate: %d %d\n\r", data->index, data->data_length);
+
+	com_return_setter(com, data);
 }
 
 void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
@@ -654,6 +682,8 @@ void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
 void set_wifi_power_mode(const ComType com, const SetWifiPowerMode *data) {
 	wifi_set_power_mode(data->mode);
 	logwifii("set_wifi_power_mode: %d\n\r", data->mode);
+
+	com_return_setter(com, data);
 }
 
 void get_wifi_power_mode(const ComType com, const GetWifiPowerMode *data) {
@@ -687,6 +717,10 @@ void set_wifi_regulatory_domain(const ComType com, const SetWifiRegulatoryDomain
 		wifi_write_config((char*)&data->domain, 1, WIFI_REGULATORY_DOMAIN_POS);
 		wifi_configuration.regulatory_domain = data->domain;
 		logwifii("wifi_set_regulatory_domain: %d\n\r", data->domain);
+
+		com_return_setter(com, data);
+	} else {
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
 	}
 }
 

@@ -45,9 +45,9 @@ extern uint8_t wifi_buffer_recv[];
 extern uint16_t wifi_buffer_size_recv;
 extern Pin extension_pins[];
 extern WifiStatus wifi_status;
-extern int8_t wifi_new_cid;
 
 extern uint8_t WIFI_DATA_RDY;
+extern int8_t wifi_new_cid;
 
 static const uint16_t wifi_data_lenght_mul[4] = {1000, 100, 10, 1};
 
@@ -61,6 +61,7 @@ char wifi_data_ringbuffer[WIFI_DATA_RINGBUFFER_SIZE] = {0};
 
 uint32_t wifi_data_ringbuffer_overflow = 0;
 uint16_t wifi_data_ringbuffer_low_watermark = WIFI_DATA_RINGBUFFER_SIZE;
+int8_t wifi_data_expecting_new_cid = -1;
 
 uint16_t wifi_data_get_ringbuffer_diff(void) {
 	uint16_t diff;
@@ -195,9 +196,16 @@ void wifi_data_next(const char data, bool transceive) {
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC: {
-			if(ndata == '3') {
+			if(ndata == '1') { // connect
+				wifi_data_expecting_new_cid = 4; // read cid in 4 bytes
+			} else {
+				wifi_data_expecting_new_cid = -1;
+			}
+
+			if(ndata == '3') { // disconnect
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			}
+
 			wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE;
 
 			break;
@@ -217,11 +225,25 @@ void wifi_data_next(const char data, bool transceive) {
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG: {
+			if(wifi_data_expecting_new_cid > 0) {
+				wifi_data_expecting_new_cid--;
+			} else if(wifi_data_expecting_new_cid == 0) {
+				const int8_t cid = wifi_data_hex_to_int(ndata);
+				if(cid != -1) {
+					wifi_new_cid = cid;
+					wifi_data_cid_present[cid] = true;
+					led_on(LED_EXT_BLUE_3);
+				}
+
+				wifi_data_expecting_new_cid = -1;
+			}
+
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length >= wifi_data_recv_length_desired) {
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired = 0;
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+				wifi_data_expecting_new_cid = -1;
 			}
 
 			break;
@@ -275,7 +297,6 @@ void wifi_data_next(const char data, bool transceive) {
 					if(!wifi_data_cid_present[wifi_data_current_cid]) {
 						wifi_data_cid_present[wifi_data_current_cid] = true;
 						led_on(LED_EXT_BLUE_3);
-						wifi_new_cid = wifi_data_current_cid;
 					}
 
 					if(in_recv_buffer) {
@@ -345,7 +366,18 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 }
 
 void wifi_data_send_escape(const char *data, const uint16_t length) {
-	int8_t cid = brickd_route_to((const uint8_t*)data);
+	EnumerateCallback *data_enum = (EnumerateCallback*)data;
+
+	int8_t cid = -1;
+
+	if(wifi_new_cid != -1 &&
+	   data_enum->header.fid == FID_ENUMERATE_CALLBACK &&
+	   data_enum->enumeration_type == ENUMERATE_TYPE_ADDED) {
+		// Handle initial enumeration (only send to new socket)
+		cid = wifi_new_cid;
+	} else {
+		cid = brickd_route_to((const uint8_t*)data);
+	}
 
 	if(cid == -1) {
 		for(uint8_t i = 1; i < WIFI_DATA_MAX_CID; i++) {
