@@ -34,7 +34,6 @@
 #include "bricklib/free_rtos/include/task.h"
 
 extern uint8_t chibi_type;
-//extern ComType com_ext[];
 
 void chibi_slave_init(void) {
 	logchibii("Configuring chibi extension as Slave\n\r");

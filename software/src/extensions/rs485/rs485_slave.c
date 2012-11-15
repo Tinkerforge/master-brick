@@ -63,36 +63,6 @@ void rs485_slave_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
-void rs485_slave_message_loop_return(const char *data, uint16_t length) {
-/*	const uint8_t stack_id = get_stack_id_from_data(data);
-
-	if(stack_id == com_stack_id || stack_id == 0) {
-		const ComMessage *com_message = get_com_from_data(data);
-		if(com_message->reply_func != NULL) {
-			com_message->reply_func(COM_RS485, (void*)data);
-		}
-
-		return;
-	}
-	for(uint8_t i = 0; i < BRICKLET_NUM; i++) {
-		if(bs[i].stack_id == stack_id) {
-			baddr[i].entry(BRICKLET_TYPE_INVOCATION, COM_RS485, (void*)data);
-			return;
-		}
-	}
-
-	if(stack_id <= com_last_spi_stack_id) {
-		send_blocking_with_timeout(data, length, COM_SPI_STACK);
-		return;
-	}
-
-	if(stack_id <= com_last_ext_id[0]) {
-		send_blocking_with_timeout(data, length, com_ext[0]);
-		return;
-	}
-
-	if(stack_id <= com_last_ext_id[1]) {
-		send_blocking_with_timeout(data, length, com_ext[1]);
-		return;
-	}*/
+void rs485_slave_message_loop_return(const char *data, const uint16_t length) {
+	com_route_message_from_pc(data, length, COM_RS485);
 }

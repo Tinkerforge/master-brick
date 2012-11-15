@@ -42,7 +42,7 @@
 
 #include <stdio.h>
 
-extern ComType com_ext[];
+extern ComInfo com_info;
 
 /*extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_type;
@@ -139,28 +139,30 @@ uint8_t extension_init(void) {
 
 			switch(type) {
 				case EXTENSION_TYPE_CHIBI: {
-					com_ext[i] = COM_CHIBI;
+					com_info.ext[i] = COM_CHIBI;
 					chibi_init_masterslave(i);
 
 					break;
 				}
 
 				case EXTENSION_TYPE_RS485: {
-					com_ext[i] = COM_RS485;
+					com_info.ext[i] = COM_RS485;
 					rs485_init_masterslave(i);
 
 					break;
 				}
 
 				case EXTENSION_TYPE_WIFI: {
-					com_ext[i] = COM_WIFI;
+					com_info.ext_type[i] = COM_TYPE_NONE;
+					com_info.ext[i] = COM_WIFI;
 					wifi_init_extension(i);
 
 					break;
 				}
 
 				case EXTENSION_TYPE_ETHERNET: {
-					com_ext[i] = COM_ETHERNET;
+					com_info.ext_type[i] = COM_TYPE_NONE;
+					com_info.ext[i] = COM_ETHERNET;
 					ethernet_init_extension(i);
 
 					break;
@@ -168,7 +170,8 @@ uint8_t extension_init(void) {
 
 				case EXTENSION_TYPE_NONE:
 				default: {
-					com_ext[i] = COM_NONE;
+					com_info.ext_type[i] = COM_TYPE_NONE;
+					com_info.ext[i] = COM_NONE;
 					break;
 				}
 			}
@@ -248,7 +251,7 @@ void extension_enumerate_rs485(uint8_t com, const Enumerate *data, uint8_t com_n
 
 void extension_enumerate(uint8_t com, const Enumerate *data) {
 	for(uint8_t com_num = 0; com_num < 2; com_num++) {
-		switch(com_ext[com_num]) {
+		switch(com_info.ext[com_num]) {
 			case COM_CHIBI: {
 				extension_enumerate_chibi(com, data, com_num);
 				break;

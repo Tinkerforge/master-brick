@@ -43,7 +43,7 @@
 #include "extensions/extension_i2c.h"
 #include "extensions/brickd.h"
 
-extern ComType com_ext[];
+extern ComInfo com_info;
 extern uint32_t led_rxtx;
 extern uint32_t led_ext3_rxtx;
 
@@ -589,9 +589,9 @@ void wifi_message_loop_return(const char *data, const uint16_t length) {
 
 uint32_t wifi_read_key(void) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?
@@ -608,9 +608,9 @@ uint32_t wifi_read_key(void) {
 
 void wifi_write_key(void) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?
@@ -626,9 +626,9 @@ void wifi_write_key(void) {
 
 void wifi_read_config(char *data, const uint8_t length, const uint16_t position) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?
@@ -659,9 +659,9 @@ void wifi_read_config(char *data, const uint8_t length, const uint16_t position)
 
 void wifi_write_config(const char *data, const uint8_t length, const uint16_t position) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?

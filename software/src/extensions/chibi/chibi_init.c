@@ -36,6 +36,7 @@ extern uint8_t chibi_frequency_mode;
 extern uint8_t chibi_channel;
 
 extern Pin extension_pins[];
+extern ComInfo com_info;
 
 uint8_t CHIBI_SELECT = CHIBI_SELECT_0;
 uint8_t CHIBI_RESET = CHIBI_RESET_0;
@@ -97,8 +98,10 @@ void chibi_init_masterslave(const uint8_t extension) {
 		if(chibi_slave_address[0] == 0) {
 			return;
 		}
+		com_info.ext_type[extension] = COM_TYPE_MASTER;
 		chibi_master_init();
 	} else {
+		com_info.ext_type[extension] = COM_TYPE_SLAVE;
 		chibi_slave_init();
 	}
 

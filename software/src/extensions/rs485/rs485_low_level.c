@@ -27,6 +27,8 @@
 #include "rs485.h"
 #include "rs485_config.h"
 
+#include "routing.h"
+
 #include "bricklib/com/com.h"
 #include "bricklib/com/com_common.h"
 #include "bricklib/utility/pearson_hash.h"
@@ -43,9 +45,11 @@ extern uint8_t rs485_type;
 extern uint8_t rs485_address;
 extern RS485Config rs485_config;
 extern bool rs485_master_send_empty;
+extern uint8_t rs485_send_address;
+extern uint8_t rs485_send_tries;
 
-uint8_t rs485_low_level_buffer_send[128];
-uint8_t rs485_low_level_buffer_recv[128];
+uint8_t rs485_low_level_buffer_send[RS485_MAX_DATA_LENGTH+RS485_MESSAGE_OVERHEAD];
+uint8_t rs485_low_level_buffer_recv[RS485_MAX_DATA_LENGTH+RS485_MESSAGE_OVERHEAD];
 uint8_t rs485_low_level_buffer_ack = RS485_BUFFER_NO_ACK;
 
 uint16_t rs485_error_crc = 0;
@@ -55,8 +59,11 @@ volatile uint8_t rs485_low_level_buffer_to_transfer = 0;
 uint8_t rs485_state = RS485_STATE_NONE;
 uint8_t rs485_last_sequence_number = 0;
 
+uint8_t rs485_first_message = 0;
+
 extern Pin extension_pins[];
 extern uint8_t RS485_RECV;
+extern ComInfo com_info;
 
 static const uint8_t crc_lookup_high[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
@@ -108,32 +115,32 @@ static const uint8_t crc_lookup_low[] = {
     0x41, 0x81, 0x80, 0x40
 };
 
-void rs485_low_level_send(uint8_t address, uint8_t sequence_number, bool nodata) {
+void rs485_low_level_send(const uint8_t address, const uint8_t sequence_number, const bool nodata) {
 	rs485_low_level_buffer_send[0] = address;
 	rs485_low_level_buffer_send[1] = RS485_MODBUS_FUNCTION_CODE;
 	rs485_low_level_buffer_send[2] = sequence_number;
 
 	if(rs485_buffer_size_send == 0 || nodata || rs485_master_send_empty) {
-		memset(&rs485_low_level_buffer_send[3], 0, 4);
+		memset(&rs485_low_level_buffer_send[RS485_MESSAGE_HEADER_SIZE], 0, sizeof(MessageHeader));
+		rs485_low_level_buffer_send[RS485_MESSAGE_LENGTH] = sizeof(MessageHeader);
+		uint16_t crc16 = rs485_low_level_crc16(rs485_low_level_buffer_send, RS485_MESSAGE_HEADER_SIZE + sizeof(MessageHeader));
 
-		uint16_t crc16 = rs485_low_level_crc16(rs485_low_level_buffer_send, 7);
-
-		memcpy(&rs485_low_level_buffer_send[7], &crc16, 2);
+		memcpy(&rs485_low_level_buffer_send[RS485_MESSAGE_HEADER_SIZE + sizeof(MessageHeader)], &crc16, RS485_MESSAGE_FOOTER_SIZE);
 
 		rs485_low_level_buffer_to_transfer = RS485_NO_MESSAGE_BUFFER_SIZE;
 	} else {
-		memcpy(&rs485_low_level_buffer_send[3],
+		memcpy(&rs485_low_level_buffer_send[RS485_MESSAGE_HEADER_SIZE],
 		       rs485_buffer_send,
 		       rs485_buffer_size_send);
 
 		uint16_t crc16 = rs485_low_level_crc16(rs485_low_level_buffer_send,
-		                                       rs485_buffer_size_send + 3);
+		                                       rs485_buffer_size_send + RS485_MESSAGE_HEADER_SIZE);
 
-		memcpy(&rs485_low_level_buffer_send[rs485_buffer_size_send+3],
+		memcpy(&rs485_low_level_buffer_send[rs485_buffer_size_send + RS485_MESSAGE_HEADER_SIZE],
 		       &crc16,
-		       2);
+		       RS485_MESSAGE_FOOTER_SIZE);
 
-		rs485_low_level_buffer_to_transfer = rs485_buffer_size_send + 5;
+		rs485_low_level_buffer_to_transfer = rs485_buffer_size_send + RS485_MESSAGE_OVERHEAD;
 	}
 
 	rs485_last_sequence_number = sequence_number;
@@ -190,7 +197,7 @@ void rs485_low_level_set_mode_send_from_task(void) {
 
 void rs485_low_level_begin_read(void) {
 	rs485_state = RS485_STATE_RECV_DATA_BEGIN;
-	rs485_low_level_read_buffer(rs485_low_level_buffer_recv, 8);
+	rs485_low_level_read_buffer(rs485_low_level_buffer_recv, RS485_NO_MESSAGE_BUFFER_SIZE);
 	rs485_low_level_set_mode_receive();
 }
 
@@ -202,27 +209,35 @@ void rs485_low_level_empty_read_buffer(void) {
 
 uint16_t rs485_low_level_get_crc_from_message(const uint8_t *data) {
 	const uint16_t length = rs485_low_level_get_length_from_message(data);
-	return *((uint16_t*)&data[length+3]);
+	return *((uint16_t*)&data[length+RS485_MESSAGE_HEADER_SIZE]);
 }
 
-uint16_t rs485_low_level_get_length_from_message(const uint8_t *data) {
-	const uint16_t length = *((uint16_t*)&data[5]);
-	if(length == 0) {
-		return 4;
-	}
-
-	return length;
+uint32_t rs485_low_level_get_uid_from_message(const uint8_t *data) {
+	return data[RS485_MESSAGE_UID] |
+           (data[RS485_MESSAGE_UID+1] << 8) |
+           (data[RS485_MESSAGE_UID+2] << 16) |
+           (data[RS485_MESSAGE_UID+3] << 24);
 }
 
-bool rs485_low_level_message_complete(uint8_t *data) {
-	return rs485_low_level_get_length_from_message(data) < 5;
+uint8_t rs485_low_level_get_fid_from_message(const uint8_t *data) {
+	return data[RS485_MESSGAE_FID];
 }
 
-void rs485_low_level_handle_message(uint8_t *data) {
+uint8_t rs485_low_level_get_length_from_message(const uint8_t *data) {
+	return data[RS485_MESSAGE_LENGTH];
+}
+
+bool rs485_low_level_message_complete(const uint8_t *data) {
+	return rs485_low_level_get_length_from_message(data) < RS485_MESSAGE_OVERHEAD;
+}
+
+void rs485_low_level_handle_message(const uint8_t *data) {
 	const uint16_t length = rs485_low_level_get_length_from_message(data);
-	const uint16_t crc16 = rs485_low_level_crc16(data, length+3);
-	const uint8_t address = data[0];
-	const uint8_t sequence_number = data[2];
+	const uint16_t crc16 = rs485_low_level_crc16(data, length+RS485_MESSAGE_HEADER_SIZE);
+	uint8_t fidx = rs485_low_level_get_fid_from_message(data);
+
+	const uint8_t address = data[RS485_MESSAGE_MODBUS_ADDRESS];
+	const uint8_t sequence_number = data[RS485_MESSAGE_MODBUS_SEQUENCE_NUMBER];
 
 	// If the CRC is wrong we force timeout
 	if(crc16 != rs485_low_level_get_crc_from_message(data)) {
@@ -238,15 +253,20 @@ void rs485_low_level_handle_message(uint8_t *data) {
 		return;
 	}
 
-	// If data[3] == data[4] == 0: The message is an ack or polling for the
+	// If fid == uid == 0: The message is an ack or polling for the
 	// slave
-	if(data[3] == 0 && data[4] == 0) {
+	const uint8_t fid = rs485_low_level_get_fid_from_message(data);
+	const uint32_t uid = rs485_low_level_get_uid_from_message(data);
+	if(fid == 0 && uid == 0) {
 		// If sequence number not the same, it is polling
 		if(sequence_number != rs485_last_sequence_number) {
 			if(rs485_type == RS485_TYPE_MASTER) {
 				RS485_WAIT_BEFORE_SEND();
 				rs485_low_level_send(rs485_address, sequence_number + 1, true);
 			} else {
+				if(rs485_first_message == 0) {
+					rs485_first_message = 1;
+				}
 				RS485_WAIT_BEFORE_SEND();
 				rs485_low_level_send(rs485_address, sequence_number, false);
 			}
@@ -257,6 +277,8 @@ void rs485_low_level_handle_message(uint8_t *data) {
 				if(!(rs485_low_level_buffer_ack & RS485_BUFFER_NO_DATA)) {
 					if(!rs485_master_send_empty) {
 						rs485_buffer_size_send = 0;
+						rs485_send_tries = 0;
+						rs485_send_address = 0;
 					}
 				}
 				rs485_low_level_buffer_ack = RS485_BUFFER_NO_ACK;
@@ -287,6 +309,8 @@ void rs485_low_level_handle_message(uint8_t *data) {
 			if(!(rs485_low_level_buffer_ack & RS485_BUFFER_NO_DATA)) {
 				if(!rs485_master_send_empty) {
 					rs485_buffer_size_send = 0;
+					rs485_send_tries = 0;
+					rs485_send_address = 0;
 				}
 			}
 			rs485_low_level_buffer_ack = RS485_BUFFER_NO_ACK;
@@ -297,9 +321,26 @@ void rs485_low_level_handle_message(uint8_t *data) {
 			// is an answer for the last request
 			if(sequence_number == rs485_last_sequence_number) {
 				memcpy(rs485_buffer_recv,
-					   &rs485_low_level_buffer_recv[3],
+					   &rs485_low_level_buffer_recv[RS485_MESSAGE_HEADER_SIZE],
 					   length);
 				rs485_buffer_size_recv = length;
+
+				//uint32_t uid = rs485_low_level_get_uid_from_message(rs485_low_level_buffer_recv);
+
+				if(uid != 0) {
+					RouteTo route_to = routing_route_extension_to(uid);
+					if(route_to.to == 0 && route_to.option == 0) {
+						uint8_t to = 0;
+						if(com_info.ext[0] == COM_RS485) {
+							to = ROUTING_EXTENSION_1;
+						} else if(com_info.ext[0] == COM_RS485) {
+							to = ROUTING_EXTENSION_2;
+						}
+
+						RouteTo new_route = {to, address};
+						routing_add_route(uid, new_route);
+					}
+				}
 			}
 
 			// The master always sends an ack without data, otherwise
@@ -311,7 +352,7 @@ void rs485_low_level_handle_message(uint8_t *data) {
 			// received. We already handled this message
 			if(sequence_number != rs485_last_sequence_number) {
 				memcpy(rs485_buffer_recv,
-					   &rs485_low_level_buffer_recv[3],
+					   &rs485_low_level_buffer_recv[RS485_MESSAGE_HEADER_SIZE],
 					   length);
 				rs485_buffer_size_recv = length;
 			}
@@ -362,8 +403,11 @@ void USART1_IrqHandler() {
 						rs485_low_level_resync();
 						return;
 					}
-					const uint16_t length_ro_read = length -9 +3 +2;
-					rs485_low_level_read_buffer(&rs485_low_level_buffer_recv[9],
+					const uint16_t length_ro_read = length
+					                                -RS485_NO_MESSAGE_BUFFER_SIZE
+					                                +RS485_MESSAGE_HEADER_SIZE
+					                                +RS485_MESSAGE_FOOTER_SIZE;
+					rs485_low_level_read_buffer(&rs485_low_level_buffer_recv[RS485_NO_MESSAGE_BUFFER_SIZE],
 					                            length_ro_read);
 					rs485_low_level_set_mode_receive();
 				}
@@ -379,18 +423,19 @@ void USART1_IrqHandler() {
     }
 }
 
-void rs485_low_level_read_buffer(void *buffer, uint32_t size) {
+void rs485_low_level_read_buffer(void *buffer, const uint32_t size) {
         USART_RS485->US_RPR = (uint32_t)buffer;
         USART_RS485->US_RCR = size;
         USART_RS485->US_PTCR = US_PTCR_RXTEN;
 }
 
-uint16_t rs485_low_level_crc16(uint8_t *data, uint8_t length) {
+uint16_t rs485_low_level_crc16(const uint8_t *data, const uint8_t length) {
     uint16_t high = 0xFF;
     uint16_t low  = 0xFF;
     uint32_t index;
 
-    while(length--) {
+    uint8_t counter = length;
+    while(counter--) {
     	index = low ^ *(data++);
         low   = (uint8_t)(high ^ crc_lookup_high[index]);
         high  = crc_lookup_low[index];

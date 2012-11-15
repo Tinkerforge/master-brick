@@ -35,7 +35,7 @@
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
 
-extern ComType com_ext[];
+extern ComInfo com_info;
 extern uint8_t chibi_receiver_input_power;
 extern uint16_t chibi_underrun;
 extern uint16_t chibi_crc_error;
@@ -122,7 +122,7 @@ void is_chibi_present(const ComType com, const IsChibiPresent *data) {
 
 	icpr.header        = data->header;
 	icpr.header.length = sizeof(IsChibiPresentReturn);
-	icpr.present       = com_ext[0] == COM_CHIBI || com_ext[1] == COM_CHIBI;
+	icpr.present       = com_info.ext[0] == COM_CHIBI || com_info.ext[1] == COM_CHIBI;
 
 	send_blocking_with_timeout(&icpr, sizeof(IsChibiPresentReturn), com);
 	logchibii("is_chibi_present: %d\n\r", icpr.present);
@@ -130,9 +130,9 @@ void is_chibi_present(const ComType com, const IsChibiPresent *data) {
 
 void set_chibi_address(const ComType com, const SetChibiAddress *data) {
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -149,9 +149,9 @@ void get_chibi_address(const ComType com, const GetChibiAddress *data) {
 	GetChibiAddressReturn gcar;
 
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -168,9 +168,9 @@ void get_chibi_address(const ComType com, const GetChibiAddress *data) {
 
 void set_chibi_master_address(const ComType com, const SetChibiMasterAddress *data) {
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -187,9 +187,9 @@ void get_chibi_master_address(const ComType com, const GetChibiMasterAddress *da
 	GetChibiMasterAddressReturn gcmar;
 
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -206,9 +206,9 @@ void get_chibi_master_address(const ComType com, const GetChibiMasterAddress *da
 
 void set_chibi_slave_address(const ComType com, const SetChibiSlaveAddress *data) {
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -225,9 +225,9 @@ void get_chibi_slave_address(const ComType com, const GetChibiSlaveAddress *data
 	GetChibiSlaveAddressReturn gcsar;
 
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -276,9 +276,9 @@ void set_chibi_frequency(const ComType com, const SetChibiFrequency *data) {
 	}
 
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -317,9 +317,9 @@ void set_chibi_channel(const ComType com, const SetChibiChannel *data) {
 	}
 
 	uint8_t extension;
-	if(com_ext[0] == COM_CHIBI) {
+	if(com_info.ext[0] == COM_CHIBI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_CHIBI) {
+	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -356,7 +356,7 @@ void is_rs485_present(const ComType com, const IsRS485Present *data) {
 
 	irpr.header        = data->header;
 	irpr.header.length = sizeof(IsRS485PresentReturn);
-	irpr.present       = com_ext[0] == COM_RS485 || com_ext[1] == COM_RS485;
+	irpr.present       = com_info.ext[0] == COM_RS485 || com_info.ext[1] == COM_RS485;
 
 	send_blocking_with_timeout(&irpr, sizeof(IsRS485PresentReturn), com);
 	logrsi("is_rs485_present: %d\n\r", irpr.present);
@@ -364,9 +364,9 @@ void is_rs485_present(const ComType com, const IsRS485Present *data) {
 
 void set_rs485_address(const ComType com, const SetRS485Address *data) {
 	uint8_t extension;
-	if(com_ext[0] == COM_RS485) {
+	if(com_info.ext[0] == COM_RS485) {
 		extension = 0;
-	} else if(com_ext[1] == COM_RS485) {
+	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -383,9 +383,9 @@ void get_rs485_address(const ComType com, const GetRS485Address *data) {
 	GetRS485AddressReturn grar;
 
 	uint8_t extension;
-	if(com_ext[0] == COM_RS485) {
+	if(com_info.ext[0] == COM_RS485) {
 		extension = 0;
-	} else if(com_ext[1] == COM_RS485) {
+	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -402,9 +402,9 @@ void get_rs485_address(const ComType com, const GetRS485Address *data) {
 
 void set_rs485_slave_address(const ComType com, const SetRS485SlaveAddress *data) {
 	uint8_t extension;
-	if(com_ext[0] == COM_RS485) {
+	if(com_info.ext[0] == COM_RS485) {
 		extension = 0;
-	} else if(com_ext[1] == COM_RS485) {
+	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -421,9 +421,9 @@ void get_rs485_slave_address(const ComType com, const GetRS485SlaveAddress *data
 	GetRS485SlaveAddressReturn grsar;
 
 	uint8_t extension;
-	if(com_ext[0] == COM_RS485) {
+	if(com_info.ext[0] == COM_RS485) {
 		extension = 0;
-	} else if(com_ext[1] == COM_RS485) {
+	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -450,9 +450,9 @@ void get_rs485_error_log(const ComType com, const GetRS485ErrorLog *data) {
 
 void set_rs485_configuration(const ComType com, const SetRS485Configuration *data) {
 	uint8_t extension;
-	if(com_ext[0] == COM_RS485) {
+	if(com_info.ext[0] == COM_RS485) {
 		extension = 0;
-	} else if(com_ext[1] == COM_RS485) {
+	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -470,9 +470,9 @@ void set_rs485_configuration(const ComType com, const SetRS485Configuration *dat
 
 void get_rs485_configuration(const ComType com, const GetRS485Configuration *data) {
 	uint8_t extension;
-	if(com_ext[0] == COM_RS485) {
+	if(com_info.ext[0] == COM_RS485) {
 		extension = 0;
-	} else if(com_ext[1] == COM_RS485) {
+	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
 		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
@@ -497,7 +497,7 @@ void is_wifi_present(const ComType com, const IsWifiPresent *data) {
 
 	iwpr.header        = data->header;
 	iwpr.header.length = sizeof(IsWifiPresentReturn);
-	iwpr.present       = com_ext[0] == COM_WIFI || com_ext[1] == COM_WIFI;
+	iwpr.present       = com_info.ext[0] == COM_WIFI || com_info.ext[1] == COM_WIFI;
 
 	send_blocking_with_timeout(&iwpr, sizeof(IsWifiPresentReturn), com);
 	logwifii("is_wifi_present: %d\n\r", iwpr.present);

@@ -43,31 +43,41 @@
 #define RS485_STATE_RECV_OUT_OF_SYNC         13
 
 #define RS485_MODBUS_FUNCTION_CODE          100
-#define RS485_NO_MESSAGE_BUFFER_SIZE          9
+#define RS485_NO_MESSAGE_BUFFER_SIZE         13
 
 #define RS485_BUFFER_NO_ACK 0
 #define RS485_BUFFER_WAIT_FOR_ACK 1
 #define RS485_BUFFER_NO_DATA 2
 
-#define RS485_WAIT_BEFORE_SEND() do { \
-	for(uint32_t i = 0; i < 4*BOARD_MCK/rs485_config.speed; i++) { \
-		__NOP(); \
-	} \
-} while(0)
+#define RS485_WAIT_BEFORE_SEND() \
+	do { \
+		uint32_t i = 4*BOARD_MCK/rs485_config.speed; \
+		__ASM volatile ( \
+			"PUSH {R0}\n" \
+			"MOV R0, %0\n" \
+			"1:\n" \
+			"SUBS R0, #1\n" \
+			"BNE.N 1b\n" \
+			"POP {R0}\n" \
+			:: "r" (i) \
+		); \
+	} while(0)
 
 void rs485_low_level_begin_read(void);
 void rs485_low_level_set_mode_receive(void);
 void rs485_low_level_set_mode_send(void);
 void rs485_low_level_set_mode_send_from_task(void);
-void rs485_low_level_send(uint8_t address, uint8_t sequence_number, bool nodata);
+void rs485_low_level_send(const uint8_t address, const uint8_t sequence_number, const bool nodata);
 void rs485_low_level_recv(void);
-void rs485_low_level_handle_out_of_sync(bool first);
-bool rs485_low_level_message_complete(uint8_t *data);
-void rs485_low_level_handle_message(uint8_t *data);
-uint16_t rs485_low_level_get_length_from_message(const uint8_t *data);
+void rs485_low_level_handle_out_of_sync(const bool first);
+bool rs485_low_level_message_complete(const uint8_t *data);
+void rs485_low_level_handle_message(const uint8_t *data);
+uint8_t rs485_low_level_get_length_from_message(const uint8_t *data);
 uint16_t rs485_low_level_get_crc_from_message(const uint8_t *data);
-uint16_t rs485_low_level_crc16(uint8_t *data, uint8_t length);
-void rs485_low_level_read_buffer(void *buffer, uint32_t size);
+uint32_t rs485_low_level_get_uid_from_message(const uint8_t *data);
+uint8_t rs485_low_level_get_fid_from_message(const uint8_t *data);
+uint16_t rs485_low_level_crc16(const uint8_t *data, const uint8_t length);
+void rs485_low_level_read_buffer(void *buffer, const uint32_t size);
 void rs485_low_level_resync(void);
 
 #endif

@@ -27,6 +27,6 @@
 void rs485_master_state_machine_loop(void *arg);
 void rs485_master_init(void);
 void rs485_master_message_loop(void *parameters);
-void rs485_master_message_loop_return(const char *data, uint16_t length);
+void rs485_master_message_loop_return(const char *data, const uint16_t length);
 
 #endif

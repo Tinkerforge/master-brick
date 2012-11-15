@@ -47,30 +47,14 @@
 
 #include "config.h"
 
-extern ComType com_ext[];
-
-//extern uint16_t spi_stack_buffer_size_send;
-//extern uint8_t com_last_spi_stack_id;
+extern ComInfo com_info;
 
 uint8_t master_mode = MASTER_MODE_NONE;
 
-//extern uint8_t chibi_address;
-//extern uint8_t chibi_slave_address[];
 extern uint8_t chibi_type;
-
-//extern uint8_t rs485_slave_address[];
-//extern uint8_t rs485_address;
 extern uint8_t rs485_type;
-//extern uint8_t rs485_mode;
-
-//extern uint16_t chibi_wait_for_recv;
-//extern uint16_t spi_stack_buffer_size_recv;
-//extern uint8_t rs485_buffer_size_send;
-//extern uint8_t rs485_last_sequence_number;
-
-//extern xTaskHandle rs485_handle_master_message_loop;
-//extern xTaskHandle rs485_handle_master_state_machine_loop;
-extern ComType com_current;
+extern ComInfo com_info;
+extern uint8_t rs485_first_message;
 
 bool chibi_enumerate_ready = false;
 
@@ -304,7 +288,7 @@ void master_create_routing_table_chibi(const uint8_t extension) {
 
 void master_create_routing_table_extensions(void) {
 	for(uint8_t i = 0; i < 2; i++) {
-		switch(com_ext[i]) {
+		switch(com_info.ext[i]) {
 			case COM_CHIBI: {
 				if(chibi_type == CHIBI_TYPE_MASTER) {
 					master_create_routing_table_chibi(i);
@@ -367,16 +351,25 @@ void tick_task(const uint8_t tick_type) {
 				message_counter = 0;
 				if(brick_init_enumeration(COM_USB)) {
 					master_first_usb_connection = false;
-					com_current = COM_USB;
+					com_info.current = COM_USB;
+				}
+			}
+		}
+		if(rs485_first_message == 1) {
+			if((com_info.ext_type[0] == COM_TYPE_SLAVE && com_info.ext[0] == COM_RS485) ||
+			   (com_info.ext_type[1] == COM_TYPE_SLAVE && com_info.ext[1] == COM_RS485)) {
+				if(brick_init_enumeration(COM_RS485)) {
+					rs485_first_message = 2;
+					com_info.current = COM_RS485;
 				}
 			}
 		}
 	}
 
-	if(com_ext[0] == COM_WIFI || com_ext[1] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI || com_info.ext[1] == COM_WIFI) {
 		wifi_tick(tick_type);
 	}
-	if(com_ext[0] == COM_ETHERNET || com_ext[1] == COM_ETHERNET) {
+	if(com_info.ext[0] == COM_ETHERNET || com_info.ext[1] == COM_ETHERNET) {
 		ethernet_tick(tick_type);
 	}
 }

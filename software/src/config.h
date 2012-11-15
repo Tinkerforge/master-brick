@@ -71,7 +71,7 @@
 
 
 // UART for console output (printf)
-//#define CONSOLE_USART_USE_UART1
+#define CONSOLE_USART_USE_UART1
 
 #define PIN_CONSOLE_RXD  {1 << 21, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 #define PIN_CONSOLE_TXD  {1 << 22, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}

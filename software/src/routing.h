@@ -24,19 +24,27 @@
 
 #include <stdint.h>
 
-#define ROUTING_TABLE_SIZE  64
+#define ROUTING_TABLE_MAX_SIZE  64
 
-#define ROUTING_STACK_MIN    SPI_ADDRESS_MIN
-#define ROUTING_STACK_MAX    SPI_ADDRESS_MAX
-#define ROUTING_EXTENSION_1  (SPI_ADDRESS_MAX+1)
-#define ROUTING_EXTENSION_2  (ROUTING_EXTENSION_1+1)
+#define ROUTING_STACK       1
+#define ROUTING_EXTENSION_1 2
+#define ROUTING_EXTENSION_2 3
+
+typedef struct {
+	uint8_t to;
+	uint8_t option;
+} RouteTo;
 
 typedef struct {
 	uint32_t uid;
-	uint8_t route_to;
+	RouteTo route_to;
 } RoutingTable;
 
-uint8_t routing_route_to(const uint32_t uid);
+RouteTo routing_route_to_fromto(const uint32_t uid, const uint8_t from, const uint8_t to);
+RouteTo routing_route_to(const uint32_t uid);
+RouteTo routing_route_stack_to(const uint32_t uid);
+RouteTo routing_route_extension_to(const uint32_t uid);
+void routing_add_route(const uint32_t uid, const RouteTo route_to);
 void routing_table_create_stack(void);
 void routing_master_from_pc(const char *data, const uint16_t length);
 

@@ -61,7 +61,7 @@
 #include "extensions/wifi/wifi_data.h"
 #include "extensions/extension_init.h"
 
-extern uint8_t com_last_stack_address;
+extern ComInfo com_info;
 extern uint8_t master_mode;
 extern bool master_first_usb_connection;
 
@@ -167,7 +167,7 @@ int main() {
     		logsi("No USB connection\n\r");
     	}
 
-    	if(com_last_stack_address > 0) {
+    	if(com_info.last_stack_address > 0) {
 			xTaskCreate(spi_stack_master_state_machine_loop,
 						(signed char *)"spi_sm",
 						500,

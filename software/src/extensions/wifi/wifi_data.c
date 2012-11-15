@@ -405,7 +405,7 @@ void wifi_data_poll(void) {
 	}
 }
 
-int8_t wifi_data_hex_to_int(char c) {
+int8_t wifi_data_hex_to_int(const char c) {
 	if (c >= '0' && c <= '9') {
 		return c - '0';
 	}
@@ -421,7 +421,7 @@ int8_t wifi_data_hex_to_int(char c) {
 	return -1;
 }
 
-char wifi_data_int_to_hex(int8_t c) {
+char wifi_data_int_to_hex(const int8_t c) {
 	if (c >= 0 && c <= 9) {
 		return c + '0';
 	}
@@ -432,7 +432,7 @@ char wifi_data_int_to_hex(int8_t c) {
 	return 'X';
 }
 
-void wifi_data_disconnect(uint8_t cid) {
+void wifi_data_disconnect(const uint8_t cid) {
 	if(cid > 0 && cid < 16) {
 		wifi_data_cid_present[cid] = false;
 		brickd_disconnect(cid);
