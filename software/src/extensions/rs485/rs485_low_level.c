@@ -234,7 +234,6 @@ bool rs485_low_level_message_complete(const uint8_t *data) {
 void rs485_low_level_handle_message(const uint8_t *data) {
 	const uint16_t length = rs485_low_level_get_length_from_message(data);
 	const uint16_t crc16 = rs485_low_level_crc16(data, length+RS485_MESSAGE_HEADER_SIZE);
-	uint8_t fidx = rs485_low_level_get_fid_from_message(data);
 
 	const uint8_t address = data[RS485_MESSAGE_MODBUS_ADDRESS];
 	const uint8_t sequence_number = data[RS485_MESSAGE_MODBUS_SEQUENCE_NUMBER];

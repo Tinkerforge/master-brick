@@ -76,6 +76,7 @@ typedef struct {
 #define CHIBI_ERROR_TIMEOUT      2
 #define CHIBI_ERROR_NO_ACK       3
 #define CHIBI_ERROR_UNEXPECTED   4
+#define CHIBI_ERROR_WAIT_FOR_ACK 5
 
 // Frequencies
 #define OQPSK_868MHZ_EUROPE 0

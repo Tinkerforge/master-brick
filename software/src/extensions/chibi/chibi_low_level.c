@@ -33,6 +33,7 @@
 #include "bricklib/utility/led.h"
 #include "bricklib/logging/logging.h"
 #include "config.h"
+#include "routing.h"
 
 #include "bricklib/free_rtos/include/FreeRTOS.h"
 #include "bricklib/free_rtos/include/task.h"
@@ -43,8 +44,7 @@
 
 extern uint8_t chibi_type;
 extern uint8_t chibi_address;
-//extern uint8_t chibi_slave_address[];
-//extern uint8_t chibi_master_address;
+extern uint8_t chibi_slave_address[];
 extern bool chibi_enumerate_ready;
 
 extern Pin extension_pins[];
@@ -52,6 +52,7 @@ extern uint8_t CHIBI_SELECT;
 extern uint8_t CHIBI_RESET;
 extern uint8_t CHIBI_INT;
 extern uint8_t CHIBI_SLP_TR;
+extern ComInfo com_info;
 
 uint16_t chibi_underrun = 0;
 uint16_t chibi_crc_error = 0;
@@ -404,7 +405,7 @@ uint8_t chibi_transfer(const uint8_t *header,
 			chibi_send_counter = 0;
 		}
 		__enable_irq();
-		return CHIBI_ERROR_NO_ACK;
+		return CHIBI_ERROR_WAIT_FOR_ACK;
 	}
 	__enable_irq();
 
@@ -423,12 +424,13 @@ uint8_t chibi_transfer(const uint8_t *header,
     chibi_send_counter = CHIBI_MAX_WAIT_FOR_SEND;
     chibi_start_tx();
 
-    // Wait for transfer to end
-    while(chibi_send_counter > 0) {
-    	if(xSchedulerRunning) {
-    		taskYIELD();
-    	}
-    }
+
+	// Wait for transfer to end
+	while(chibi_send_counter > 0) {
+		if(xSchedulerRunning) {
+			taskYIELD();
+		}
+	}
 
     return chibi_transfer_status;
 }
@@ -471,6 +473,36 @@ void chibi_read_frame(void) {
     		chibi_last_destination_address = chibi_read_header.short_destination_address;
        		if(xSchedulerRunning || chibi_enumerate_ready) {
        			chibi_buffer_size_recv = data_length;
+       			if(chibi_type == CHIBI_TYPE_MASTER) {
+					const uint32_t uid = chibi_buffer_recv[0] |
+					                    (chibi_buffer_recv[1] << 8) |
+					                    (chibi_buffer_recv[2] << 16) |
+					                    (chibi_buffer_recv[3] << 24);
+
+					if(uid != 0) {
+						RouteTo route_to = routing_route_extension_to(uid);
+						if(route_to.to == 0 && route_to.option == 0) {
+							uint8_t to = 0;
+							if(com_info.ext[0] == COM_CHIBI) {
+								to = ROUTING_EXTENSION_1;
+							} else if(com_info.ext[0] == COM_CHIBI) {
+								to = ROUTING_EXTENSION_2;
+							}
+
+							RouteTo new_route = {to, chibi_read_header.short_source_address};
+							for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
+								if(chibi_slave_address[i] == chibi_read_header.short_source_address) {
+									routing_add_route(uid, new_route);
+									break;
+								}
+								if(chibi_slave_address[i] == 0) {
+									chibi_buffer_size_recv = 0;
+									break;
+								}
+							}
+						}
+					}
+       			}
        		} else {
        			chibi_buffer_size_recv = 0;
        		}
@@ -546,6 +578,7 @@ void chibi_interrupt(const Pin *pin) {
 				case CHIBI_TRAC_STATUS_SUCCESS_WAIT_FOR_ACK:
 				case CHIBI_TRAC_STATUS_INVALID:
 				default:
+					//chibi_wait_for_recv = CHIBI_MAX_WAIT_FOR_RECV;
 					chibi_transfer_status = CHIBI_ERROR_UNEXPECTED;
 					logchibie("Unexpected trac status: %d\n\r", trac_status);
 					break;

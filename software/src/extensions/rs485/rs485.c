@@ -209,6 +209,7 @@ uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(rs485_buffer_size_recv == 0) {
 		return 0;
 	}
+
 	led_rxtx++;
 
 	static uint16_t recv_pointer = 0;

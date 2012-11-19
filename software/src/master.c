@@ -55,6 +55,7 @@ extern uint8_t chibi_type;
 extern uint8_t rs485_type;
 extern ComInfo com_info;
 extern uint8_t rs485_first_message;
+extern uint8_t chibi_first_message;
 
 bool chibi_enumerate_ready = false;
 
@@ -361,6 +362,15 @@ void tick_task(const uint8_t tick_type) {
 				if(brick_init_enumeration(COM_RS485)) {
 					rs485_first_message = 2;
 					com_info.current = COM_RS485;
+				}
+			}
+		}
+		if(chibi_first_message == 1) {
+			if((com_info.ext_type[0] == COM_TYPE_SLAVE && com_info.ext[0] == COM_CHIBI) ||
+			   (com_info.ext_type[1] == COM_TYPE_SLAVE && com_info.ext[1] == COM_CHIBI)) {
+				if(brick_init_enumeration(COM_CHIBI)) {
+					chibi_first_message = 2;
+					com_info.current = COM_CHIBI;
 				}
 			}
 		}

@@ -35,6 +35,8 @@
 
 extern uint8_t chibi_type;
 
+uint8_t chibi_first_message = 0;
+
 void chibi_slave_init(void) {
 	logchibii("Configuring chibi extension as Slave\n\r");
 	chibi_type = CHIBI_TYPE_SLAVE;
@@ -47,6 +49,8 @@ void chibi_slave_init(void) {
 				NULL,
 				1,
 				(xTaskHandle *)NULL);
+
+	chibi_first_message = 1;
 }
 
 void chibi_slave_message_loop(void *parameters) {
@@ -58,34 +62,5 @@ void chibi_slave_message_loop(void *parameters) {
 }
 
 void chibi_slave_message_loop_return(const char *data, const uint16_t length) {
-/*	const uint8_t stack_id = get_stack_id_from_data(data);
-
-	if(stack_id == com_stack_id || stack_id == 0) {
-		const ComMessage *com_message = get_com_from_data(data);
-		if(com_message->reply_func != NULL) {
-			com_message->reply_func(COM_CHIBI, (void*)data);
-			return;
-		}
-	}
-	for(uint8_t i = 0; i < BRICKLET_NUM; i++) {
-		if(bs[i].stack_id == stack_id) {
-			baddr[i].entry(BRICKLET_TYPE_INVOCATION, COM_CHIBI, (void*)data);
-			return;
-		}
-	}
-
-	if(stack_id <= com_last_spi_stack_id) {
-		send_blocking_with_timeout(data, length, COM_SPI_STACK);
-		return;
-	}
-
-	if(stack_id <= com_last_ext_id[0]) {
-		send_blocking_with_timeout(data, length, com_ext[0]);
-		return;
-	}
-
-	if(stack_id <= com_last_ext_id[1]) {
-		send_blocking_with_timeout(data, length, com_ext[1]);
-		return;
-	}*/
+	com_route_message_from_pc(data, length, COM_CHIBI);
 }

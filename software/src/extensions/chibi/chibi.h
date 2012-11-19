@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-uint8_t chibi_get_receiver_address(const uint8_t stack_id);
+uint16_t chibi_send_broadcast(const void *data, const uint16_t length);
 bool chibi_init(void);
 uint16_t chibi_send(const void *data, const uint16_t length, uint32_t *options);
 uint16_t chibi_recv(void *data, const uint16_t length, uint32_t *options);
