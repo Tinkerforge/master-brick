@@ -636,6 +636,7 @@ void wifi_read_config(char *data, const uint8_t length, const uint16_t position)
 	}
 
 	if(wifi_read_key() != WIFI_KEY) {
+		logwifiw("Key mismatch\n\r");
 		wifi_write_config(data, length, position);
 		return;
 	}

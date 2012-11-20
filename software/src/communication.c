@@ -101,7 +101,7 @@ void get_stack_current(const ComType com, const GetStackCurrent *data) {
 
 void set_extension_type(const ComType com, const SetExtensionType *data) {
 	extension_set_type(data->extension, data->exttype);
-	logmasteri("set_extension_type: %lu\n\r", data->exttype);
+	logmasteri("set_extension_type: %d -> %lu\n\r", data->extension, data->exttype);
 
 	com_return_setter(com, data);
 }

@@ -27,9 +27,9 @@
 #define WIFI_KEY (42 | (23 << 8) | (17 << 16) | 8)
 #define WIFI_KEY_POS 4
 #define WIFI_CONFIGURATION_POS 8
-#define WIFI_ENCRYPTION_POS (WIFI_CONFIGURATION_POS + (sizeof(SetWifiConfiguration) - 4))
-#define WIFI_REGULATORY_DOMAIN_POS (WIFI_ENCRYPTION_POS + (sizeof(SetWifiEncryption) - 4))
-#define WIFI_USERNAME_POS (WIFI_REGULATORY_DOMAIN_POS + sizeof(SetWifiEncryption) - 4)
+#define WIFI_ENCRYPTION_POS (WIFI_CONFIGURATION_POS + sizeof(SetWifiConfiguration) - sizeof(MessageHeader))
+#define WIFI_REGULATORY_DOMAIN_POS (WIFI_ENCRYPTION_POS + sizeof(SetWifiEncryption) - sizeof(MessageHeader))
+#define WIFI_USERNAME_POS (WIFI_REGULATORY_DOMAIN_POS + sizeof(SetWifiRegulatoryDomain) - sizeof(MessageHeader))
 #define WIFI_PASSWORD_POS (WIFI_USERNAME_POS + 32)
 #define WIFI_CA_CERTIFICATE_POS 1024
 #define WIFI_CLIENT_CERTIFICATE_POS (WIFI_CA_CERTIFICATE_POS + WIFI_CA_CERTIFICATE_MAX_LENGTH)
