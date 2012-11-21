@@ -57,16 +57,16 @@ extern uint16_t master_usb_voltage;
 extern uint16_t master_stack_voltage;
 extern uint16_t master_stack_current;
 
+#define STACK_VOLTAGE_MULT 725340  // 3300*1099   / 5
+#define STACK_VOLTAGE_DIV  81081   // 4095*99     / 5
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
 
 	gsvr.header        = data->header;
 	gsvr.header.length = sizeof(GetStackVoltageReturn);
 
-	gsvr.voltage = master_stack_voltage *
-	               STACK_VOLTAGE_REFERENCE *
-	               STACK_VOLTAGE_MULTIPLIER /
-	               VOLTAGE_MAX_VALUE;
+	gsvr.voltage = master_stack_voltage * STACK_VOLTAGE_MULT/STACK_VOLTAGE_DIV;
 	if(gsvr.voltage < VOLTAGE_EPSILON) {
 		gsvr.voltage = 0;
 	}
@@ -81,10 +81,7 @@ void get_stack_current(const ComType com, const GetStackCurrent *data) {
 	gscr.header        = data->header;
 	gscr.header.length = sizeof(GetStackCurrentReturn);
 
-	uint16_t voltage = master_stack_voltage *
-	                   STACK_VOLTAGE_REFERENCE *
-	                   STACK_VOLTAGE_MULTIPLIER /
-	                   VOLTAGE_MAX_VALUE;
+	uint16_t voltage = master_stack_voltage * STACK_VOLTAGE_MULT/STACK_VOLTAGE_DIV;
 
 	if(voltage < VOLTAGE_EPSILON) {
 		gscr.current = 0;
