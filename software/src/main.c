@@ -63,7 +63,7 @@
 
 extern ComInfo com_info;
 extern uint8_t master_mode;
-extern bool master_first_usb_connection;
+extern bool usb_first_connection;
 
 uint8_t brick_hardware_version[3];
 
@@ -164,7 +164,7 @@ int main() {
 
 			logsi("USB initialized\n\r");
     	} else {
-    		master_first_usb_connection = false;
+    		usb_first_connection = false;
     		logsi("No USB connection\n\r");
     	}
 
@@ -184,7 +184,7 @@ int main() {
 						(xTaskHandle *)NULL);
     	}
     } else {
-    	master_first_usb_connection = false;
+    	usb_first_connection = false;
     	pin_3v3_enable.type = PIO_OUTPUT_0;
     	PIO_Configure(&pin_3v3_enable, 1);
     	PIO_Configure(twi_stack_pullup_slave_pins,

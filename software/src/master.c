@@ -67,7 +67,7 @@ uint16_t master_stack_current = 0;
 
 uint8_t master_restart_counter = 0;
 
-bool master_first_usb_connection = true;
+extern bool usb_first_connection;
 
 void master_init(void) {
 	Pin power_pins[] = {PIN_STACK_VOLTAGE, PIN_STACK_CURRENT};
@@ -346,12 +346,12 @@ void tick_task(const uint8_t tick_type) {
 			master_restart_counter = 0;
 		}
 	} else if(tick_type & TICK_TASK_TYPE_MESSAGE) {
-		if(master_first_usb_connection && !usbd_hal_is_disabled(IN_EP)) {
+		if(usb_first_connection && !usbd_hal_is_disabled(IN_EP)) {
 			message_counter++;
 			if(message_counter >= 100) {
 				message_counter = 0;
 				if(brick_init_enumeration(COM_USB)) {
-					master_first_usb_connection = false;
+					usb_first_connection = false;
 					com_info.current = COM_USB;
 				}
 			}
