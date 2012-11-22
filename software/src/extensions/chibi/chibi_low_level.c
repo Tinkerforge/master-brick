@@ -29,6 +29,8 @@
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/drivers/pio/pio_it.h"
 
+#include "bricklib/com/com_messages.h"
+
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/utility/led.h"
 #include "bricklib/logging/logging.h"
@@ -502,6 +504,8 @@ void chibi_read_frame(void) {
 							}
 						}
 					}
+
+					chibi_low_level_insert_uid(chibi_buffer_recv);
        			}
        		} else {
        			chibi_buffer_size_recv = 0;
@@ -687,3 +691,13 @@ void chibi_low_level_init(void) {
 }
 
 
+void chibi_low_level_insert_uid(void* data) {
+	if(chibi_buffer_size_recv > sizeof(MessageHeader)) {
+		EnumerateCallback *enum_cb =  (EnumerateCallback*)data;
+		if(enum_cb->header.fid == FID_ENUMERATE_CALLBACK || enum_cb->header.fid == FID_GET_IDENTITY) {
+			if(enum_cb->position == '0' && enum_cb->connected_uid[1] == '\0') {
+				uid_to_serial_number(com_info.uid, enum_cb->connected_uid);
+			}
+		}
+	}
+}

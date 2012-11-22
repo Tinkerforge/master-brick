@@ -343,5 +343,6 @@ uint8_t chibi_transfer(const uint8_t *header,
 void chibi_read_frame(void);
 void chibi_interrupt(const Pin *pin);
 void chibi_low_level_init(void);
+void chibi_low_level_insert_uid(void* data);
 
 #endif

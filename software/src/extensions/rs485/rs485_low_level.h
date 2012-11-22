@@ -79,5 +79,6 @@ uint8_t rs485_low_level_get_fid_from_message(const uint8_t *data);
 uint16_t rs485_low_level_crc16(const uint8_t *data, const uint8_t length);
 void rs485_low_level_read_buffer(void *buffer, const uint32_t size);
 void rs485_low_level_resync(void);
+void rs485_low_level_insert_uid(void* data);
 
 #endif

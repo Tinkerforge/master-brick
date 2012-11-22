@@ -31,6 +31,7 @@
 
 #include "bricklib/com/com.h"
 #include "bricklib/com/com_common.h"
+#include "bricklib/com/com_messages.h"
 #include "bricklib/utility/pearson_hash.h"
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/drivers/pio/pio.h"
@@ -324,8 +325,6 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 					   length);
 				rs485_buffer_size_recv = length;
 
-				//uint32_t uid = rs485_low_level_get_uid_from_message(rs485_low_level_buffer_recv);
-
 				if(uid != 0) {
 					RouteTo route_to = routing_route_extension_to(uid);
 					if(route_to.to == 0 && route_to.option == 0) {
@@ -340,6 +339,8 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 						routing_add_route(uid, new_route);
 					}
 				}
+
+				rs485_low_level_insert_uid(rs485_buffer_recv);
 			}
 
 			// The master always sends an ack without data, otherwise
@@ -368,6 +369,17 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 		}
 	}
 	rs485_master_send_empty = false;
+}
+
+void rs485_low_level_insert_uid(void* data) {
+	if(rs485_buffer_size_recv > sizeof(MessageHeader)) {
+		EnumerateCallback *enum_cb =  (EnumerateCallback*)data;
+		if(enum_cb->header.fid == FID_ENUMERATE_CALLBACK || enum_cb->header.fid == FID_GET_IDENTITY) {
+			if(enum_cb->position == '0' && enum_cb->connected_uid[1] == '\0') {
+				uid_to_serial_number(com_info.uid, enum_cb->connected_uid);
+			}
+		}
+	}
 }
 
 void USART1_IrqHandler() {
