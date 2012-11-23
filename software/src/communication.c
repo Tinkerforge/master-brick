@@ -97,6 +97,11 @@ void get_stack_current(const ComType com, const GetStackCurrent *data) {
 }
 
 void set_extension_type(const ComType com, const SetExtensionType *data) {
+	if(data->exttype > EXTENSION_TYPE_MAX || data->extension >= EXTENSION_NUM_MAX) {
+		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		return;
+	}
+
 	extension_set_type(data->extension, data->exttype);
 	logmasteri("set_extension_type: %d -> %lu\n\r", data->extension, data->exttype);
 
