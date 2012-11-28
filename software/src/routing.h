@@ -1,7 +1,7 @@
 /* master-brick
  * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
  *
- * rs485_master.h: RS485 master protocol implementation
+ * routing.h: Master Brick specific routing functions
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,33 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef RS485_MASTER_H
-#define RS485_MASTER_H
+#ifndef ROUTING_H
+#define ROUTING_H
 
 #include <stdint.h>
 
-void rs485_master_state_machine_loop(void *arg);
-void rs485_master_init(void);
-void rs485_master_message_loop(void *parameters);
-void rs485_master_message_loop_return(const char *data, const uint16_t length);
+#define ROUTING_TABLE_MAX_SIZE  64
+
+#define ROUTING_STACK       1
+#define ROUTING_EXTENSION_1 2
+#define ROUTING_EXTENSION_2 3
+
+typedef struct {
+	uint8_t to;
+	uint8_t option;
+} RouteTo;
+
+typedef struct {
+	uint32_t uid;
+	RouteTo route_to;
+} RoutingTable;
+
+RouteTo routing_route_to_fromto(const uint32_t uid, const uint8_t from, const uint8_t to);
+RouteTo routing_route_to(const uint32_t uid);
+RouteTo routing_route_stack_to(const uint32_t uid);
+RouteTo routing_route_extension_to(const uint32_t uid);
+void routing_add_route(const uint32_t uid, const RouteTo route_to);
+void routing_table_create_stack(void);
+void routing_master_from_pc(const char *data, const uint16_t length);
 
 #endif

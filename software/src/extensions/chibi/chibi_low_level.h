@@ -76,6 +76,7 @@ typedef struct {
 #define CHIBI_ERROR_TIMEOUT      2
 #define CHIBI_ERROR_NO_ACK       3
 #define CHIBI_ERROR_UNEXPECTED   4
+#define CHIBI_ERROR_WAIT_FOR_ACK 5
 
 // Frequencies
 #define OQPSK_868MHZ_EUROPE 0
@@ -342,5 +343,6 @@ uint8_t chibi_transfer(const uint8_t *header,
 void chibi_read_frame(void);
 void chibi_interrupt(const Pin *pin);
 void chibi_low_level_init(void);
+void chibi_low_level_insert_uid(void* data);
 
 #endif

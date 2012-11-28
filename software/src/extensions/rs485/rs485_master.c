@@ -26,6 +26,8 @@
 #include "rs485_config.h"
 #include "rs485_low_level.h"
 
+#include "routing.h"
+
 #include "bricklib/com/com.h"
 #include "bricklib/com/com_common.h"
 #include "bricklib/drivers/pio/pio.h"
@@ -33,12 +35,11 @@
 #include "bricklib/utility/pearson_hash.h"
 #include "bricklib/utility/util_definitions.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
-extern ComType com_current;
+extern ComInfo com_info;
 
-extern uint8_t rs485_buffer_recv[];
 extern uint8_t rs485_buffer_send[];
 extern uint16_t rs485_buffer_size_send;
 extern uint16_t rs485_buffer_size_recv;
@@ -47,18 +48,17 @@ extern uint8_t rs485_mode;
 extern uint8_t rs485_type;
 extern uint8_t rs485_address;
 
-extern uint8_t master_routing_table[];
 extern uint8_t rs485_slave_address[];
 extern uint8_t rs485_last_sequence_number;
-
-extern bool rs485_low_level_buffer_ack;
-extern uint16_t spi_stack_buffer_size_send;
+extern uint8_t rs485_send_address;
 
 uint16_t rs485_master_recv_counter = 3;
 xTaskHandle rs485_handle_master_message_loop;
 xTaskHandle rs485_handle_master_state_machine_loop;
 
 bool rs485_master_send_empty = false;
+
+uint8_t rs485_send_tries = 0;
 
 void rs485_master_init(void) {
 	logrsi("Master init\n\r");
@@ -104,13 +104,19 @@ void rs485_master_state_machine_loop(void *arg) {
 
     	// If buffer full, don't ask for stuff. Otherwise we will just trigger
     	// unnecessary timeouts
-    	if(rs485_buffer_size_recv != 0) {
+    	if(rs485_buffer_size_recv != 0 || com_info.current == COM_NONE) {
     		continue;
     	}
 
     	if(rs485_master_recv_counter > 0) {
     		rs485_master_recv_counter--;
     	} else {
+    		rs485_send_tries++;
+    		if(rs485_send_tries >= RS485_LOW_LEVEL_SEND_TRIES_MAX) {
+    			rs485_send_tries = 0;
+    			rs485_buffer_size_send = 0;
+    			rs485_send_address = 0;
+    		}
     		// Oooops, something went wrong, we were in recv mode for
     		// longer then 3ms.
     		rs485_master_send_empty = true;
@@ -124,6 +130,7 @@ void rs485_master_state_machine_loop(void *arg) {
 				// Nothing to send just ask for stuff
 				if(rs485_buffer_size_send == 0 || rs485_master_send_empty) {
 			    	uint8_t address = rs485_slave_address[rs485_address_counter];
+
 			    	if(address == 0) {
 			    		rs485_address_counter = 0;
 			    		address = rs485_slave_address[0];
@@ -135,9 +142,22 @@ void rs485_master_state_machine_loop(void *arg) {
 
 				// Send message and ask for stuff
 				} else {
-					uint8_t address = master_routing_table[rs485_buffer_send[0]];
-			    	rs485_address = address;
-					rs485_low_level_send(address, rs485_last_sequence_number+1, false);
+					uint8_t address = rs485_send_address;
+
+					if(address == 0) {
+						RouteTo route_to = routing_route_stack_to(rs485_buffer_send[0] |
+																  (rs485_buffer_send[1] << 8) |
+																  (rs485_buffer_send[2] << 16) |
+																  (rs485_buffer_send[3] << 24));
+						address = route_to.option;
+					}
+
+					if(address != 0) {
+						rs485_address = address;
+						rs485_low_level_send(address, rs485_last_sequence_number+1, false);
+					} else {
+						rs485_buffer_size_send = 0;
+					}
 				}
 			}
     	}
@@ -152,6 +172,6 @@ void rs485_master_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
-void rs485_master_message_loop_return(char *data, uint16_t length) {
-	send_blocking_with_timeout(data, length, com_current);
+void rs485_master_message_loop_return(const char *data, const uint16_t length) {
+	send_blocking_with_timeout(data, length, com_info.current);
 }

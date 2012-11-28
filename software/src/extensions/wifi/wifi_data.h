@@ -51,8 +51,8 @@ void wifi_data_send(const char *data, const uint16_t length);
 void wifi_data_send_escape(const char *data, const uint16_t length);
 void wifi_data_send_escape_cid(const char *data, const uint16_t length, const uint8_t cid);
 void wifi_data_poll(void);
-int8_t wifi_data_hex_to_int(char c);
-char wifi_data_int_to_hex(int8_t c);
-void wifi_data_disconnect(uint8_t cid);
+int8_t wifi_data_hex_to_int(const char c);
+char wifi_data_int_to_hex(const int8_t c);
+void wifi_data_disconnect(const uint8_t cid);
 
 #endif

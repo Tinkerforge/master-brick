@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * chibi.c: High-level chibi protocol implementation
  *
@@ -21,6 +21,7 @@
 
 #include "chibi.h"
 #include "chibi_low_level.h"
+#include "routing.h"
 
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/usart/usart.h"
@@ -29,32 +30,21 @@
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/logging/logging.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
 #include <string.h>
 #include <stdbool.h>
 
 extern uint8_t chibi_buffer_recv[];
 extern uint8_t chibi_buffer_size_recv;
-extern bool chibi_transfer_end;
-extern uint8_t master_routing_table[];
 
 static uint8_t chibi_sequence_number = 0;
 uint8_t chibi_address = 0;
 uint8_t chibi_slave_address[CHIBI_NUM_SLAVE_ADDRESS] = {0};
 uint8_t chibi_master_address = 0;
 extern uint8_t chibi_type;
-
-uint8_t chibi_get_receiver_address(uint8_t stack_id) {
-	if(chibi_type == CHIBI_TYPE_MASTER) {
-		return master_routing_table[stack_id];
-	} else if(chibi_type == CHIBI_TYPE_SLAVE) {
-		return chibi_master_address;
-	}
-
-	return 0;
-}
+extern uint32_t led_rxtx;
 
 bool chibi_init(void) {
 	// Enable peripheral clock
@@ -80,33 +70,76 @@ bool chibi_init(void) {
 	return true;
 }
 
-uint16_t chibi_send(const void *data, const uint16_t length) {
+uint16_t chibi_send_broadcast(const void *data, const uint16_t length) {
+	if(chibi_type != CHIBI_TYPE_MASTER) {
+		return length;
+	}
+
+	for(uint8_t i = 0; i < CHIBI_NUM_SLAVE_ADDRESS; i++) {
+		if(chibi_slave_address[i] == 0) {
+			return length;
+		}
+		uint32_t options = chibi_slave_address[i];
+		send_blocking_with_timeout_options(data, length, COM_CHIBI, &options);
+	}
+
+	return length;
+}
+
+uint16_t chibi_send(const void *data, const uint16_t length, uint32_t *options) {
 	uint8_t send_length = MIN(length, CHIBI_MAX_DATA_LENGTH);
 
-	const uint8_t stack_id = ((uint8_t*)data)[0];
-	uint8_t receiver_address = chibi_get_receiver_address(stack_id);
+	uint8_t receiver_address = 0;
+	if(chibi_type == CHIBI_TYPE_MASTER) {
+		if(((MessageHeader*)data)->uid == 0) {
+			if(options == NULL) {
+				return chibi_send_broadcast(data, length);
+			}
+		}
 
-	ChibiHeaderMPDU ch = {
-		CHIBI_MDPU_DATA               |
-		CHIBI_MDPU_ACK_REQUEST        |
-		CHIBI_MDPU_PAN_COMPRESSION    |
-		CHIBI_MDPU_DEST_SHORT_ADDRESS |
-		CHIBI_MDPU_FRAME_VERSION_06   |
-		CHIBI_MDPU_SRC_SHORT_ADDRESS,
-		chibi_sequence_number++,
-		CHIBI_PAN_ID,
-		receiver_address,
-		chibi_address
-	};
+		if(options != NULL) {
+			receiver_address = *options;
+		} else {
+			const uint32_t uid = ((MessageHeader*)data)->uid;
+			RouteTo route_to = routing_route_extension_to(uid);
+			if(route_to.option == 0) {
+				return chibi_send_broadcast(data, length);
+			} else {
+				receiver_address = route_to.option;
+			}
+		}
+	} else if(chibi_type == CHIBI_TYPE_SLAVE) {
+		receiver_address =  chibi_master_address;
+	}
 
-	if(chibi_transfer((uint8_t*)&ch, data, send_length) == CHIBI_ERROR_OK) {
-		return send_length;
+	if(receiver_address != 0) {
+		ChibiHeaderMPDU ch = {
+			CHIBI_MDPU_DATA               |
+			CHIBI_MDPU_ACK_REQUEST        |
+			CHIBI_MDPU_PAN_COMPRESSION    |
+			CHIBI_MDPU_DEST_SHORT_ADDRESS |
+			CHIBI_MDPU_FRAME_VERSION_06   |
+			CHIBI_MDPU_SRC_SHORT_ADDRESS,
+			chibi_sequence_number++,
+			CHIBI_PAN_ID,
+			receiver_address,
+			chibi_address
+		};
+
+		uint8_t chibi_ret = chibi_transfer((uint8_t*)&ch, data, send_length);
+		if(chibi_ret == CHIBI_ERROR_OK) {
+			led_rxtx++;
+			return send_length;
+		} else {
+			led_rxtx++;
+			return 0;
+		}
 	} else {
-		return 0;
+		return send_length;
 	}
 }
 
-uint16_t chibi_recv(void *data, const uint16_t length) {
+uint16_t chibi_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(chibi_buffer_size_recv == 0) {
 		return 0;
 	}
@@ -124,6 +157,8 @@ uint16_t chibi_recv(void *data, const uint16_t length) {
 	}
 
 	chibi_buffer_size_recv -= recv_length;
+
+	led_rxtx++;
 
 	return recv_length;
 }

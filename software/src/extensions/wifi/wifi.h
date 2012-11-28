@@ -84,15 +84,15 @@ typedef struct {
 } __attribute__((__packed__)) WifiStatus;
 
 bool wifi_init(void);
-uint16_t wifi_send(const void *data, const uint16_t length);
-uint16_t wifi_recv(void *data, const uint16_t length);
+uint16_t wifi_send(const void *data, const uint16_t length, uint32_t *options);
+uint16_t wifi_recv(void *data, const uint16_t length, uint32_t *options);
 void wifi_establish_connection(void);
 void wifi_message_loop(void *parameters);
-void wifi_message_loop_return(char *data, uint16_t length);
-void wifi_init_extension(uint8_t extension);
+void wifi_message_loop_return(const char *data, const uint16_t length);
+void wifi_init_extension(const uint8_t extension);
 void wifi_read_config(char *data, const uint8_t length, const uint16_t position);
 void wifi_write_config(const char *data, const uint8_t length, const uint16_t position);
-void wifi_tick(uint8_t tick_type);
+void wifi_tick(const uint8_t tick_type);
 void wifi_refresh_status(void);
 void wifi_set_power_mode(const uint8_t mode);
 bool wifi_parse_ip(const char *data, const char *search_str, uint8_t *result);

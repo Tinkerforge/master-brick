@@ -27,7 +27,7 @@
 void chibi_master_find_slaves(void);
 void chibi_master_init(void);
 void chibi_master_message_loop(void *parameters);
-void chibi_master_message_loop_return(char *data, uint16_t length);
+void chibi_master_message_loop_return(const char *data, const uint16_t length);
 
 
 #endif

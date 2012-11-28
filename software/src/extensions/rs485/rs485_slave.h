@@ -26,7 +26,7 @@
 
 void rs485_slave_init(void);
 void rs485_slave_message_loop(void *parameters);
-void rs485_slave_message_loop_return(char *data, uint16_t length);
+void rs485_slave_message_loop_return(const char *data, const uint16_t length);
 void rs485_slave_state_machine_loop(void *arg);
 
 #endif

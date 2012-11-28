@@ -28,7 +28,6 @@
 #include "wifi_config.h"
 #include "wifi_command.h"
 #include "wifi_data.h"
-#include "wifi_brickd.h"
 #include "wifi_low_level.h"
 
 #include "bricklib/com/com.h"
@@ -42,18 +41,11 @@
 #include "bricklib/bricklet/bricklet_config.h"
 #include "extensions/extension_init.h"
 #include "extensions/extension_i2c.h"
+#include "extensions/brickd.h"
 
-extern ComType com_ext[];
-extern uint8_t com_last_ext_id[];
+extern ComInfo com_info;
 extern uint32_t led_rxtx;
 extern uint32_t led_ext3_rxtx;
-extern ComType com_current;
-
-extern uint8_t com_stack_id;
-extern uint8_t com_last_spi_stack_id;
-
-extern BrickletSettings bs[];
-extern const BrickletAddress baddr[];
 
 extern uint8_t eap_type;
 
@@ -115,7 +107,7 @@ bool wifi_init(void) {
 
     led_off(LED_EXT_BLUE_3);
 
-    wifi_brickd_init();
+    brickd_init();
     wifi_low_level_deselect();
 
     wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);
@@ -510,19 +502,19 @@ void wifi_refresh_status(void) {
 			ptr += strlen("Rx Count=");
 			wifi_status.rx_count = atoi(ptr);
 
-			logwifii("rx_count: %d\n\r", wifi_status.rx_count);
+			logwifii("rx_count: %lu\n\r", wifi_status.rx_count);
 		}
 
 		if((ptr = strcasestr(data, "Tx Count=")) != NULL) {
 			ptr += strlen("Tx Count=");
 			wifi_status.tx_count = atoi(ptr);
 
-			logwifii("tx_count: %d\n\r", wifi_status.tx_count);
+			logwifii("tx_count: %lu\n\r", wifi_status.tx_count);
 		}
 	}
 }
 
-void wifi_init_extension(uint8_t extension) {
+void wifi_init_extension(const uint8_t extension) {
 	if(extension == 0) {
 		WIFI_CS = WIFI_CS_0;
 		WIFI_RESET = WIFI_RESET_0;
@@ -538,7 +530,7 @@ void wifi_init_extension(uint8_t extension) {
 	wifi_init();
 }
 
-uint16_t wifi_send(const void *data, const uint16_t length) {
+uint16_t wifi_send(const void *data, const uint16_t length, uint32_t *options) {
 	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
 		return 0;
 	}
@@ -553,7 +545,7 @@ uint16_t wifi_send(const void *data, const uint16_t length) {
 	return send_length;
 }
 
-uint16_t wifi_recv(void *data, const uint16_t length) {
+uint16_t wifi_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
 		return 0;
 	}
@@ -591,45 +583,15 @@ void wifi_message_loop(void *parameters) {
 	com_message_loop(&mlp);
 }
 
-void wifi_message_loop_return(char *data, uint16_t length) {
-	const uint8_t stack_id = get_stack_id_from_data(data);
-
-	if(stack_id == com_stack_id || stack_id == 0) {
-		const ComMessage *com_message = get_com_from_data(data);
-		if(com_message->reply_func != NULL) {
-			com_message->reply_func(COM_WIFI, (void*)data);
-		}
-
-		return;
-	}
-	for(uint8_t i = 0; i < BRICKLET_NUM; i++) {
-		if(bs[i].stack_id == stack_id) {
-			baddr[i].entry(BRICKLET_TYPE_INVOCATION, COM_WIFI, (void*)data);
-			return;
-		}
-	}
-
-	if(stack_id <= com_last_spi_stack_id) {
-		send_blocking_with_timeout(data, length, COM_SPI_STACK);
-		return;
-	}
-
-	if(stack_id <= com_last_ext_id[0]) {
-		send_blocking_with_timeout(data, length, com_ext[0]);
-		return;
-	}
-
-	if(stack_id <= com_last_ext_id[1]) {
-		send_blocking_with_timeout(data, length, com_ext[1]);
-		return;
-	}
+void wifi_message_loop_return(const char *data, const uint16_t length) {
+	com_route_message_from_pc(data, length, COM_WIFI);
 }
 
 uint32_t wifi_read_key(void) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?
@@ -646,9 +608,9 @@ uint32_t wifi_read_key(void) {
 
 void wifi_write_key(void) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?
@@ -664,9 +626,9 @@ void wifi_write_key(void) {
 
 void wifi_read_config(char *data, const uint8_t length, const uint16_t position) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?
@@ -674,6 +636,7 @@ void wifi_read_config(char *data, const uint8_t length, const uint16_t position)
 	}
 
 	if(wifi_read_key() != WIFI_KEY) {
+		logwifiw("Key mismatch\n\r");
 		wifi_write_config(data, length, position);
 		return;
 	}
@@ -697,9 +660,9 @@ void wifi_read_config(char *data, const uint8_t length, const uint16_t position)
 
 void wifi_write_config(const char *data, const uint8_t length, const uint16_t position) {
 	uint8_t extension;
-	if(com_ext[0] == COM_WIFI) {
+	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
-	} else if(com_ext[1] == COM_WIFI) {
+	} else if(com_info.ext[1] == COM_WIFI) {
 		extension = 1;
 	} else {
 		// TODO: Error?
@@ -735,7 +698,7 @@ void wifi_write_config(const char *data, const uint8_t length, const uint16_t po
 	wifi_write_key();
 }
 
-void wifi_tick(uint8_t tick_type) {
+void wifi_tick(const uint8_t tick_type) {
 	static uint32_t wifi_counter = 0;
 
 	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
@@ -799,11 +762,10 @@ void wifi_tick(uint8_t tick_type) {
 		}
 
 		case WIFI_STATE_ASSOCIATED: {
-			/*if(wifi_new_cid != -1) {
-				wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_SO);
-				wifi_command_send_recv_and_parse(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
+			if(wifi_new_cid != -1) {
+				brick_init_enumeration(COM_WIFI);
 				wifi_new_cid = -1;
-			}*/
+			}
 			PIO_Clear(&extension_pins[WIFI_LED]);
 			break;
 		}

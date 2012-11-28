@@ -24,9 +24,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pio/pio.h>
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
 #include "bricklib/com/i2c/i2c_pca9549/i2c_pca9549.h"
 #include "bricklib/com/spi/spi_stack/spi_stack_master.h"
@@ -38,6 +37,7 @@
 #include "bricklib/logging/logging.h"
 #include "bricklib/bricklet/bricklet_init.h"
 #include "bricklib/drivers/uid/uid.h"
+#include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/adc/adc.h"
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/utility/init.h"
@@ -48,6 +48,7 @@
 
 #include "config.h"
 #include "master.h"
+#include "routing.h"
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
 #include "extensions/rs485/rs485.h"
@@ -60,13 +61,15 @@
 #include "extensions/wifi/wifi_data.h"
 #include "extensions/extension_init.h"
 
-extern uint8_t com_last_stack_address;
+extern ComInfo com_info;
 extern uint8_t master_mode;
+extern bool usb_first_connection;
 
-char brick_hardware_name[17] = {'\0'};
+uint8_t brick_hardware_version[3];
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
 	logf("Stack Overflow\n\r");
+	led_on(LED_STD_RED);
 	while(true);
 }
 
@@ -96,12 +99,16 @@ int main() {
     PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
 
     if(master_get_hardware_version() == 10) {
-    	strcpy(brick_hardware_name, BRICK_HARDWARE_NAME10);
+    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_10;
+    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_10;
+    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_10;
     } else {
     	// Set dummy calibration, to make sure that calibration is not read
     	// from flash in Master Brick HW Version 2.0
     	adc_set_calibration(0, 1, 1);
-    	strcpy(brick_hardware_name, BRICK_HARDWARE_NAME20);
+    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_20;
+    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_20;
+    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_20;
     }
 
 	brick_init();
@@ -141,11 +148,11 @@ int main() {
         spi_stack_master_init();
     	logsi("SPI Stack for Master initialized\n\r");
 
-        master_create_routing_table_stack();
+        routing_table_create_stack();
         logsi("Master Routing table created\n\r");
 
         extension_init();
-    	master_create_routing_table_extensions();
+    	//master_create_routing_table_extensions();
 
     	if(usb_init()) {
 			xTaskCreate(usb_message_loop,
@@ -157,10 +164,11 @@ int main() {
 
 			logsi("USB initialized\n\r");
     	} else {
+    		usb_first_connection = false;
     		logsi("No USB connection\n\r");
     	}
 
-    	if(com_last_stack_address > 0) {
+    	if(com_info.last_stack_address > 0) {
 			xTaskCreate(spi_stack_master_state_machine_loop,
 						(signed char *)"spi_sm",
 						500,
@@ -176,6 +184,7 @@ int main() {
 						(xTaskHandle *)NULL);
     	}
     } else {
+    	usb_first_connection = false;
     	pin_3v3_enable.type = PIO_OUTPUT_0;
     	PIO_Configure(&pin_3v3_enable, 1);
     	PIO_Configure(twi_stack_pullup_slave_pins,

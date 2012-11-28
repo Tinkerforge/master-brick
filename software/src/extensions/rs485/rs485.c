@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "rs485_config.h"
+#include "routing.h"
 
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/utility/led.h"
@@ -39,6 +40,9 @@
 #include "extensions/rs485/rs485_master.h"
 
 extern uint32_t led_rxtx;
+extern ComInfo com_info;
+
+extern uint8_t rs485_send_tries;
 
 // Recv and send buffer for RS485
 uint8_t rs485_buffer_recv[RS485_BUFFER_SIZE] = {0};
@@ -51,29 +55,29 @@ uint16_t rs485_buffer_size_recv = 0;
 uint8_t rs485_mode = RS485_MODE_NONE;
 uint8_t rs485_type = RS485_TYPE_NONE;
 uint8_t rs485_address = 0;
+uint8_t rs485_send_address = 0;
 
 uint8_t rs485_slave_address[RS485_NUM_SLAVE_ADDRESS] = {0};
 
 RS485Config rs485_config = {
-	RS485_BAUDRATE,
+	RS485_MAX_BAUDRATE,
 	'n',
 	1
 };
 
-extern uint8_t master_routing_table[];
 extern Pin extension_pins[];
 uint8_t RS485_RECV = RS485_RECV_0;
 
 uint16_t rs485_wait_time(void) {
-	uint16_t t = 4*1000*64*8/9600;
-	if(t < 3) {
-		return 3;
+	uint16_t t = 1000*RS485_MAX_DATA_LENGTH*8/rs485_config.speed + 2;
+	if(t < 5) {
+		return 5;
 	}
 
 	return t;
 }
 
-void rs485_init_masterslave(uint8_t extension) {
+void rs485_init_masterslave(const uint8_t extension) {
 	rs485_address = extension_get_address(extension);
 	for(uint8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
 		rs485_slave_address[i] = extension_get_slave_address(extension, i);
@@ -86,13 +90,13 @@ void rs485_init_masterslave(uint8_t extension) {
 	extension_i2c_read(extension, EXTENSION_POS_ANY, (char*)&rs485_config, 6);
 	if(rs485_config.speed < 9600) {
 		rs485_config.speed = 9600;
-	} else if(rs485_config.speed > 4000000) {
-		rs485_config.speed = RS485_BAUDRATE;
+	} else if(rs485_config.speed > RS485_MAX_BAUDRATE) {
+		rs485_config.speed = RS485_MAX_BAUDRATE;
 	}
 
-	logrsi("config %d, %c, %d\n\r", rs485_config.speed,
-	                                rs485_config.parity,
-	                                rs485_config.stopbits);
+	logrsi("config %lu, %c, %d\n\r", rs485_config.speed,
+	                                 rs485_config.parity,
+	                                 rs485_config.stopbits);
 
 	if(extension == 0) {
 		RS485_RECV = RS485_RECV_0;
@@ -107,8 +111,10 @@ void rs485_init_masterslave(uint8_t extension) {
     PIO_Configure(&extension_pins[RS485_RECV], 1);
 
 	if(rs485_address == 0) {
+		com_info.ext_type[extension] = COM_TYPE_MASTER;
 		rs485_master_init();
 	} else {
+		com_info.ext_type[extension] = COM_TYPE_SLAVE;
 		rs485_slave_init();
 	}
 }
@@ -145,10 +151,49 @@ bool rs485_init(void) {
     return true;
 }
 
-uint16_t rs485_send(const void *data, const uint16_t length) {
+uint16_t rs485_send_broadcast(const void *data, const uint16_t length) {
+	if(rs485_type != RS485_TYPE_MASTER) {
+		return length;
+	}
+
+	for(uint8_t i = 0; i < RS485_NUM_SLAVE_ADDRESS; i++) {
+		if(rs485_slave_address[i] == 0) {
+			return length;
+		}
+		uint32_t options = rs485_slave_address[i];
+		send_blocking_with_timeout_options(data, length, COM_RS485, &options);
+	}
+
+	return length;
+}
+
+uint16_t rs485_send(const void *data, const uint16_t length, uint32_t *options) {
 	if(rs485_buffer_size_send > 0) {
 		return 0;
 	}
+
+	if(rs485_type == RS485_TYPE_MASTER) {
+		if(((MessageHeader*)data)->uid == 0) {
+			if(options == NULL) {
+				return rs485_send_broadcast(data, length);
+			}
+		}
+
+		if(options != NULL) {
+			rs485_send_address = *options;
+		} else {
+			const uint32_t uid = ((MessageHeader*)data)->uid;
+			RouteTo route_to = routing_route_extension_to(uid);
+			if(route_to.option == 0) {
+				return rs485_send_broadcast(data, length);
+			} else {
+				rs485_send_address = route_to.option;
+			}
+		}
+	}
+
+	rs485_send_tries = 0;
+
 
 	led_rxtx++;
 
@@ -160,10 +205,11 @@ uint16_t rs485_send(const void *data, const uint16_t length) {
 	return send_length;
 }
 
-uint16_t rs485_recv(void *data, const uint16_t length) {
+uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(rs485_buffer_size_recv == 0) {
 		return 0;
 	}
+
 	led_rxtx++;
 
 	static uint16_t recv_pointer = 0;
@@ -181,14 +227,4 @@ uint16_t rs485_recv(void *data, const uint16_t length) {
 	rs485_buffer_size_recv -= recv_length;
 
 	return recv_length;
-}
-
-uint8_t rs485_get_receiver_address(uint8_t stack_id) {
-	if(rs485_type == RS485_TYPE_MASTER) {
-		return master_routing_table[stack_id];
-	} else if(rs485_type == RS485_TYPE_SLAVE) {
-		return rs485_address;
-	}
-
-	return 0;
 }

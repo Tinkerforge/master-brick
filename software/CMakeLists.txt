@@ -19,10 +19,6 @@ SET(CMAKE_BUILD_TYPE None)
 
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/free_rtos"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/free_rtos/include"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/free_rtos/portable/GCC/ARM_CM3"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/drivers/"
 )
 
 # find source files
@@ -83,7 +79,6 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/usb/usb_callbacks.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/usb/usb.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/com_common.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_common.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_clear_bus.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_common.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_slave.c"
@@ -93,6 +88,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib/bricklet/bricklet_init.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/extension_init.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/extension_i2c.c"
+	"${PROJECT_SOURCE_DIR}/src/extensions/brickd.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/chibi/chibi_low_level.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/chibi/chibi_master.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/chibi/chibi_slave.c"
@@ -103,7 +99,6 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/extensions/rs485/rs485_master.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/rs485/rs485.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_low_level.c"
-	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_brickd.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_command.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_data.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi.c"
@@ -112,6 +107,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet.c"
 	"${PROJECT_SOURCE_DIR}/src/main.c"
 	"${PROJECT_SOURCE_DIR}/src/master.c"
+	"${PROJECT_SOURCE_DIR}/src/routing.c"
 )
 
 MESSAGE(STATUS "\nFound following source files:\n ${SOURCES}\n")

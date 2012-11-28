@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2011 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
  *
  * config.h: Master-Brick specific configuration
  *
@@ -22,6 +22,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "bricklib/drivers/board/sam3s/SAM3S.h"
 #include "master.h"
 #include "communication.h"
 #include "extensions/chibi/chibi.h"
@@ -29,13 +30,20 @@
 #include "extensions/wifi/wifi.h"
 #include "extensions/ethernet/ethernet.h"
 #include "extensions/extension_config.h"
-#include "bricklib/drivers/board/sam3s/SAM3S.h"
 
-#define BRICK_HARDWARE_NAME10 "Master Brick 1.0"
-#define BRICK_HARDWARE_NAME20 "Master Brick 2.0"
-#define BRICK_FIRMWARE_VERSION_MAJOR 1
-#define BRICK_FIRMWARE_VERSION_MINOR 4
-#define BRICK_FIRMWARE_VERSION_REVISION 5
+#define BRICK_FIRMWARE_VERSION_MAJOR 2
+#define BRICK_FIRMWARE_VERSION_MINOR 0
+#define BRICK_FIRMWARE_VERSION_REVISION 0
+
+#define BRICK_HARDWARE_VERSION_MAJOR_20 2
+#define BRICK_HARDWARE_VERSION_MINOR_20 0
+#define BRICK_HARDWARE_VERSION_REVISION_20 0
+
+#define BRICK_HARDWARE_VERSION_MAJOR_10 1
+#define BRICK_HARDWARE_VERSION_MINOR_10 0
+#define BRICK_HARDWARE_VERSION_REVISION_10 0
+
+#define BRICK_DEVICE_IDENTIFIER 13
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************

@@ -28,11 +28,11 @@
 
 #include "bricklib/com/com_common.h"
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include "bricklib/free_rtos/include/FreeRTOS.h"
+#include "bricklib/free_rtos/include/task.h"
 
 extern uint8_t chibi_type;
-extern ComType com_current;
+extern ComInfo com_info;
 
 void chibi_master_init(void) {
 	chibi_type = CHIBI_TYPE_MASTER;
@@ -57,6 +57,6 @@ void chibi_master_message_loop(void *parameters) {
 }
 
 
-void chibi_master_message_loop_return(char *data, uint16_t length) {
-	send_blocking_with_timeout(data, length, com_current);
+void chibi_master_message_loop_return(const char *data, const uint16_t length) {
+	send_blocking_with_timeout(data, length, com_info.current);
 }

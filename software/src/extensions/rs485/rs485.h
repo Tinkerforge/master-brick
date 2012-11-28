@@ -32,10 +32,10 @@ typedef struct {
 } __attribute__((__packed__)) RS485Config;
 
 uint16_t rs485_wait_time(void);
-void rs485_init_masterslave(uint8_t extension);
+void rs485_init_masterslave(const uint8_t extension);
 bool rs485_init(void);
-uint16_t rs485_send(const void *data, const uint16_t length);
-uint16_t rs485_recv(void *data, const uint16_t length);
-uint8_t rs485_get_receiver_address(uint8_t stack_id);
+uint16_t rs485_send_broadcast(const void *data, const uint16_t length);
+uint16_t rs485_send(const void *data, const uint16_t length, uint32_t *options);
+uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options);
 
 #endif
