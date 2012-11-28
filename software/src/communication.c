@@ -98,7 +98,7 @@ void get_stack_current(const ComType com, const GetStackCurrent *data) {
 
 void set_extension_type(const ComType com, const SetExtensionType *data) {
 	if(data->exttype > EXTENSION_TYPE_MAX || data->extension >= EXTENSION_NUM_MAX) {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -137,7 +137,7 @@ void set_chibi_address(const ComType com, const SetChibiAddress *data) {
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -156,7 +156,7 @@ void get_chibi_address(const ComType com, const GetChibiAddress *data) {
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -175,7 +175,7 @@ void set_chibi_master_address(const ComType com, const SetChibiMasterAddress *da
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -194,7 +194,7 @@ void get_chibi_master_address(const ComType com, const GetChibiMasterAddress *da
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -213,7 +213,7 @@ void set_chibi_slave_address(const ComType com, const SetChibiSlaveAddress *data
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -232,7 +232,7 @@ void get_chibi_slave_address(const ComType com, const GetChibiSlaveAddress *data
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -283,7 +283,7 @@ void set_chibi_frequency(const ComType com, const SetChibiFrequency *data) {
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -314,7 +314,7 @@ void get_chibi_frequency(const ComType com, const GetChibiFrequency *data) {
 
 void set_chibi_channel(const ComType com, const SetChibiChannel *data) {
 	if(data->channel > 10) {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -324,7 +324,7 @@ void set_chibi_channel(const ComType com, const SetChibiChannel *data) {
 	} else if(com_info.ext[1] == COM_CHIBI) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -371,7 +371,7 @@ void set_rs485_address(const ComType com, const SetRS485Address *data) {
 	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -390,7 +390,7 @@ void get_rs485_address(const ComType com, const GetRS485Address *data) {
 	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -409,7 +409,7 @@ void set_rs485_slave_address(const ComType com, const SetRS485SlaveAddress *data
 	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -428,7 +428,7 @@ void get_rs485_slave_address(const ComType com, const GetRS485SlaveAddress *data
 	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -457,7 +457,7 @@ void set_rs485_configuration(const ComType com, const SetRS485Configuration *dat
 	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -477,7 +477,7 @@ void get_rs485_configuration(const ComType com, const GetRS485Configuration *dat
 	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -582,7 +582,7 @@ void refresh_wifi_status(const ComType com, const RefreshWifiStatus *data) {
 
 void set_wifi_certificate(const ComType com, const SetWifiCertificate *data) {
 	if(data->data_length > 32) {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
 
@@ -722,7 +722,7 @@ void set_wifi_regulatory_domain(const ComType com, const SetWifiRegulatoryDomain
 
 		com_return_setter(com, data);
 	} else {
-		com_return_error(data, com, MESSAGE_ERROR_CODE_INVALID_PARAMETER, sizeof(MessageHeader));
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 	}
 }
 
