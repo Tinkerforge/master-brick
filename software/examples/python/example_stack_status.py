@@ -9,11 +9,11 @@ from tinkerforge.ip_connection import IPConnection
 from tinkerforge.brick_master import Master
 
 if __name__ == "__main__":
-    ipcon = IPConnection(HOST, PORT) # Create IP connection to brickd
+    ipcon = IPConnection() # Create IP connection
+    master = Master(UID, ipcon) # Create device object
 
-    master = Master(UID) # Create device object
-    ipcon.add_device(master) # Add device to IP connection
-    # Don't use device before it is added to a connection
+    ipcon.connect(HOST, PORT) # Connect to brickd
+    # Don't use device before ipcon is connected
 
     # Get voltage and current from stack (in mV/mA)
     voltage = master.get_stack_voltage()
@@ -23,4 +23,3 @@ if __name__ == "__main__":
     print('Stack Current: ' + str(current/1000.0) + ' A')
 
     raw_input('Press key to exit\n') # Use input() in Python 3
-    ipcon.destroy()
