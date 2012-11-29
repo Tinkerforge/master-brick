@@ -152,7 +152,6 @@ int main() {
         logsi("Master Routing table created\n\r");
 
         extension_init();
-    	//master_create_routing_table_extensions();
 
     	if(usb_init()) {
 			xTaskCreate(usb_message_loop,

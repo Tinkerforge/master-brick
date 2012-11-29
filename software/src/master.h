@@ -30,13 +30,8 @@
 #define MASTER_MODE_SLAVE 1
 #define MASTER_MODE_MASTER 2
 
-void master_create_routing_table_rs485(const uint8_t extension);
 uint8_t master_get_hardware_version(void);
-void master_create_routing_table_chibi(const uint8_t extension);
-void master_create_routing_table_extensions(void);
 void master_init(void);
-void new_connection(void);
-void spi_connection_established(void);
 void tick_task(const uint8_t tick_type);
 
 #endif
