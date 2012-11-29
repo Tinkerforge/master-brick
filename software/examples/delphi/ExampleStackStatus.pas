@@ -26,15 +26,15 @@ var
 procedure TExample.Execute;
 var voltage, current: word;
 begin
-  { Create IP connection to brickd }
-  ipcon := TIPConnection.Create(HOST, PORT);
+  { Create IP connection }
+  ipcon := TIPConnection.Create();
 
   { Create device object }
-  master := TBrickMaster.Create(UID);
+  master := TBrickMaster.Create(UID, ipcon);
 
-  { Add device to IP connection }
-  ipcon.AddDevice(master);
-  { Don't use device before it is added to a connection }
+  { Connect to brickd }
+  ipcon.Connect(HOST, PORT);
+  { Don't use device before ipcon is connected }
 
   { Get voltage and current from stack (in mV/mA) }
   voltage := master.GetStackVoltage;
@@ -45,7 +45,6 @@ begin
 
   WriteLn('Press key to exit');
   ReadLn;
-  ipcon.Destroy;
 end;
 
 begin
