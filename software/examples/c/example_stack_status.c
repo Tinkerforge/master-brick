@@ -9,23 +9,20 @@
 #define UID "aySDPZAhvvd" // Change to your UID
 
 int main() {
-	// Create IP connection to brickd
+	// Create IP connection
 	IPConnection ipcon;
-	if(ipcon_create(&ipcon, HOST, PORT) < 0) {
-		fprintf(stderr, "Could not create connection\n");
-		exit(1);
-	}
+	ipcon_create(&ipcon);
 
 	// Create device object
 	Master master;
-	master_create(&master, UID); 
+	master_create(&master, UID, &ipcon); 
 
-	// Add device to IP connection
-	if(ipcon_add_device(&ipcon, &master) < 0) {
-		fprintf(stderr, "Could not connect to Brick\n");
+	// Connect to brickd
+	if(ipcon_connect(&ipcon, HOST, PORT) < 0) {
+		fprintf(stderr, "Could not connect\n");
 		exit(1);
 	}
-	// Don't use device before it is added to a connection
+	// Don't use device before ipcon is connected
 
 	// Get voltage and current from stack (in mV/mA)
 	uint16_t voltage; 
