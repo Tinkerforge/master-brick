@@ -8,20 +8,20 @@ class Example
 
 	static void Main() 
 	{
-		IPConnection ipcon = new IPConnection(HOST, PORT); // Create connection to brickd
-		BrickMaster master = new BrickMaster(UID); // Create device object
-		ipcon.AddDevice(master); // Add device to IP connection
-		// Don't use device before it is added to a connection
+		IPConnection ipcon = new IPConnection(); // Create IP connection
+		BrickMaster master = new BrickMaster(UID, ipcon); // Create device object
+
+		ipcon.Connect(HOST, PORT); // Connect to brickd
+		// Don't use device before ipcon is connected
 
 		// Get voltage and current from stack (in mV/mA)
-		ushort voltage = master.GetStackVoltage();
-		ushort current = master.GetStackCurrent();
+		int voltage = master.GetStackVoltage();
+		int current = master.GetStackCurrent();
 
 		System.Console.WriteLine("Stack Voltage: " + voltage/1000.0 + " V");
 		System.Console.WriteLine("Stack Current: " + current/1000.0 + " A");
 
 		System.Console.WriteLine("Press key to exit");
 		System.Console.ReadKey();
-		ipcon.Destroy();
 	}
 }
