@@ -79,16 +79,12 @@ uint16_t wifi_data_get_ringbuffer_diff(void) {
 }
 
 uint16_t wifi_data_get_ringbuffer_length(uint16_t start) {
-	uint16_t pos_byte1 = start + 2;
-	if(pos_byte1 >= WIFI_DATA_RINGBUFFER_SIZE) {
-		pos_byte1 = pos_byte1 % WIFI_DATA_RINGBUFFER_SIZE;
-	}
-	uint16_t pos_byte2 = pos_byte1+1;
-	if(pos_byte2 >= WIFI_DATA_RINGBUFFER_SIZE) {
-		pos_byte2 = 0;
+	uint16_t pos_byte = start + 4;
+	if(pos_byte >= WIFI_DATA_RINGBUFFER_SIZE) {
+		pos_byte = pos_byte % WIFI_DATA_RINGBUFFER_SIZE;
 	}
 
-	return wifi_data_ringbuffer[pos_byte1] | (wifi_data_ringbuffer[pos_byte2] << 8);
+	return wifi_data_ringbuffer[pos_byte];
 }
 
 void wifi_data_next(const char data, bool transceive) {
@@ -280,13 +276,13 @@ void wifi_data_next(const char data, bool transceive) {
 
 			wifi_buffer_size_counter++;
 
-			if(wifi_buffer_size_counter >= 4) {
+			if(wifi_buffer_size_counter > 4) {
 				uint16_t length;
 				if(in_recv_buffer) {
 					length = wifi_buffer_recv[MESSAGE_HEADER_LENGTH_POSITION];
 				} else {
 					uint16_t pos;
-					if(wifi_data_ringbuffer_end > wifi_buffer_size_counter) {
+					if(wifi_data_ringbuffer_end >= wifi_buffer_size_counter) {
 						pos = wifi_data_ringbuffer_end-wifi_buffer_size_counter;
 					} else {
 						pos = WIFI_DATA_RINGBUFFER_SIZE+wifi_data_ringbuffer_end-wifi_buffer_size_counter;

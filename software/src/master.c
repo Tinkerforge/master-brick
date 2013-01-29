@@ -57,7 +57,7 @@ extern uint8_t chibi_first_message;
 
 bool chibi_enumerate_ready = false;
 
-uint8_t master_startup_usb_connected = false;
+bool master_startup_usb_connected = false;
 
 uint16_t master_usb_voltage = 0;
 uint16_t master_stack_voltage = 0;
