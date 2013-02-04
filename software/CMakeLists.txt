@@ -9,7 +9,7 @@ PROJECT(${PROJECT_NAME})
 # Optimization level, can be [0, 1, 2, 3, s]. 
 # 0 = turn off optimization. s = optimize for size.
 #SET(OPTIMIZATION_LEVEL 0)
-#SET(DEBUG -g)
+#SET(DEBUG "-g -ggdb")
 
 SET(OPTIMIZATION_LEVEL 3)
 SET(DEBUG "")

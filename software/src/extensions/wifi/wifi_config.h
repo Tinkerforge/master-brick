@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * wifi_config.h: Configuration of WIFI implementation
  *
@@ -38,8 +38,9 @@
 #define WIFI_CLIENT_CERTIFICATE_MAX_LENGTH 1312
 #define WIFI_PRIVATE_KEY_MAX_LENGTH 4320
 
-#define WIFI_MAX_DATA_LENGTH 80
-#define WIFI_BUFFER_SIZE WIFI_MAX_DATA_LENGTH
+#define WIFI_MAX_DATA_LENGTH     80
+#define WIFI_BUFFER_SIZE         WIFI_MAX_DATA_LENGTH
+#define WIFI_COMMAND_BUFFER_SIZE 128
 
 #define USART_WIFI_SPI       USART0
 #define ID_WIFI_SPI          ID_USART0

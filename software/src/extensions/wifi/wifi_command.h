@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * wifi_command.h: Command mode functionality for WIFI Extension
  *
@@ -23,6 +23,7 @@
 #define WIFI_COMMAND_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define WIFI_COMMAND_RECV_TIMEOUT 1000000
 
@@ -72,7 +73,8 @@ typedef enum {
 	WIFI_COMMAND_ID_AT_WREGDOMAIN,
 	WIFI_COMMAND_ID_AT_WRETRY,
 	WIFI_COMMAND_ID_AT_WSEC,
-	WIFI_COMMAND_ID_AT_END
+	WIFI_COMMAND_ID_END,
+	WIFI_COMMAND_ID_NONE,
 } WIFICommand;
 
 typedef enum {
@@ -132,11 +134,29 @@ typedef enum {
 #define WIFI_COMMAND_AT_WRETRY        "AT+WRETRY=7"
 #define WIFI_COMMAND_AT_WSEC          "AT+WSEC=1"
 
-void wifi_command_send(const WIFICommand command);
-uint8_t wifi_command_recv(char *data, const uint8_t length, uint32_t timeout);
-uint8_t wifi_command_parse(const char *data, const uint8_t length);
-uint8_t wifi_command_recv_and_parse(void);
-uint8_t wifi_command_send_recv_and_parse(const WIFICommand command);
+void wifi_command_send_at_wwpa(void);
+void wifi_command_send_at_auto(void);
+void wifi_command_send_at_wauto(void);
+void wifi_command_send_at_nstcp(void);
+void wifi_command_send_at_wa(void);
+void wifi_command_send_at_nset(void);
+void wifi_command_send_at_wwpa(void);
+void wifi_command_send_at_weapconf(void);
+void wifi_command_send_at_weap(void);
+void wifi_command_send_at_ats(void);
+void wifi_command_send_at_wregdomain(void);
+
+void wifi_command_parse(const char *data, const uint8_t length);
+void wifi_command_parse_other(const char *data, const uint8_t length);
+void wifi_command_parse_ate0(const char *data, const uint8_t length);
+void wifi_command_parse_wa(const char *data, const uint8_t length);
+void wifi_command_parse_nstcp(const char *data, const uint8_t length);
+void wifi_command_parse_nstat(const char *data, const uint8_t length);
+
+char* wifi_command_parse_ip(const char *data, const char *search_str, uint8_t *result);
+char* wifi_command_parse_mac(const char *data, const char *search_str, uint8_t *result);
 void wifi_command_flush(void);
+
+void wifi_command_send(const WIFICommand command);
 
 #endif

@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * main.c: Master-Brick startup code
  *
@@ -68,7 +68,7 @@ extern bool usb_first_connection;
 uint8_t brick_hardware_version[3];
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
-	logf("Stack Overflow\n\r");
+	logf("Stack Overflow: %s\n\r", pcTaskName);
 	led_on(LED_STD_RED);
 	while(true);
 }

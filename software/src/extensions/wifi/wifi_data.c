@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * wifi_data.c: Data mode functionality for WIFI Extension
  *
@@ -40,6 +40,8 @@ uint16_t wifi_data_recv_length_desired = 0;
 uint16_t wifi_data_recv_length = 0;
 uint16_t wifi_buffer_size_counter = 0;
 int8_t  wifi_data_current_cid = -1;
+char wifi_data_current_async_type = '0';
+
 char wifi_data_length_buffer[4] = {0};
 extern uint8_t wifi_buffer_recv[];
 extern uint16_t wifi_buffer_size_recv;
@@ -62,6 +64,9 @@ char wifi_data_ringbuffer[WIFI_DATA_RINGBUFFER_SIZE] = {0};
 uint32_t wifi_data_ringbuffer_overflow = 0;
 uint16_t wifi_data_ringbuffer_low_watermark = WIFI_DATA_RINGBUFFER_SIZE;
 int8_t wifi_data_expecting_new_cid = -1;
+
+char wifi_buffer_command[WIFI_COMMAND_BUFFER_SIZE];
+uint8_t wifi_buffer_command_length = 0;
 
 uint16_t wifi_data_get_ringbuffer_diff(void) {
 	uint16_t diff;
@@ -89,6 +94,7 @@ uint16_t wifi_data_get_ringbuffer_length(uint16_t start) {
 
 void wifi_data_next(const char data, bool transceive) {
 	char ndata = data;
+
 	if(transceive) {
 		if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
 			if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
@@ -99,7 +105,7 @@ void wifi_data_next(const char data, bool transceive) {
 		} else {
 			uint16_t diff = wifi_data_get_ringbuffer_diff();
 			// package not complete enough to read length
-			if(diff < 4) {
+			if(diff < 5) {
 				for(uint8_t i = 0; i < diff; i++) {
 					if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
 						break;
@@ -119,6 +125,9 @@ void wifi_data_next(const char data, bool transceive) {
 				}
 			} else {
 				uint16_t length = wifi_data_get_ringbuffer_length(wifi_data_ringbuffer_start);
+				if(length > 80) {
+					logwifie("Got length > 80: %d (0)\n\r", length);
+				}
 				uint8_t i;
 				for(i = 0; i < length; i++) {
 					if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
@@ -167,38 +176,107 @@ void wifi_data_next(const char data, bool transceive) {
 	switch(wifi_data_state) {
 		case WIFI_DATA_WAIT_FOR_ESC: {
 			if(ndata == WIFI_DATA_CHAR_ESC) {
+				logwifid("Data Recv: <ESC>");
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
-			} else if(ndata == '\r') {
-				// It seems we are receiving a command
-				wifi_command_recv_and_parse();
+			} else {
+				if(ndata == '\r' || ndata == '\n') {
+					wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_START;
+					return;
+				}
+
+				if(ndata >= WIFI_DATA_ASCII_START && ndata <= WIFI_DATA_ASCII_END) {
+					wifi_buffer_command[0] = ndata;
+					wifi_buffer_command_length = 1;
+					wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_END;
+					return;
+				}
+
+				// TODO: No ESC, no \r or \n and no ASCII. What now?
 			}
 
 			break;
 		}
 
+		case WIFI_DATA_WAIT_FOR_COMMAND_START: {
+			if(ndata == WIFI_DATA_CHAR_ESC) {
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
+				return;
+			}
+
+			if(ndata == '\r' || ndata == '\n') {
+				return;
+			}
+
+			// TODO: If ndata not ASCII: Error?
+
+			wifi_buffer_command[0] = ndata;
+			wifi_buffer_command_length = 1;
+			wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_END;
+
+			break;
+		}
+
+		case WIFI_DATA_WAIT_FOR_COMMAND_END: {
+			if(ndata == WIFI_DATA_CHAR_ESC) {
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
+				return;
+			}
+
+			if(ndata == '\r' || ndata == '\n') {
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+
+				wifi_buffer_command[wifi_buffer_command_length] = '\0';
+
+				wifi_command_parse((char*)wifi_buffer_command, wifi_buffer_command_length);
+				wifi_buffer_command_length = 0;
+				return;
+			}
+
+			// TODO: If ndata not ASCII: Error?
+			// TODO: Error if wifi_buffer_command_length > 128
+			wifi_buffer_command[wifi_buffer_command_length] = ndata;
+			wifi_buffer_command_length++;
+
+			break;
+		}
+
 		case WIFI_DATA_WAIT_FOR_ESC_CHAR: {
+			logwohd("%c", ndata);
 			if(ndata == WIFI_DATA_CHAR_Z) {
 				wifi_data_state = WIFI_DATA_WAIT_FOR_CID;
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired = 0;
 			} else if(ndata == WIFI_DATA_CHAR_A) {
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC;
+#if LOGGING_LEVEL == LOGGING_DEBUG
+				if(wifi_data_recv_length != 0) {
+					logwifid("<ESC>A while buffer full\n\r");
+				}
+#endif
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired = 0;
+			} else if(ndata == WIFI_DATA_CHAR_O) {
+				logwohd("\n\r");
+				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 			} else {
+				logwohd("\n\r");
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 			}
 			break;
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC: {
-			if(ndata == '1') { // connect
+			logwohd("%c", ndata);
+			wifi_data_current_async_type = ndata;
+			if(ndata == WIFI_DATA_ASYNC_TYPE_CONNECT) {
 				wifi_data_expecting_new_cid = 4; // read cid in 4 bytes
+			} else if(ndata == WIFI_DATA_ASYNC_TYPE_DISCONNECT) {
+				wifi_data_expecting_new_cid = 2; // read cid in 2 bytes
 			} else {
 				wifi_data_expecting_new_cid = -1;
 			}
 
-			if(ndata == '3') { // disconnect
+			if(ndata == WIFI_DATA_ASYNC_TYPE_DISASSOCIATION) { // disacossiated
 				wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			}
 
@@ -208,34 +286,53 @@ void wifi_data_next(const char data, bool transceive) {
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE: {
+			logwohd("%c", ndata);
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length == 1) {
 				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)*16;
-			} else {
+			} else if(wifi_data_recv_length == 2) {
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)+2;
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG;
+			} else {
+				logwifie("wifi_data_recv_length to large (while waiting for async)\n\r");
+				// TODO: What now?
 			}
 
 			break;
 		}
 
 		case WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG: {
+			logwohd("%c", ndata);
 			if(wifi_data_expecting_new_cid > 0) {
 				wifi_data_expecting_new_cid--;
 			} else if(wifi_data_expecting_new_cid == 0) {
 				const int8_t cid = wifi_data_hex_to_int(ndata);
-				if(cid != -1) {
-					wifi_new_cid = cid;
-					wifi_data_cid_present[cid] = true;
-					led_on(LED_EXT_BLUE_3);
-				}
+				switch(wifi_data_current_async_type) {
+					case WIFI_DATA_ASYNC_TYPE_CONNECT: {
+						if(cid != -1) {
+							wifi_new_cid = cid;
+							wifi_data_cid_present[cid] = true;
+							led_on(LED_EXT_BLUE_3);
+						}
 
-				wifi_data_expecting_new_cid = -1;
+						wifi_data_expecting_new_cid = -1;
+						break;
+					}
+
+					case WIFI_DATA_ASYNC_TYPE_DISCONNECT: {
+						wifi_data_disconnect(cid);
+
+						wifi_data_expecting_new_cid = -1;
+						break;
+					}
+
+				}
 			}
 
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length >= wifi_data_recv_length_desired) {
+				logwohd("\n\r");
 				wifi_data_recv_length = 0;
 				wifi_data_recv_length_desired = 0;
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
@@ -246,23 +343,31 @@ void wifi_data_next(const char data, bool transceive) {
 		}
 
 		case WIFI_DATA_WAIT_FOR_CID: {
+			logwohd("%c", ndata);
 			wifi_data_current_cid = wifi_data_hex_to_int(ndata);
 			wifi_data_state = WIFI_DATA_WAIT_FOR_LENGTH;
 			break;
 		}
 
 		case WIFI_DATA_WAIT_FOR_LENGTH: {
+			logwohd("%c", ndata);
 			wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata) * wifi_data_lenght_mul[wifi_data_recv_length];
+			if(wifi_data_recv_length_desired > 80) {
+				logwifie("Got recv length desired > 80: %d (1), i: %d, %d\n\r", wifi_data_recv_length_desired, wifi_data_recv_length, ndata);
+				// TODO: what do we do here?
+			}
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length == 4) {
 				wifi_data_state = WIFI_DATA_WAIT_FOR_DATA;
 				wifi_data_recv_length = 0;
+				logwohd(": [");
 			}
 
 			break;
 		}
 
 		case WIFI_DATA_WAIT_FOR_DATA: {
+			logwohd("%x, ", ndata);
 			bool in_recv_buffer = wifi_buffer_size_recv == 0 && (wifi_data_ringbuffer_start == wifi_data_ringbuffer_end);
 			if(in_recv_buffer) {
 				wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
@@ -280,6 +385,10 @@ void wifi_data_next(const char data, bool transceive) {
 				uint16_t length;
 				if(in_recv_buffer) {
 					length = wifi_buffer_recv[MESSAGE_HEADER_LENGTH_POSITION];
+					if(length > 80) {
+						logwifie("Got length > 80: %d (1), desired: %d\n\r", length, wifi_data_recv_length_desired);
+					}
+
 				} else {
 					uint16_t pos;
 					if(wifi_data_ringbuffer_end >= wifi_buffer_size_counter) {
@@ -288,6 +397,9 @@ void wifi_data_next(const char data, bool transceive) {
 						pos = WIFI_DATA_RINGBUFFER_SIZE+wifi_data_ringbuffer_end-wifi_buffer_size_counter;
 					}
 					length = wifi_data_get_ringbuffer_length(pos);
+					if(length > 80) {
+						logwifie("Got length > 80: %d (2)\n\r", length);
+					}
 				}
 				if(wifi_buffer_size_counter == length) {
 					if(!wifi_data_cid_present[wifi_data_current_cid]) {
@@ -312,8 +424,10 @@ void wifi_data_next(const char data, bool transceive) {
 
 			wifi_data_recv_length++;
 			if(wifi_data_recv_length == wifi_data_recv_length_desired) {
+				wifi_data_recv_length_desired = 0;
 				wifi_data_recv_length = 0;
 				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+				logwohd("]\n\r");
 			}
 			break;
 		}
@@ -334,10 +448,10 @@ void wifi_data_send(const char *data, const uint16_t length) {
 }
 
 void wifi_data_send_escape_cid(const char *data, const uint16_t length, const uint8_t cid) {
-	char escape_buffer[WIFI_DATA_ESCAPE_BUFFER_SIZE] = {
+	char escape_buffer[WIFI_DATA_ESCAPE_BUFFER_SIZE+1] = {
 		0x1B, 'Z',
 		wifi_data_int_to_hex(cid),
-		'0', '0', '0', '0'
+		'0', '0', '0', '0',
 	};
 
 	uint16_t length_tmp = length;
@@ -349,7 +463,7 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 
 	const uint16_t diff = WIFI_DATA_RINGBUFFER_SIZE - wifi_data_get_ringbuffer_diff();
 
-	// Received data wouldn't fit anymore, we have to through away data :-(
+	// Received data wouldn't fit anymore, we have to throw away data :-(
 	if(diff < (WIFI_DATA_ESCAPE_BUFFER_SIZE+length+2)) {
 		logwifiw("Ringbuffer full: %d %d\n\r", wifi_data_ringbuffer_start,
 		                                       wifi_data_ringbuffer_end);
@@ -359,6 +473,17 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 	}
 	wifi_data_send(escape_buffer, WIFI_DATA_ESCAPE_BUFFER_SIZE);
 	wifi_data_send(data, length);
+
+#if LOGGING_LEVEL == LOGGING_DEBUG
+	if(!wifi_data_cid_present[cid]) {
+		logwifid("CID not present anymore... %d\n\r", cid);
+	}
+	logwifid("Data Send: <ESC>%s: [", escape_buffer+1);
+	for(uint8_t i = 0; i < length; i++) {
+		logwohd("%x, ", data[i]);
+	}
+	logwohd("]\n\r");
+#endif
 }
 
 void wifi_data_send_escape(const char *data, const uint16_t length) {
@@ -382,6 +507,10 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 			}
 		}
 		return;
+	} else {
+		if(!wifi_data_cid_present[cid]) {
+			return;
+		}
 	}
 
 	wifi_data_send_escape_cid(data, length, cid);
@@ -390,7 +519,7 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 void wifi_data_poll(void) {
 	uint8_t i = 0;
 	if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
-		if((wifi_buffer_size_recv != 0) || !PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
+		if(wifi_buffer_size_recv != 0) {
 			return;
 		}
 	}

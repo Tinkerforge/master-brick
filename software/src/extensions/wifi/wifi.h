@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * wifi.h: High Level WIFI protocol implementation
  *
@@ -93,10 +93,7 @@ void wifi_init_extension(const uint8_t extension);
 void wifi_read_config(char *data, const uint8_t length, const uint16_t position);
 void wifi_write_config(const char *data, const uint8_t length, const uint16_t position);
 void wifi_tick(const uint8_t tick_type);
-void wifi_refresh_status(void);
 void wifi_set_power_mode(const uint8_t mode);
-bool wifi_parse_ip(const char *data, const char *search_str, uint8_t *result);
-bool wifi_parse_mac(const char *data, const char *search_str, uint8_t *result);
 void wifi_write_eap(void);
 
 #endif

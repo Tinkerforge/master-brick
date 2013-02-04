@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * brickd.c: Simplistic reimplementation of brickd for WIFI Extension
  *
@@ -51,7 +51,7 @@ void brickd_route_from(const void *data, const uint8_t cid) {
 	MessageHeader *data_header = (MessageHeader*)data;
 
 	// Broadcast
-	if(data_header->sequence_num == 0 || data_header->uid == 0) {
+	if(data_header->sequence_num == 0 || data_header->uid == 0 || !data_header->return_expected) {
 		return;
 	}
 

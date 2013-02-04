@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * extension_init: Implementation of Extension initialization
  *
@@ -127,7 +127,7 @@ void extension_set_type(const uint8_t extension, uint32_t type) {
 	extension_i2c_write(extension, EXTENSION_POS_TYPE, (char*)&type, 4);
 }
 
-uint8_t extension_init(void) {
+void extension_init(void) {
 	logexti("Start extension initialization\n\r");
 	PIO_Configure(extension_pins, PIO_LISTSIZE(extension_pins));
 
@@ -179,7 +179,6 @@ uint8_t extension_init(void) {
 			logexti("Extension %d not present\n\r", i);
 		}
 	}
-	return EXTENSION_TYPE_CHIBI;
 }
 
 bool extension_is_present(const uint8_t extension) {

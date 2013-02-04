@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.c: Implementation of Master-Brick specific messages
  *
@@ -613,7 +613,9 @@ void get_wifi_status(const ComType com, const GetWifiStatus *data) {
 }
 
 void refresh_wifi_status(const ComType com, const RefreshWifiStatus *data) {
-	wifi_refresh_status();
+	if(wifi_status.state == WIFI_STATE_ASSOCIATED) {
+		wifi_command_send(WIFI_COMMAND_ID_AT_NSTAT);
+	}
 	logwifii("wifi_refresh_status\n\r");
 
 	com_return_setter(com, data);

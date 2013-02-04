@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2013 Olaf Lüke <olaf@tinkerforge.com>
  *
  * config.h: Master-Brick specific configuration
  *
@@ -33,7 +33,7 @@
 
 #define BRICK_FIRMWARE_VERSION_MAJOR 2
 #define BRICK_FIRMWARE_VERSION_MINOR 0
-#define BRICK_FIRMWARE_VERSION_REVISION 1
+#define BRICK_FIRMWARE_VERSION_REVISION 2
 
 #define BRICK_HARDWARE_VERSION_MAJOR_20 2
 #define BRICK_HARDWARE_VERSION_MINOR_20 0
