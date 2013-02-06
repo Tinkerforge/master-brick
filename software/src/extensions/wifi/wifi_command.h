@@ -75,6 +75,7 @@ typedef enum {
 	WIFI_COMMAND_ID_AT_WSEC,
 	WIFI_COMMAND_ID_END,
 	WIFI_COMMAND_ID_NONE,
+	WIFI_COMMAND_ID_RESET
 } WIFICommand;
 
 typedef enum {
@@ -147,6 +148,7 @@ void wifi_command_send_at_ats(void);
 void wifi_command_send_at_wregdomain(void);
 
 void wifi_command_parse(const char *data, const uint8_t length);
+void wifi_command_parse_reset(const char *data, const uint8_t length);
 void wifi_command_parse_other(const char *data, const uint8_t length);
 void wifi_command_parse_ate0(const char *data, const uint8_t length);
 void wifi_command_parse_wa(const char *data, const uint8_t length);

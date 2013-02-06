@@ -48,7 +48,6 @@ extern uint32_t led_rxtx;
 extern uint32_t led_ext3_rxtx;
 
 extern uint8_t eap_type;
-
 extern WIFICommand wifi_command_parse_next;
 
 int8_t wifi_new_cid = -1;
@@ -119,133 +118,147 @@ WIFICommand wifi_init_next_state_dhcp(void) {
 }
 
 bool wifi_init(void) {
-	static uint8_t counter = 0;
 	wifi_status.state = WIFI_STATE_ASSOCIATING;
-	switch(wifi_init_state) {
-		case WIFI_COMMAND_ID_NONE: {
-			extension_pins[WIFI_CS].type = PIO_OUTPUT_0;
-			extension_pins[WIFI_RESET].type = PIO_INPUT;
-		    extension_pins[WIFI_LED].type = PIO_OUTPUT_1;
-		    extension_pins[WIFI_DATA_RDY].type = PIO_INPUT;
-		    PIO_Configure(&extension_pins[WIFI_CS], 4);
 
-		    extension_pins[WIFI_MISO].type = PIO_PERIPH_A;
-		    extension_pins[WIFI_MOSI].type = PIO_PERIPH_A;
-		    extension_pins[WIFI_CLK].type = PIO_PERIPH_B;
-		    PIO_Configure(&extension_pins[WIFI_MISO], 3);
+	extension_pins[WIFI_CS].type = PIO_OUTPUT_0;
+	extension_pins[WIFI_RESET].type = PIO_INPUT;
+	extension_pins[WIFI_LED].type = PIO_OUTPUT_1;
+	extension_pins[WIFI_DATA_RDY].type = PIO_INPUT;
+	PIO_Configure(&extension_pins[WIFI_CS], 4);
 
-		    led_off(LED_EXT_BLUE_3);
+	extension_pins[WIFI_MISO].type = PIO_PERIPH_A;
+	extension_pins[WIFI_MOSI].type = PIO_PERIPH_A;
+	extension_pins[WIFI_CLK].type = PIO_PERIPH_B;
+	PIO_Configure(&extension_pins[WIFI_MISO], 3);
 
-		    brickd_init();
-		    wifi_low_level_deselect();
+	led_off(LED_EXT_BLUE_3);
 
-		    wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);
+	brickd_init();
+	wifi_low_level_deselect();
 
-		    uint32_t mode = US_MR_USART_MODE_SPI_MASTER |
-		                    US_MR_USCLKS_MCK |
-		                    US_MR_CHRL_8_BIT |
-		                    US_MR_PAR_NO |
-		                    US_MR_CHMODE_NORMAL |
-		                    US_MR_CLKO |
-		                    US_SPI_BPMODE_1;
+	wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);
 
-		    PMC->PMC_PCER0 = 1 << ID_WIFI_SPI;
-		    USART_Configure(USART_WIFI_SPI, mode, WIFI_SPI_CLOCK, BOARD_MCK);
-		    NVIC_EnableIRQ(IRQ_WIFI_SPI);
+	uint32_t mode = US_MR_USART_MODE_SPI_MASTER |
+					US_MR_USCLKS_MCK |
+					US_MR_CHRL_8_BIT |
+					US_MR_PAR_NO |
+					US_MR_CHMODE_NORMAL |
+					US_MR_CLKO |
+					US_SPI_BPMODE_1;
 
-		    USART_SetTransmitterEnabled(USART_WIFI_SPI, 1);
-		    USART_SetReceiverEnabled(USART_WIFI_SPI, 1);
+	PMC->PMC_PCER0 = 1 << ID_WIFI_SPI;
+	USART_Configure(USART_WIFI_SPI, mode, WIFI_SPI_CLOCK, BOARD_MCK);
+	NVIC_EnableIRQ(IRQ_WIFI_SPI);
 
-		    uint32_t i = 0;
-		    for(i = 0; i < 500000; i++) {
-		    	if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
-		    		break;
-		    	}
-		    }
+	USART_SetTransmitterEnabled(USART_WIFI_SPI, 1);
+	USART_SetReceiverEnabled(USART_WIFI_SPI, 1);
 
-		    wifi_command_flush();
-
-		    extension_pins[WIFI_RESET].type = PIO_OUTPUT_0;
-			PIO_Configure(&extension_pins[WIFI_RESET], 1);
-			SLEEP_MS(10);
-			extension_pins[WIFI_RESET].type = PIO_INPUT;
-			PIO_Configure(&extension_pins[WIFI_RESET], 1);
-
-			SLEEP_MS(1);
-		    while(!PIO_Get(&extension_pins[WIFI_DATA_RDY]));
-
-		    wifi_command_flush();
-
-			if(!wifi_task_created) {
-				wifi_task_created = true;
-				xTaskCreate(wifi_message_loop,
-							(signed char *)"wif_ml",
-							MESSAGE_LOOP_SIZE + 64,
-							NULL,
-							1,
-							(xTaskHandle *)NULL);
-
-				logwifii("WIFI initialized\n\r");
-			}
-
-			wifi_init_state = WIFI_COMMAND_ID_AT_ATE0;
-			return true;
+	uint32_t i = 0;
+	for(i = 0; i < 500000; i++) {
+		if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
+			break;
 		}
+	}
 
+	wifi_command_flush();
+
+	extension_pins[WIFI_RESET].type = PIO_OUTPUT_0;
+	PIO_Configure(&extension_pins[WIFI_RESET], 1);
+	SLEEP_MS(10);
+	extension_pins[WIFI_RESET].type = PIO_INPUT;
+	PIO_Configure(&extension_pins[WIFI_RESET], 1);
+
+	wifi_command_parse_next = WIFI_COMMAND_ID_RESET;
+
+	SLEEP_MS(1);
+	while(!PIO_Get(&extension_pins[WIFI_DATA_RDY]));
+
+
+	if(!wifi_task_created) {
+		wifi_task_created = true;
+		xTaskCreate(wifi_message_loop,
+					(signed char *)"wif_ml",
+					MESSAGE_LOOP_SIZE + 64,
+					NULL,
+					1,
+					(xTaskHandle *)NULL);
+
+		logwifii("WIFI initialized\n\r");
+	}
+
+	wifi_init_state = WIFI_COMMAND_ID_AT_ATE0;
+	return true;
+}
+
+void wifi_init_next(void) {
+	static uint8_t counter = 0;
+	switch(wifi_init_state) {
 		case WIFI_COMMAND_ID_AT_ATE0: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_ATE0);
 			wifi_init_state = WIFI_COMMAND_ID_AT_ATV0;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_ATV0: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_ATV0);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WD;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WD: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WD);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WRXPS_OFF;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WRXPS_OFF: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_OFF);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WRXACTIVE_ON;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WRXACTIVE_ON: {
 			// Wifi module always on (no sleep)
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_ON);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WSYNCINTRL;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WSYNCINTRL: {
 			// Wifi module always on (no sleep)
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WSYNCINTRL);
+			wifi_init_state = WIFI_COMMAND_ID_AT_ATS;
+		    break;
+		}
+
+		case WIFI_COMMAND_ID_AT_ATS: {
+		    wifi_command_send(WIFI_COMMAND_ID_AT_ATS);
+			wifi_init_state = WIFI_COMMAND_ID_AT_PSPOLLINTRL;
+		    break;
+		}
+
+		case WIFI_COMMAND_ID_AT_PSPOLLINTRL: {
+		    wifi_command_send(WIFI_COMMAND_ID_AT_PSPOLLINTRL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WRETRY: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WRETRY);
 			wifi_init_state = WIFI_COMMAND_ID_AT_ASYNCMSGFMT;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_ASYNCMSGFMT: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_ASYNCMSGFMT);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WREGDOMAIN;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WREGDOMAIN: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WREGDOMAIN);
 			wifi_init_state = WIFI_COMMAND_ID_AT_BDATA_ON;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_BDATA_ON: {
@@ -261,31 +274,31 @@ bool wifi_init(void) {
 		    } else if(wifi_configuration.encryption == ENCRYPTION_OPEN) {
 		    	wifi_init_state = WIFI_COMMAND_ID_AT_WSEC;
 		    }
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WSEC: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WSEC);
 			wifi_init_state = wifi_init_next_state_dhcp();
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WAUTH_WEP: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WAUTH_WEP);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WWEP;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WWEP: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WWEP);
 			wifi_init_state = wifi_init_next_state_dhcp();
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WEAPCONF: {
 			wifi_command_send(WIFI_COMMAND_ID_AT_WEAPCONF);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WEAP;
-			return true;
+			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WEAP: {
@@ -345,63 +358,61 @@ bool wifi_init(void) {
 					break;
 				}
 			}
-			return true;
+			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WWPA: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WWPA);
 		    wifi_init_state = wifi_init_next_state_dhcp();
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NDHCP_ON: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_NDHCP_ON);
 			wifi_init_state = wifi_init_next_state_connection();
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NSET: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_NSET);
 			wifi_init_state = wifi_init_next_state_connection();
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WM_AP: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_AP);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WA;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WM_ADHOC: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_ADHOC);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WA;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WM_IFACE: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_IFACE);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WA;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WA: {
 			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
 			wifi_init_state = WIFI_COMMAND_ID_AT_NSTCP;
-		    return true;
+		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NSTCP: {
 			wifi_command_send(WIFI_COMMAND_ID_AT_NSTCP);
 			wifi_init_state = WIFI_COMMAND_ID_NONE;
-		    return true;
+		    break;
 		}
 
 		default: {
-			return true;
+			break;
 		}
 	}
-
-    return true;
 }
 
 void wifi_init_extension(const uint8_t extension) {
@@ -557,6 +568,7 @@ void wifi_write_config(const char *data, const uint8_t length, const uint16_t po
 
 	uint8_t reminder = 32 - (position % 32);
 	if(reminder != 32) {
+		reminder = MIN(length, reminder);
 		extension_i2c_write(extension,
 						    position,
 						    data,
@@ -593,7 +605,6 @@ void wifi_tick(const uint8_t tick_type) {
 
 	switch(wifi_status.state) {
 		case WIFI_STATE_STARTUP_ERROR: {
-			logwifid("Startup Error\n\r");
 			led_off(LED_EXT_BLUE_3);
 			PIO_Set(&extension_pins[WIFI_LED]);
 			wifi_counter++;
@@ -624,7 +635,7 @@ void wifi_tick(const uint8_t tick_type) {
 					return;
 				}
 
-				wifi_init();
+				wifi_init_next();
 			}
 
 			const uint8_t wifi_counter_mod =  wifi_counter % 200;
@@ -674,6 +685,9 @@ void wifi_tick(const uint8_t tick_type) {
 
 			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
 			wifi_status.state = WIFI_STATE_ASSOCIATING;
+
+			/*wifi_init_state = WIFI_COMMAND_ID_NONE;
+			wifi_init();*/
 			logwifid("State: Disassociated\n\r");
 			break;
 		}

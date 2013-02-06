@@ -56,7 +56,6 @@ typedef enum {
 } WIFIDataState;
 
 uint16_t wifi_data_get_ringbuffer_diff(void);
-void wifi_data_next(const char data, bool transceive);
 void wifi_data_send(const char *data, const uint16_t length);
 void wifi_data_send_escape(const char *data, const uint16_t length);
 void wifi_data_send_escape_cid(const char *data, const uint16_t length, const uint8_t cid);
@@ -64,5 +63,19 @@ void wifi_data_poll(void);
 int8_t wifi_data_hex_to_int(const char c);
 char wifi_data_int_to_hex(const int8_t c);
 void wifi_data_disconnect(const uint8_t cid);
+
+void wifi_data_next(const char data, bool transceive);
+bool wifi_data_next_handle_ringbuffer(char *ndata, bool transceive);
+bool wifi_data_next_handle_stuffing(char *ndata);
+void wifi_data_next_handle_wait_for_esc(char ndata);
+void wifi_data_next_handle_wait_for_command_start(char ndata);
+void wifi_data_next_handle_wait_for_command_end(char ndata);
+void wifi_data_next_handle_wait_for_esc_char(char ndata);
+void wifi_data_next_handle_wait_for_async(char ndata);
+void wifi_data_next_handle_wait_for_async_read_size(char ndata);
+void wifi_data_next_handle_wait_for_async_read_msg(char ndata);
+void wifi_data_next_handle_wait_for_cid(char ndata);
+void wifi_data_next_handle_wait_for_length(char ndata);
+void wifi_data_next_handle_wait_for_data(char ndata);
 
 #endif

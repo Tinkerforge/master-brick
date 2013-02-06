@@ -68,6 +68,8 @@
 #define FID_SET_WIFI_REGULATORY_DOMAIN 38
 #define FID_GET_WIFI_REGULATORY_DOMAIN 39
 #define FID_GET_USB_VOLTAGE 40
+#define FID_SET_LONG_WIFI_KEY 41
+#define FID_GET_LONG_WIFI_KEY 42
 
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -109,7 +111,9 @@
  	{FID_GET_WIFI_BUFFER_INFO, (message_handler_func_t)get_wifi_buffer_info}, \
 	{FID_SET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)set_wifi_regulatory_domain}, \
 	{FID_GET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)get_wifi_regulatory_domain}, \
-	{FID_GET_USB_VOLTAGE, (message_handler_func_t)get_usb_voltage},
+	{FID_GET_USB_VOLTAGE, (message_handler_func_t)get_usb_voltage}, \
+	{FID_SET_LONG_WIFI_KEY, (message_handler_func_t)set_long_wifi_key}, \
+	{FID_GET_LONG_WIFI_KEY, (message_handler_func_t)get_long_wifi_key},
 
 
 typedef struct {
@@ -461,6 +465,20 @@ typedef struct {
 	uint16_t voltage;
 } __attribute__((__packed__)) GetUSBVoltageReturn;
 
+typedef struct {
+	MessageHeader header;
+	char key[64];
+} __attribute__((__packed__)) SetLongWifiKey;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetLongWifiKey;
+
+typedef struct {
+	MessageHeader header;
+	char key[64];
+} __attribute__((__packed__)) GetLongWifiKeyReturn;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -501,5 +519,7 @@ void get_wifi_buffer_info(const ComType com, const GetWifiBufferInfo *data);
 void set_wifi_regulatory_domain(const ComType com, const SetWifiRegulatoryDomain *data);
 void get_wifi_regulatory_domain(const ComType com, const GetWifiRegulatoryDomain *data);
 void get_usb_voltage(const ComType com, const GetUSBVoltage *data);
+void set_long_wifi_key(const ComType com, const SetLongWifiKey *data);
+void get_long_wifi_key(const ComType com, const GetLongWifiKey *data);
 
 #endif

@@ -92,15 +92,14 @@ uint16_t wifi_data_get_ringbuffer_length(uint16_t start) {
 	return wifi_data_ringbuffer[pos_byte];
 }
 
-void wifi_data_next(const char data, bool transceive) {
-	char ndata = data;
 
+bool wifi_data_next_handle_ringbuffer(char *ndata, bool transceive) {
 	if(transceive) {
 		if(wifi_data_ringbuffer_start == wifi_data_ringbuffer_end) {
 			if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
-				ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
+				*ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
 			} else {
-				return;
+				return false;
 			}
 		} else {
 			uint16_t diff = wifi_data_get_ringbuffer_diff();
@@ -119,9 +118,9 @@ void wifi_data_next(const char data, bool transceive) {
 				}
 
 				if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
-					ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
+					*ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
 				} else {
-					return;
+					return false;
 				}
 			} else {
 				uint16_t length = wifi_data_get_ringbuffer_length(wifi_data_ringbuffer_start);
@@ -143,294 +142,332 @@ void wifi_data_next(const char data, bool transceive) {
 
 				if(i == length) {
 					brickd_route_from(wifi_buffer_recv,
-					                  wifi_data_ringbuffer[wifi_data_ringbuffer_start]);
+									  wifi_data_ringbuffer[wifi_data_ringbuffer_start]);
 					wifi_data_ringbuffer_start++;
 					if(wifi_data_ringbuffer_start >= WIFI_DATA_RINGBUFFER_SIZE) {
 						wifi_data_ringbuffer_start = 0;
 					}
 
 					wifi_buffer_size_recv = length;
-					return;
+					return false;
 				} else {
 					if(PIO_Get(&extension_pins[WIFI_DATA_RDY])) {
-						ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
+						*ndata = wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
 					} else {
-						return;
+						return false;
 					}
 				}
 			}
 		}
 	}
 
+	return true;
+}
 
+bool wifi_data_next_handle_stuffing(char *ndata) {
 	if(wifi_data_currently_stuffing) {
-		ndata ^= 0x20;
+		*ndata ^= 0x20;
 		wifi_data_currently_stuffing = false;
-	} else if(wifi_low_level_is_byte_stuffing(ndata)) {
-		if(ndata == WIFI_LOW_LEVEL_SPI_ESC_CHAR) {
+	} else if(wifi_low_level_is_byte_stuffing(*ndata)) {
+		if(*ndata == WIFI_LOW_LEVEL_SPI_ESC_CHAR) {
 			wifi_data_currently_stuffing = true;
 		}
-		return;
+		return false;
 	}
 
-	switch(wifi_data_state) {
-		case WIFI_DATA_WAIT_FOR_ESC: {
-			if(ndata == WIFI_DATA_CHAR_ESC) {
-				logwifid("Data Recv: <ESC>");
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
-			} else {
-				if(ndata == '\r' || ndata == '\n') {
-					wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_START;
-					return;
-				}
+	return true;
+}
 
-				if(ndata >= WIFI_DATA_ASCII_START && ndata <= WIFI_DATA_ASCII_END) {
-					wifi_buffer_command[0] = ndata;
-					wifi_buffer_command_length = 1;
-					wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_END;
-					return;
-				}
-
-				// TODO: No ESC, no \r or \n and no ASCII. What now?
-			}
-
-			break;
+void wifi_data_next_handle_wait_for_esc(char ndata) {
+	if(ndata == WIFI_DATA_CHAR_ESC) {
+		logwifid("Data Recv: <ESC>");
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
+	} else {
+		if(ndata == '\r' || ndata == '\n') {
+			wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_START;
+			return;
 		}
 
-		case WIFI_DATA_WAIT_FOR_COMMAND_START: {
-			if(ndata == WIFI_DATA_CHAR_ESC) {
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
-				return;
-			}
-
-			if(ndata == '\r' || ndata == '\n') {
-				return;
-			}
-
-			// TODO: If ndata not ASCII: Error?
-
+		if(ndata >= WIFI_DATA_ASCII_START && ndata <= WIFI_DATA_ASCII_END) {
 			wifi_buffer_command[0] = ndata;
 			wifi_buffer_command_length = 1;
 			wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_END;
-
-			break;
+			return;
 		}
 
-		case WIFI_DATA_WAIT_FOR_COMMAND_END: {
-			if(ndata == WIFI_DATA_CHAR_ESC) {
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
-				return;
-			}
-
-			if(ndata == '\r' || ndata == '\n') {
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
-
-				wifi_buffer_command[wifi_buffer_command_length] = '\0';
-
-				wifi_command_parse((char*)wifi_buffer_command, wifi_buffer_command_length);
-				wifi_buffer_command_length = 0;
-				return;
-			}
-
-			// TODO: If ndata not ASCII: Error?
-			// TODO: Error if wifi_buffer_command_length > 128
-			wifi_buffer_command[wifi_buffer_command_length] = ndata;
-			wifi_buffer_command_length++;
-
-			break;
+		if(ndata < WIFI_DATA_ASCII_START || ndata > WIFI_DATA_ASCII_END) {
+			logwifid("ndata not ASCII (0): %c\n\r", ndata);
+			// TODO: No ESC, no \r or \n and no ASCII. What now?
 		}
+	}
+}
 
-		case WIFI_DATA_WAIT_FOR_ESC_CHAR: {
-			logwohd("%c", ndata);
-			if(ndata == WIFI_DATA_CHAR_Z) {
-				wifi_data_state = WIFI_DATA_WAIT_FOR_CID;
-				wifi_data_recv_length = 0;
-				wifi_data_recv_length_desired = 0;
-			} else if(ndata == WIFI_DATA_CHAR_A) {
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC;
+void wifi_data_next_handle_wait_for_command_start(char ndata) {
+	if(ndata == WIFI_DATA_CHAR_ESC) {
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
+		return;
+	}
+
+	if(ndata == '\r' || ndata == '\n') {
+		return;
+	}
+
+	if(ndata < WIFI_DATA_ASCII_START || ndata > WIFI_DATA_ASCII_END) {
+		logwifid("ndata not ASCII (1): %c\n\r", ndata);
+		// TODO: ndata not ASCII: What now?
+	}
+
+	wifi_buffer_command[0] = ndata;
+	wifi_buffer_command_length = 1;
+	wifi_data_state = WIFI_DATA_WAIT_FOR_COMMAND_END;
+}
+
+void wifi_data_next_handle_wait_for_command_end(char ndata) {
+	if(ndata == WIFI_DATA_CHAR_ESC) {
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
+		return;
+	}
+
+	if(ndata == '\r' || ndata == '\n') {
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+
+		wifi_buffer_command[wifi_buffer_command_length] = '\0';
+
+		wifi_command_parse((char*)wifi_buffer_command, wifi_buffer_command_length);
+		wifi_buffer_command_length = 0;
+		return;
+	}
+
+	if(ndata < WIFI_DATA_ASCII_START || ndata > WIFI_DATA_ASCII_END) {
+		logwifid("ndata not ASCII (2): %c\n\r", ndata);
+		// TODO: ndata not ASCII: What now?
+	}
+
+	if(wifi_buffer_command_length >= WIFI_COMMAND_BUFFER_SIZE) {
+		logwifid("wifi_buffer_command_length > 128: %d\n\r", wifi_buffer_command_length);
+		// TODO: wifi_buffer_command_length > 128, what now?
+		return;
+	}
+
+	wifi_buffer_command[wifi_buffer_command_length] = ndata;
+	wifi_buffer_command_length++;
+}
+
+void wifi_data_next_handle_wait_for_esc_char(char ndata) {
+	logwohd("%c", ndata);
+	if(ndata == WIFI_DATA_CHAR_Z) {
+		wifi_data_state = WIFI_DATA_WAIT_FOR_CID;
+		wifi_data_recv_length = 0;
+		wifi_data_recv_length_desired = 0;
+	} else if(ndata == WIFI_DATA_CHAR_A) {
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC;
 #if LOGGING_LEVEL == LOGGING_DEBUG
-				if(wifi_data_recv_length != 0) {
-					logwifid("<ESC>A while buffer full\n\r");
-				}
+		if(wifi_data_recv_length != 0) {
+			logwifid("<ESC>A while buffer full\n\r");
+		}
 #endif
-				wifi_data_recv_length = 0;
-				wifi_data_recv_length_desired = 0;
-			} else if(ndata == WIFI_DATA_CHAR_O) {
-				logwohd("\n\r");
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
-			} else {
-				logwohd("\n\r");
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
-			}
+		wifi_data_recv_length = 0;
+		wifi_data_recv_length_desired = 0;
+	} else if(ndata == WIFI_DATA_CHAR_O) {
+		logwohd("\n\r");
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+	} else {
+		logwohd("\n\r");
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+	}
+}
+
+void wifi_data_next_handle_wait_for_async(char ndata) {
+	logwohd("%c", ndata);
+	wifi_data_current_async_type = ndata;
+	wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE;
+
+	switch(ndata) {
+		case WIFI_DATA_ASYNC_TYPE_CONNECT: {
+			wifi_data_expecting_new_cid = 4; // read cid in 4 bytes
+			return;
+		}
+
+		case WIFI_DATA_ASYNC_TYPE_DISCONNECT: {
+			wifi_data_expecting_new_cid = 2; // read cid in 2 bytes
+			return;
+		}
+
+		case WIFI_DATA_ASYNC_TYPE_DISASSOCIATION: {
+			wifi_status.state = WIFI_STATE_DISASSOCIATED;
 			break;
 		}
 
-		case WIFI_DATA_WAIT_FOR_ASYNC: {
-			logwohd("%c", ndata);
-			wifi_data_current_async_type = ndata;
-			if(ndata == WIFI_DATA_ASYNC_TYPE_CONNECT) {
-				wifi_data_expecting_new_cid = 4; // read cid in 4 bytes
-			} else if(ndata == WIFI_DATA_ASYNC_TYPE_DISCONNECT) {
-				wifi_data_expecting_new_cid = 2; // read cid in 2 bytes
-			} else {
-				wifi_data_expecting_new_cid = -1;
-			}
-
-			if(ndata == WIFI_DATA_ASYNC_TYPE_DISASSOCIATION) { // disacossiated
-				wifi_status.state = WIFI_STATE_DISASSOCIATED;
-			}
-
-			wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE;
-
+		default: {
+			logwifid("Unexpected Async option: %d\n\r", ndata);
 			break;
 		}
+	}
 
-		case WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE: {
-			logwohd("%c", ndata);
-			wifi_data_recv_length++;
-			if(wifi_data_recv_length == 1) {
-				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)*16;
-			} else if(wifi_data_recv_length == 2) {
-				wifi_data_recv_length = 0;
-				wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)+2;
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG;
-			} else {
-				logwifie("wifi_data_recv_length to large (while waiting for async)\n\r");
-				// TODO: What now?
-			}
+	wifi_data_expecting_new_cid = -1;
+}
 
-			break;
-		}
+void wifi_data_next_handle_wait_for_async_read_size(char ndata) {
+	logwohd("%c", ndata);
+	wifi_data_recv_length++;
+	if(wifi_data_recv_length == 1) {
+		wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)*16;
+	} else if(wifi_data_recv_length == 2) {
+		wifi_data_recv_length = 0;
+		wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata)+2;
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG;
+	} else {
+		logwifie("wifi_data_recv_length to large (while waiting for async)\n\r");
+		// TODO: What now?
+	}
+}
 
-		case WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG: {
-			logwohd("%c", ndata);
-			if(wifi_data_expecting_new_cid > 0) {
-				wifi_data_expecting_new_cid--;
-			} else if(wifi_data_expecting_new_cid == 0) {
-				const int8_t cid = wifi_data_hex_to_int(ndata);
-				switch(wifi_data_current_async_type) {
-					case WIFI_DATA_ASYNC_TYPE_CONNECT: {
-						if(cid != -1) {
-							wifi_new_cid = cid;
-							wifi_data_cid_present[cid] = true;
-							led_on(LED_EXT_BLUE_3);
-						}
-
-						wifi_data_expecting_new_cid = -1;
-						break;
-					}
-
-					case WIFI_DATA_ASYNC_TYPE_DISCONNECT: {
-						wifi_data_disconnect(cid);
-
-						wifi_data_expecting_new_cid = -1;
-						break;
-					}
-
+void wifi_data_next_handle_wait_for_async_read_msg(char ndata) {
+	logwohd("%c", ndata);
+	if(wifi_data_expecting_new_cid > 0) {
+		wifi_data_expecting_new_cid--;
+	} else if(wifi_data_expecting_new_cid == 0) {
+		const int8_t cid = wifi_data_hex_to_int(ndata);
+		switch(wifi_data_current_async_type) {
+			case WIFI_DATA_ASYNC_TYPE_CONNECT: {
+				if(cid != -1) {
+					wifi_new_cid = cid;
+					wifi_data_cid_present[cid] = true;
+					led_on(LED_EXT_BLUE_3);
 				}
-			}
 
-			wifi_data_recv_length++;
-			if(wifi_data_recv_length >= wifi_data_recv_length_desired) {
-				logwohd("\n\r");
-				wifi_data_recv_length = 0;
-				wifi_data_recv_length_desired = 0;
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 				wifi_data_expecting_new_cid = -1;
+				break;
 			}
 
-			break;
-		}
+			case WIFI_DATA_ASYNC_TYPE_DISCONNECT: {
+				wifi_data_disconnect(cid);
 
-		case WIFI_DATA_WAIT_FOR_CID: {
-			logwohd("%c", ndata);
-			wifi_data_current_cid = wifi_data_hex_to_int(ndata);
-			wifi_data_state = WIFI_DATA_WAIT_FOR_LENGTH;
-			break;
-		}
-
-		case WIFI_DATA_WAIT_FOR_LENGTH: {
-			logwohd("%c", ndata);
-			wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata) * wifi_data_lenght_mul[wifi_data_recv_length];
-			if(wifi_data_recv_length_desired > 80) {
-				logwifie("Got recv length desired > 80: %d (1), i: %d, %d\n\r", wifi_data_recv_length_desired, wifi_data_recv_length, ndata);
-				// TODO: what do we do here?
-			}
-			wifi_data_recv_length++;
-			if(wifi_data_recv_length == 4) {
-				wifi_data_state = WIFI_DATA_WAIT_FOR_DATA;
-				wifi_data_recv_length = 0;
-				logwohd(": [");
+				wifi_data_expecting_new_cid = -1;
+				break;
 			}
 
-			break;
 		}
+	}
 
-		case WIFI_DATA_WAIT_FOR_DATA: {
-			logwohd("%x, ", ndata);
-			bool in_recv_buffer = wifi_buffer_size_recv == 0 && (wifi_data_ringbuffer_start == wifi_data_ringbuffer_end);
-			if(in_recv_buffer) {
-				wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
+	wifi_data_recv_length++;
+	if(wifi_data_recv_length >= wifi_data_recv_length_desired) {
+		logwohd("\n\r");
+		wifi_data_recv_length = 0;
+		wifi_data_recv_length_desired = 0;
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+		wifi_data_expecting_new_cid = -1;
+	}
+}
+
+void wifi_data_next_handle_wait_for_cid(char ndata) {
+	logwohd("%c", ndata);
+	wifi_data_current_cid = wifi_data_hex_to_int(ndata);
+	wifi_data_state = WIFI_DATA_WAIT_FOR_LENGTH;
+}
+
+void wifi_data_next_handle_wait_for_length(char ndata) {
+	logwohd("%c", ndata);
+	wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata) * wifi_data_lenght_mul[wifi_data_recv_length];
+	if(wifi_data_recv_length_desired > 80) {
+		logwifie("Got recv length desired > 80: %d (1), i: %d, %d\n\r", wifi_data_recv_length_desired, wifi_data_recv_length, ndata);
+		// TODO: what do we do here?
+	}
+	wifi_data_recv_length++;
+	if(wifi_data_recv_length == 4) {
+		wifi_data_state = WIFI_DATA_WAIT_FOR_DATA;
+		wifi_data_recv_length = 0;
+		logwohd(": [");
+	}
+}
+
+void wifi_data_next_handle_wait_for_data(char ndata) {
+	logwohd("%x, ", ndata);
+	bool in_recv_buffer = wifi_buffer_size_recv == 0 && (wifi_data_ringbuffer_start == wifi_data_ringbuffer_end);
+	if(in_recv_buffer) {
+		wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
+	} else {
+		wifi_data_ringbuffer[wifi_data_ringbuffer_end] = ndata;
+		wifi_data_ringbuffer_end++;
+		if(wifi_data_ringbuffer_end >= WIFI_DATA_RINGBUFFER_SIZE) {
+			wifi_data_ringbuffer_end = 0;
+		}
+	}
+
+	wifi_buffer_size_counter++;
+
+	if(wifi_buffer_size_counter > 4) {
+		uint16_t length;
+		if(in_recv_buffer) {
+			length = wifi_buffer_recv[MESSAGE_HEADER_LENGTH_POSITION];
+			if(length > 80) {
+				logwifie("Got length > 80: %d (1), desired: %d\n\r", length, wifi_data_recv_length_desired);
+			}
+
+		} else {
+			uint16_t pos;
+			if(wifi_data_ringbuffer_end >= wifi_buffer_size_counter) {
+				pos = wifi_data_ringbuffer_end-wifi_buffer_size_counter;
 			} else {
-				wifi_data_ringbuffer[wifi_data_ringbuffer_end] = ndata;
+				pos = WIFI_DATA_RINGBUFFER_SIZE+wifi_data_ringbuffer_end-wifi_buffer_size_counter;
+			}
+			length = wifi_data_get_ringbuffer_length(pos);
+			if(length > 80) {
+				logwifie("Got length > 80: %d (2)\n\r", length);
+			}
+		}
+		if(wifi_buffer_size_counter == length) {
+			if(!wifi_data_cid_present[wifi_data_current_cid]) {
+				wifi_data_cid_present[wifi_data_current_cid] = true;
+				led_on(LED_EXT_BLUE_3);
+			}
+
+			if(in_recv_buffer) {
+				wifi_buffer_size_recv = wifi_buffer_size_counter;
+				brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
+			} else {
+				wifi_data_ringbuffer[wifi_data_ringbuffer_end] = wifi_data_current_cid;
 				wifi_data_ringbuffer_end++;
 				if(wifi_data_ringbuffer_end >= WIFI_DATA_RINGBUFFER_SIZE) {
 					wifi_data_ringbuffer_end = 0;
 				}
 			}
 
-			wifi_buffer_size_counter++;
-
-			if(wifi_buffer_size_counter > 4) {
-				uint16_t length;
-				if(in_recv_buffer) {
-					length = wifi_buffer_recv[MESSAGE_HEADER_LENGTH_POSITION];
-					if(length > 80) {
-						logwifie("Got length > 80: %d (1), desired: %d\n\r", length, wifi_data_recv_length_desired);
-					}
-
-				} else {
-					uint16_t pos;
-					if(wifi_data_ringbuffer_end >= wifi_buffer_size_counter) {
-						pos = wifi_data_ringbuffer_end-wifi_buffer_size_counter;
-					} else {
-						pos = WIFI_DATA_RINGBUFFER_SIZE+wifi_data_ringbuffer_end-wifi_buffer_size_counter;
-					}
-					length = wifi_data_get_ringbuffer_length(pos);
-					if(length > 80) {
-						logwifie("Got length > 80: %d (2)\n\r", length);
-					}
-				}
-				if(wifi_buffer_size_counter == length) {
-					if(!wifi_data_cid_present[wifi_data_current_cid]) {
-						wifi_data_cid_present[wifi_data_current_cid] = true;
-						led_on(LED_EXT_BLUE_3);
-					}
-
-					if(in_recv_buffer) {
-						wifi_buffer_size_recv = wifi_buffer_size_counter;
-						brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
-					} else {
-						wifi_data_ringbuffer[wifi_data_ringbuffer_end] = wifi_data_current_cid;
-						wifi_data_ringbuffer_end++;
-						if(wifi_data_ringbuffer_end >= WIFI_DATA_RINGBUFFER_SIZE) {
-							wifi_data_ringbuffer_end = 0;
-						}
-					}
-
-					wifi_buffer_size_counter = 0;
-				}
-			}
-
-			wifi_data_recv_length++;
-			if(wifi_data_recv_length == wifi_data_recv_length_desired) {
-				wifi_data_recv_length_desired = 0;
-				wifi_data_recv_length = 0;
-				wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
-				logwohd("]\n\r");
-			}
-			break;
+			wifi_buffer_size_counter = 0;
 		}
+	}
+
+	wifi_data_recv_length++;
+	if(wifi_data_recv_length == wifi_data_recv_length_desired) {
+		wifi_data_recv_length_desired = 0;
+		wifi_data_recv_length = 0;
+		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+		logwohd("]\n\r");
+	}
+}
+
+void wifi_data_next(const char data, bool transceive) {
+	char ndata = data;
+	if(!wifi_data_next_handle_ringbuffer(&ndata, transceive)) {
+		return;
+	}
+
+	if(!wifi_data_next_handle_stuffing(&ndata)) {
+		return;
+	}
+
+	switch(wifi_data_state) {
+		case WIFI_DATA_WAIT_FOR_ESC: wifi_data_next_handle_wait_for_esc(ndata); break;
+		case WIFI_DATA_WAIT_FOR_COMMAND_START: wifi_data_next_handle_wait_for_command_start(ndata); break;
+		case WIFI_DATA_WAIT_FOR_COMMAND_END: wifi_data_next_handle_wait_for_command_end(ndata); break;
+		case WIFI_DATA_WAIT_FOR_ESC_CHAR: wifi_data_next_handle_wait_for_esc_char(ndata); break;
+		case WIFI_DATA_WAIT_FOR_ASYNC: wifi_data_next_handle_wait_for_async(ndata); break;
+		case WIFI_DATA_WAIT_FOR_ASYNC_READ_SIZE: wifi_data_next_handle_wait_for_async_read_size(ndata); break;
+		case WIFI_DATA_WAIT_FOR_ASYNC_READ_MSG: wifi_data_next_handle_wait_for_async_read_msg(ndata); break;
+		case WIFI_DATA_WAIT_FOR_CID: wifi_data_next_handle_wait_for_cid(ndata); break;
+		case WIFI_DATA_WAIT_FOR_LENGTH: wifi_data_next_handle_wait_for_length(ndata); break;
+		case WIFI_DATA_WAIT_FOR_DATA: wifi_data_next_handle_wait_for_data(ndata); break;
+		default: logwifiw("Unhandled wifi_data_state: %d\n\r", wifi_data_state); break;
 	}
 }
 

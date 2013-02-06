@@ -140,19 +140,37 @@ WIFICommand wifi_command_parse_next = WIFI_COMMAND_ID_NONE;
 
 void wifi_command_send_at_wwpa(void) {
 	uint8_t length;
-	for(length = 0; length < 51; length++) {
-		if(wifi_configuration.key[length] == '\0') {
-			break;
-		}
-	}
+	char key[64];
+
 	wifi_data_send("\"", 1);
-	wifi_data_send(wifi_configuration.key, length);
+	if(!(wifi_configuration.key[0] == '-' && wifi_configuration.key[1] == '\0')) {
+		for(length = 0; length < sizeof(wifi_configuration.key); length++) {
+			if(wifi_configuration.key[length] == '\0') {
+				break;
+			}
+		}
+		wifi_data_send(wifi_configuration.key, length);
+	} else {
+		wifi_read_config(key, sizeof(key), WIFI_LONG_KEY_POS);
+		for(length = 0; length < sizeof(key); length++) {
+			if(key[length] == '\0') {
+				break;
+			}
+		}
+		wifi_data_send(key, length);
+	}
 	wifi_data_send("\"", 1);
 
 #if LOGGING_LEVEL == LOGGING_DEBUG
 	logwohd("\"");
-	for(uint8_t i = 0; i < length; i++) {
-		logwohd("%c", wifi_configuration.key[i]);
+	if(!(wifi_configuration.key[0] == '-' && wifi_configuration.key[1] == '\0')) {
+		for(uint8_t i = 0; i < length; i++) {
+			logwohd("%c", wifi_configuration.key[i]);
+		}
+	} else {
+		for(uint8_t i = 0; i < length; i++) {
+			logwohd("%c", key[i]);
+		}
 	}
 	logwohd("\"");
 #endif
@@ -160,7 +178,7 @@ void wifi_command_send_at_wwpa(void) {
 
 void wifi_command_send_at_auto(void) {
 	uint8_t length;
-	for(length = 0; length < 33; length++) {
+	for(length = 0; length < sizeof(wifi_configuration.ssid); length++) {
 		if(wifi_configuration.ssid[length] == '\0') {
 			break;
 		}
@@ -330,8 +348,7 @@ void wifi_command_send_at_weap(void) {
 }
 
 void wifi_command_send_at_ats(void) {
-	char str[20] = {'\0'};
-	sprintf(str, "%d=1", 65000);
+	const char str[4] = "4=0";
 	wifi_data_send(str, strlen(str));
 	logwohd("%s", str);
 }
@@ -545,6 +562,8 @@ void wifi_command_parse(const char *data, const uint8_t length) {
 		case WIFI_COMMAND_ID_AT_WREGDOMAIN:
 		case WIFI_COMMAND_ID_AT_ASYNCMSGFMT:
 		case WIFI_COMMAND_ID_AT_WRETRY:
+		case WIFI_COMMAND_ID_AT_PSPOLLINTRL:
+		case WIFI_COMMAND_ID_AT_ATS:
 		case WIFI_COMMAND_ID_AT_WSYNCINTRL:
 		case WIFI_COMMAND_ID_AT_WRXACTIVE_ON:
 		case WIFI_COMMAND_ID_AT_WRXACTIVE_OFF:
@@ -556,9 +575,19 @@ void wifi_command_parse(const char *data, const uint8_t length) {
 		case WIFI_COMMAND_ID_AT_WA: wifi_command_parse_wa(data, length); break;
 		case WIFI_COMMAND_ID_AT_NSTCP: wifi_command_parse_nstcp(data, length); break;
 		case WIFI_COMMAND_ID_AT_NSTAT: wifi_command_parse_nstat(data, length); break;
+		case WIFI_COMMAND_ID_RESET: wifi_command_parse_reset(data, length); break;
 		case WIFI_COMMAND_ID_END:
 		case WIFI_COMMAND_ID_NONE:
 		default: logwifiw("Parse default: %s\n\r", data); break;
+	}
+}
+
+void wifi_command_parse_reset(const char *data, const uint8_t length) {
+	if((strcasestr(data, "Serial2Wifi") != NULL) || // Normal reset
+	   (strcasestr(data, "UnExpected") != NULL)) {  // "Unexpected Warm Boot"
+		wifi_command_parse_next = WIFI_COMMAND_ID_NONE;
+	} else {
+		wifi_status.state = WIFI_STATE_STARTUP_ERROR;
 	}
 }
 

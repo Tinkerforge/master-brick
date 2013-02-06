@@ -34,6 +34,7 @@
 #include "extensions/wifi/wifi_command.h"
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
+#include "bricklib/utility/util_definitions.h"
 
 extern ComInfo com_info;
 extern uint8_t chibi_receiver_input_power;
@@ -792,4 +793,19 @@ void get_usb_voltage(const ComType com, const GetUSBVoltage *data) {
 
 	send_blocking_with_timeout(&guvr, sizeof(GetUSBVoltageReturn), com);
 	logwifii("get_usb_voltage: %d\n\r", guvr.voltage);
+}
+
+void set_long_wifi_key(const ComType com, const SetLongWifiKey *data) {
+	wifi_write_config(data->key, 64, WIFI_LONG_KEY_POS);
+	com_return_setter(com, data);
+}
+
+void get_long_wifi_key(const ComType com, const GetLongWifiKey *data) {
+	GetLongWifiKeyReturn glwkr;
+
+	glwkr.header        = data->header;
+	glwkr.header.length = sizeof(GetLongWifiKeyReturn);
+	wifi_read_config(glwkr.key, 64, WIFI_LONG_KEY_POS);
+
+	send_blocking_with_timeout(&glwkr, sizeof(GetLongWifiKeyReturn), com);
 }
