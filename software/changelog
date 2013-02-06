@@ -33,3 +33,17 @@
 1.4.6: Change Bricklet Context size from 250 to 256 (through bricklib)
 2.0.0: Support for protocol 2.0
 2.0.1: Fix buffer overflow in WIFI Extension code
+2.0.2: Fixes for a more stable WIFI Extension
+ - Remove command/data mode, use only one place for receiving/sending
+  - Allows for much better error handling, debugging and logging
+ - Only save messages in brickd if return expected
+ - Parse all command responses with human readable response
+ - Parse <ESC>O, <ESC>F, <ESC>A options more thoroughly
+ - Remove messages from brickd if socket disconnected
+ - Make WIFI initialization asynchronous
+  - Allows to communicate with Master Brick while WIFI is connecting
+ - Use 5 minute timeout before we assume a hang up (instead of 3)
+ - Evaluate received data while sending command
+ - Use different ATS configuration
+ - Parse startup/reset message
+ - Refactor data state machine
