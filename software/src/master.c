@@ -54,6 +54,7 @@ uint8_t master_mode = MASTER_MODE_NONE;
 extern ComInfo com_info;
 extern uint8_t rs485_first_message;
 extern uint8_t chibi_first_message;
+extern uint32_t usb_num_send_tries;
 
 bool chibi_enumerate_ready = false;
 
@@ -152,10 +153,13 @@ void tick_task(const uint8_t tick_type) {
 			message_counter++;
 			if(message_counter >= 100) {
 				message_counter = 0;
+				// Chances are that USB is not ready yet, we only try 1000 times
+				usb_num_send_tries = 1000;
 				if(brick_init_enumeration(COM_USB)) {
 					usb_first_connection = false;
 					com_info.current = COM_USB;
 				}
+				usb_num_send_tries = NUM_SEND_TRIES;
 			}
 		}
 		if(rs485_first_message == 1) {

@@ -454,6 +454,7 @@ uint8_t wifi_command_parse_simple(const char *data, const uint8_t length) {
 			return WIFI_ANSWER_OK;
 		}
 
+		case 'f':
 		case '3':
 		case '4':
 		case '5':

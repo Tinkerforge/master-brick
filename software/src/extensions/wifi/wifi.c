@@ -136,7 +136,9 @@ bool wifi_init(void) {
 	brickd_init();
 	wifi_low_level_deselect();
 
-	wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);
+	if(!wifi_task_created) {
+		wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);
+	}
 
 	uint32_t mode = US_MR_USART_MODE_SPI_MASTER |
 					US_MR_USCLKS_MCK |
@@ -178,7 +180,7 @@ bool wifi_init(void) {
 		wifi_task_created = true;
 		xTaskCreate(wifi_message_loop,
 					(signed char *)"wif_ml",
-					MESSAGE_LOOP_SIZE + 64,
+					MESSAGE_LOOP_SIZE,
 					NULL,
 					1,
 					(xTaskHandle *)NULL);

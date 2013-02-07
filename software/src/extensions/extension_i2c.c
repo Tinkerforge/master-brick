@@ -53,9 +53,7 @@ void extension_i2c_write_zeros(const uint8_t extension) {
 	char data[32] = {0};
 
 	for(uint8_t i = 0; i < 40; i++) {
-		extension_i2c_select(extension);
-		i2c_eeprom_master_write(TWI_STACK, i*32, data, 32);
-		extension_i2c_deselect(extension);
+		extension_i2c_write(extension, i*32, data, 32);
 	}
 }
 
