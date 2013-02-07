@@ -47,3 +47,5 @@
  - Use different ATS configuration
  - Parse startup/reset message
  - Refactor data state machine
+2.0.3: Use smaller USB timeout on startup enumeration, to allow faster enumeration
+ - Dont reread the config after the first WIFI association fails
