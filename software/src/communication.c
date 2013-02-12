@@ -30,6 +30,7 @@
 #include "extensions/rs485/rs485_config.h"
 #include "extensions/wifi/wifi_config.h"
 #include "extensions/wifi/wifi.h"
+#include "extensions/wifi/wifi_ringbuffer.h"
 #include "extensions/wifi/wifi_data.h"
 #include "extensions/wifi/wifi_command.h"
 #include "extensions/extension_i2c.h"
@@ -51,8 +52,8 @@ extern WifiStatus wifi_status;
 extern WifiConfiguration wifi_configuration;
 extern uint8_t wifi_power_mode;
 
-extern uint32_t wifi_data_ringbuffer_overflow;
-extern uint16_t wifi_data_ringbuffer_low_watermark;
+extern uint32_t wifi_ringbuffer_overflow;
+extern uint16_t wifi_ringbuffer_low_watermark;
 
 extern uint16_t master_usb_voltage;
 extern uint16_t master_stack_voltage;
@@ -233,11 +234,6 @@ void set_chibi_slave_address(const ComType com, const SetChibiSlaveAddress *data
 		return;
 	}
 
-	if(data->address == 0) {
-		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
-		return;
-	}
-
 	extension_set_slave_address(extension, data->num, data->address);
 	logchibii("set_chibi_slave_address: %d, %d\n\r", data->num, data->address);
 
@@ -397,11 +393,6 @@ void set_rs485_address(const ComType com, const SetRS485Address *data) {
 		return;
 	}
 
-	if(data->address == 0) {
-		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
-		return;
-	}
-
 	extension_set_address(extension, data->address);
 	logrsi("set_rs485_address: %d\n\r", data->address);
 
@@ -436,11 +427,6 @@ void set_rs485_slave_address(const ComType com, const SetRS485SlaveAddress *data
 	} else if(com_info.ext[1] == COM_RS485) {
 		extension = 1;
 	} else {
-		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
-		return;
-	}
-
-	if(data->address == 0) {
 		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
 		return;
 	}
@@ -751,9 +737,9 @@ void get_wifi_buffer_info(const ComType com, const GetWifiBufferInfo *data) {
 
 	gwbir.header          = data->header;
 	gwbir.header.length   = sizeof(GetWifiBufferInfoReturn);
-	gwbir.overflow        = wifi_data_ringbuffer_overflow;
-	gwbir.low_watermark   = wifi_data_ringbuffer_low_watermark;
-	gwbir.used            = wifi_data_get_ringbuffer_diff();
+	gwbir.overflow        = wifi_ringbuffer_overflow;
+	gwbir.low_watermark   = wifi_ringbuffer_low_watermark;
+	gwbir.used            = WIFI_RINGBUFFER_SIZE - wifi_ringbuffer_get_free();
 
 	send_blocking_with_timeout(&gwbir, sizeof(GetWifiBufferInfoReturn), com);
 	logwifii("get_wifi_buffer_info: %lu %d %d\n\r", gwbir.overflow,

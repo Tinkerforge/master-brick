@@ -39,9 +39,6 @@
 bool wifi_low_level_is_byte_stuffing(char value);
 char wifi_low_level_write_byte(char b);
 uint8_t wifi_low_level_write_byte_stuffing(char b, char *ret1, char *ret2);
-char wifi_low_level_read_byte(void);
-void wifi_low_level_read_buffer(char *buffer, const uint8_t length);
-void wifi_low_level_write_buffer(const char *buffer, const uint8_t length);
 void wifi_low_level_select(void);
 void wifi_low_level_deselect(void);
 

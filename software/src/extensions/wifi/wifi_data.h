@@ -36,7 +36,6 @@
 #define WIFI_DATA_MAX_CID 16
 
 #define WIFI_DATA_ESCAPE_BUFFER_SIZE 7
-#define WIFI_DATA_RINGBUFFER_SIZE 1500
 
 #define WIFI_DATA_ASYNC_TYPE_CONNECT '1'
 #define WIFI_DATA_ASYNC_TYPE_DISCONNECT '2'
@@ -64,7 +63,7 @@ int8_t wifi_data_hex_to_int(const char c);
 char wifi_data_int_to_hex(const int8_t c);
 void wifi_data_disconnect(const uint8_t cid);
 
-void wifi_data_next(const char data, bool transceive);
+char wifi_data_next(const char data, bool transceive);
 bool wifi_data_next_handle_ringbuffer(char *ndata, bool transceive);
 bool wifi_data_next_handle_stuffing(char *ndata);
 void wifi_data_next_handle_wait_for_esc(char ndata);

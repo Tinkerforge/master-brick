@@ -49,3 +49,6 @@
  - Refactor data state machine
 2.0.3: Use smaller USB timeout on startup enumeration, to allow faster enumeration
  - Dont reread the config after the first WIFI association fails
+2.0.4: Reset WIFI Module after disassociate from AP
+ - Fix problem with changing of slave addresses of Chibi and RS485 Extension
+ - Externalize WIFI ringbuffer and feed bytes in state machine byte by byte (will allow the use of DMA controller later on)

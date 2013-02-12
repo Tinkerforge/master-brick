@@ -697,6 +697,6 @@ void wifi_command_parse_nstat(const char *data, const uint8_t length) {
 
 void wifi_command_flush(void) {
 	for(uint8_t i = 0; i < 255; i++) {
-		wifi_low_level_read_byte();
+		wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
 	}
 }

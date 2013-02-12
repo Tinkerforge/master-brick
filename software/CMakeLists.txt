@@ -101,6 +101,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_low_level.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_command.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_data.c"
+	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi_ringbuffer.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/wifi/wifi.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet_low_level.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet_dhcp.c"

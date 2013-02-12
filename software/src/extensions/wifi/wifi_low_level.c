@@ -99,30 +99,14 @@ char wifi_low_level_write_byte(char b) {
 	return ret;
 }
 
-char wifi_low_level_read_byte(void) {
-	return wifi_low_level_write_byte(WIFI_LOW_LEVEL_SPI_IDLE_CHAR);
-}
-
-void wifi_low_level_read_buffer(char *buffer, const uint8_t length) {
-	for(uint8_t i = 0; i < length; i++) {
-		buffer[i] = wifi_low_level_read_byte();
-	}
-}
-
-void wifi_low_level_write_buffer(const char *buffer, const uint8_t length) {
-	for(uint8_t i = 0; i < length; i++) {
-		wifi_low_level_write_byte_stuffing(buffer[i], NULL, NULL);
-	}
-}
-
 void wifi_low_level_select(void) {
-	SLEEP_NS(250);
+//	SLEEP_NS(250);
 	PIO_Clear(&extension_pins[WIFI_CS]);
-	SLEEP_NS(250);
+//	SLEEP_NS(250);
 }
 
 void wifi_low_level_deselect(void) {
-	SLEEP_NS(250);
+//	SLEEP_NS(250);
 	PIO_Set(&extension_pins[WIFI_CS]);
-	SLEEP_NS(250);
+//	SLEEP_NS(250);
 }

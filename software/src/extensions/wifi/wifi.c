@@ -227,23 +227,24 @@ void wifi_init_next(void) {
 		}
 
 		case WIFI_COMMAND_ID_AT_WSYNCINTRL: {
-			// Wifi module always on (no sleep)
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WSYNCINTRL);
-			wifi_init_state = WIFI_COMMAND_ID_AT_ATS;
+			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY; //WIFI_COMMAND_ID_AT_ATS;
 		    break;
 		}
 
-		case WIFI_COMMAND_ID_AT_ATS: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_ATS);
-			wifi_init_state = WIFI_COMMAND_ID_AT_PSPOLLINTRL;
-		    break;
-		}
+//		case WIFI_COMMAND_ID_AT_ATS: {
+//		    wifi_command_send(WIFI_COMMAND_ID_AT_ATS);
+//			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY; //WIFI_COMMAND_ID_AT_PSPOLLINTRL;
+//		    break;
+//		}
 
-		case WIFI_COMMAND_ID_AT_PSPOLLINTRL: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_PSPOLLINTRL);
-			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY;
-		    break;
-		}
+//      Use default poll intervall, otherwise the WIFI Extension dis- and reassociates
+//      after a while if nothing is sent
+//		case WIFI_COMMAND_ID_AT_PSPOLLINTRL: {
+//		    wifi_command_send(WIFI_COMMAND_ID_AT_PSPOLLINTRL);
+//			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY;
+//		    break;
+//		}
 
 		case WIFI_COMMAND_ID_AT_WRETRY: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WRETRY);
@@ -685,11 +686,10 @@ void wifi_tick(const uint8_t tick_type) {
 			wifi_status.subnet_mask[3] = 0;
 			wifi_status.rssi = 0;
 
-			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
-			wifi_status.state = WIFI_STATE_ASSOCIATING;
 
-			/*wifi_init_state = WIFI_COMMAND_ID_NONE;
-			wifi_init();*/
+			// Reset the WIFI Module after disassociation
+			wifi_init_state = WIFI_COMMAND_ID_NONE;
+			wifi_init();
 			logwifid("State: Disassociated\n\r");
 			break;
 		}

@@ -242,7 +242,9 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 	// If the CRC is wrong we force timeout
 	if(crc16 != rs485_low_level_get_crc_from_message(data)) {
 		rs485_error_crc++;
-		logrse("CRC Error: %d\n\r", rs485_error_crc);
+		logrse("CRC Error (%d vs %d) counter: %d\n\r", crc16,
+		                                               rs485_low_level_get_crc_from_message(data),
+		                                               rs485_error_crc);
 		rs485_low_level_resync();
 		return;
 	}
@@ -414,10 +416,10 @@ void USART1_IrqHandler() {
 						rs485_low_level_resync();
 						return;
 					}
-					const uint16_t length_ro_read = length
-					                                -RS485_NO_MESSAGE_BUFFER_SIZE
-					                                +RS485_MESSAGE_HEADER_SIZE
-					                                +RS485_MESSAGE_FOOTER_SIZE;
+					const int16_t length_ro_read = length
+					                               -RS485_NO_MESSAGE_BUFFER_SIZE
+					                               +RS485_MESSAGE_HEADER_SIZE
+					                               +RS485_MESSAGE_FOOTER_SIZE;
 					rs485_low_level_read_buffer(&rs485_low_level_buffer_recv[RS485_NO_MESSAGE_BUFFER_SIZE],
 					                            length_ro_read);
 					rs485_low_level_set_mode_receive();
