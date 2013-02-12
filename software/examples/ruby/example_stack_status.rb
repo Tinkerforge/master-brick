@@ -25,3 +25,4 @@ puts "Stack Current: #{current/1000.0} A"
 
 puts 'Press key to exit'
 $stdin.gets
+ipcon.disconnect

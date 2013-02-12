@@ -23,5 +23,6 @@ public class ExampleStackStatus {
 		System.out.println("Stack Current: " + current/1000.0 + " A");
 
 		System.console().readLine("Press key to exit\n");
+		ipcon.disconnect();
 	}
 }

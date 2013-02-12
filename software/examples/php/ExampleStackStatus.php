@@ -25,5 +25,6 @@ echo "Stack Current: " . $current / 1000.0 . " A\n";
 
 echo "Press key to exit\n";
 fgetc(fopen('php://stdin', 'r'));
+$ipcon->disconnect();
 
 ?>
