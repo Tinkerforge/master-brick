@@ -55,12 +55,7 @@ extern uint8_t wifi_power_mode;
 extern uint32_t wifi_ringbuffer_overflow;
 extern uint16_t wifi_ringbuffer_low_watermark;
 
-extern uint16_t master_usb_voltage;
-extern uint16_t master_stack_voltage;
-extern uint16_t master_stack_current;
-
-#define STACK_VOLTAGE_MULT 725340  // 3300*1099   / 5
-#define STACK_VOLTAGE_DIV  81081   // 4095*99     / 5
+extern MasterCallback master_callback;
 
 void get_stack_voltage(const ComType com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -68,7 +63,7 @@ void get_stack_voltage(const ComType com, const GetStackVoltage *data) {
 	gsvr.header        = data->header;
 	gsvr.header.length = sizeof(GetStackVoltageReturn);
 
-	gsvr.voltage = master_stack_voltage * STACK_VOLTAGE_MULT/STACK_VOLTAGE_DIV;
+	gsvr.voltage = master_callback.stack_voltage;
 	if(gsvr.voltage < VOLTAGE_EPSILON) {
 		gsvr.voltage = 0;
 	}
@@ -83,15 +78,10 @@ void get_stack_current(const ComType com, const GetStackCurrent *data) {
 	gscr.header        = data->header;
 	gscr.header.length = sizeof(GetStackCurrentReturn);
 
-	uint16_t voltage = master_stack_voltage * STACK_VOLTAGE_MULT/STACK_VOLTAGE_DIV;
-
-	if(voltage < VOLTAGE_EPSILON) {
+	if(master_callback.stack_voltage < VOLTAGE_EPSILON) {
 		gscr.current = 0;
 	} else {
-		gscr.current = master_stack_current *
-		               STACK_CURRENT_REFERENCE *
-		               STACK_CURRENT_MULTIPLIER /
-		               VOLTAGE_MAX_VALUE;
+		gscr.current = master_callback.stack_current;
 	}
 
 	send_blocking_with_timeout(&gscr, sizeof(GetStackCurrentReturn), com);
@@ -743,8 +733,8 @@ void get_wifi_buffer_info(const ComType com, const GetWifiBufferInfo *data) {
 
 	send_blocking_with_timeout(&gwbir, sizeof(GetWifiBufferInfoReturn), com);
 	logwifii("get_wifi_buffer_info: %lu %d %d\n\r", gwbir.overflow,
-	                                               gwbir.low_watermark,
-	                                               gwbir.used);
+	                                                gwbir.low_watermark,
+	                                                gwbir.used);
 }
 
 void set_wifi_regulatory_domain(const ComType com, const SetWifiRegulatoryDomain *data) {
@@ -775,7 +765,7 @@ void get_usb_voltage(const ComType com, const GetUSBVoltage *data) {
 
 	guvr.header          = data->header;
 	guvr.header.length   = sizeof(GetUSBVoltageReturn);
-	guvr.voltage         = master_usb_voltage*USB_VOLTAGE_REFERENCE*USB_VOLTAGE_MULTIPLIER/(VOLTAGE_MAX_VALUE*USB_VOLTAGE_DIVISOR);
+	guvr.voltage         = master_callback.usb_voltage;
 
 	send_blocking_with_timeout(&guvr, sizeof(GetUSBVoltageReturn), com);
 	logwifii("get_usb_voltage: %d\n\r", guvr.voltage);
@@ -794,4 +784,212 @@ void get_long_wifi_key(const ComType com, const GetLongWifiKey *data) {
 	wifi_read_config(glwkr.key, 64, WIFI_LONG_KEY_POS);
 
 	send_blocking_with_timeout(&glwkr, sizeof(GetLongWifiKeyReturn), com);
+}
+
+void set_wifi_hostname(const ComType com, const SetWifiHostname *data) {
+	WIFIHostname wifi_hostname = {WIFI_KEY, "\0"};
+	uint8_t i = 0;
+	for(; i < 15; i++) {
+		if(data->hostname[i] == '\0') {
+			break;
+		}
+		wifi_hostname.hostname[i] = data->hostname[i];
+	}
+
+	wifi_write_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS);
+	com_return_setter(com, data);
+}
+
+void get_wifi_hostname(const ComType com, const GetWifiHostname *data) {
+	GetWifiHostnameReturn gwhr;
+
+	WIFIHostname wifi_hostname;
+	gwhr.header        = data->header;
+	gwhr.header.length = sizeof(GetWifiHostnameReturn);
+
+	wifi_read_config((char*)&wifi_hostname, sizeof(GetWifiHostnameReturn), WIFI_HOSTNAME_POS);
+	if(wifi_hostname.key == WIFI_KEY) {
+		memcpy(gwhr.hostname, wifi_hostname.hostname, 16);
+	} else {
+		memset(gwhr.hostname, '\0', 16);
+	}
+
+	send_blocking_with_timeout(&gwhr, sizeof(GetWifiHostnameReturn), com);
+}
+
+void set_stack_current_callback_period(const ComType com, const SetStackCurrentCallbackPeriod *data) {
+	master_callback.period_stack_current = data->period;
+	com_return_setter(com, data);
+}
+
+void get_stack_current_callback_period(const ComType com, const GetStackCurrentCallbackPeriod *data) {
+	GetStackCurrentCallbackPeriodReturn gccpr;
+
+	gccpr.header        = data->header;
+	gccpr.header.length = sizeof(GetStackCurrentCallbackPeriodReturn);
+	gccpr.period        = master_callback.period_stack_current;
+
+	send_blocking_with_timeout(&gccpr, sizeof(GetStackCurrentCallbackPeriodReturn), com);
+}
+
+void set_stack_voltage_callback_period(const ComType com, const SetStackVoltageCallbackPeriod *data) {
+	master_callback.period_stack_voltage = data->period;
+	com_return_setter(com, data);
+}
+
+void get_stack_voltage_callback_period(const ComType com, const GetStackVoltageCallbackPeriod *data) {
+	GetStackVoltageCallbackPeriodReturn gvcpr;
+
+	gvcpr.header        = data->header;
+	gvcpr.header.length = sizeof(GetStackVoltageCallbackPeriodReturn);
+	gvcpr.period        = master_callback.period_stack_voltage;
+
+	send_blocking_with_timeout(&gvcpr, sizeof(GetStackVoltageCallbackPeriodReturn), com);
+}
+
+void set_usb_voltage_callback_period(const ComType com, const SetUSBVoltageCallbackPeriod *data) {
+	master_callback.period_usb_voltage = data->period;
+	com_return_setter(com, data);
+}
+
+void get_usb_voltage_callback_period(const ComType com, const GetUSBVoltageCallbackPeriod *data) {
+	GetUSBVoltageCallbackPeriodReturn gvcpr;
+
+	gvcpr.header        = data->header;
+	gvcpr.header.length = sizeof(GetUSBVoltageCallbackPeriodReturn);
+	gvcpr.period        = master_callback.period_usb_voltage;
+
+	send_blocking_with_timeout(&gvcpr, sizeof(GetUSBVoltageCallbackPeriodReturn), com);
+}
+
+void set_stack_current_callback_threshold(const ComType com, const SetStackCurrentCallbackThreshold *data) {
+	master_callback.option_stack_current_save = data->option;
+	master_callback.min_stack_current_save = data->min;
+	master_callback.max_stack_current_save = data->max;
+
+	if(data->option == 'o' ||
+	   data->option == 'i' ||
+	   data->option == 'x') {
+		master_callback.option_stack_current = data->option;
+		master_callback.min_stack_current = data->min;
+		master_callback.max_stack_current = data->max;
+	} else if(data->option == '<') {
+		master_callback.option_stack_current = 'o';
+		master_callback.min_stack_current = data->min;
+		master_callback.max_stack_current = 0xFFFF;
+	} else if(data->option == '>') {
+		master_callback.option_stack_current = 'o';
+		master_callback.min_stack_current = 0;
+		master_callback.max_stack_current = data->min;
+	} else {
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+	}
+
+	master_callback.threshold_period_current_stack_current = master_callback.debounce_period;
+	com_return_setter(com, data);
+}
+
+void get_stack_current_callback_threshold(const ComType com, const GetStackCurrentCallbackThreshold *data) {
+	GetStackCurrentCallbackThresholdReturn gcctr;
+
+	gcctr.header        = data->header;
+	gcctr.header.length = sizeof(GetStackCurrentCallbackThresholdReturn);
+	gcctr.option        = master_callback.option_stack_current_save;
+	gcctr.min           = master_callback.min_stack_current_save;
+	gcctr.max           = master_callback.max_stack_current_save;
+
+	send_blocking_with_timeout(&gcctr, sizeof(GetStackCurrentCallbackThresholdReturn), com);
+}
+
+void set_stack_voltage_callback_threshold(const ComType com, const SetStackVoltageCallbackThreshold *data) {
+	master_callback.option_stack_voltage_save = data->option;
+	master_callback.min_stack_voltage_save = data->min;
+	master_callback.max_stack_voltage_save = data->max;
+
+	if(data->option == 'o' ||
+	   data->option == 'i' ||
+	   data->option == 'x') {
+		master_callback.option_stack_voltage = data->option;
+		master_callback.min_stack_voltage = data->min;
+		master_callback.max_stack_voltage = data->max;
+	} else if(data->option == '<') {
+		master_callback.option_stack_voltage = 'o';
+		master_callback.min_stack_voltage = data->min;
+		master_callback.max_stack_voltage = 0xFFFF;
+	} else if(data->option == '>') {
+		master_callback.option_stack_voltage = 'o';
+		master_callback.min_stack_voltage = 0;
+		master_callback.max_stack_voltage = data->min;
+	} else {
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+	}
+
+	master_callback.threshold_period_current_stack_voltage = master_callback.debounce_period;
+	com_return_setter(com, data);
+}
+
+void get_stack_voltage_callback_threshold(const ComType com, const GetStackVoltageCallbackThreshold *data) {
+	GetStackVoltageCallbackThresholdReturn gvctr;
+
+	gvctr.header        = data->header;
+	gvctr.header.length = sizeof(GetStackVoltageCallbackThresholdReturn);
+	gvctr.option        = master_callback.option_stack_voltage_save;
+	gvctr.min           = master_callback.min_stack_voltage_save;
+	gvctr.max           = master_callback.max_stack_voltage_save;
+
+	send_blocking_with_timeout(&gvctr, sizeof(GetStackVoltageCallbackThresholdReturn), com);
+}
+
+void set_usb_voltage_callback_threshold(const ComType com, const SetUSBVoltageCallbackThreshold *data) {
+	master_callback.option_usb_voltage_save = data->option;
+	master_callback.min_usb_voltage_save = data->min;
+	master_callback.max_usb_voltage_save = data->max;
+
+	if(data->option == 'o' ||
+	   data->option == 'i' ||
+	   data->option == 'x') {
+		master_callback.option_usb_voltage = data->option;
+		master_callback.min_usb_voltage = data->min;
+		master_callback.max_usb_voltage = data->max;
+	} else if(data->option == '<') {
+		master_callback.option_usb_voltage = 'o';
+		master_callback.min_usb_voltage = data->min;
+		master_callback.max_usb_voltage = 0xFFFF;
+	} else if(data->option == '>') {
+		master_callback.option_usb_voltage = 'o';
+		master_callback.min_usb_voltage = 0;
+		master_callback.max_usb_voltage = data->min;
+	} else {
+		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+	}
+
+	master_callback.threshold_period_current_stack_voltage = master_callback.debounce_period;
+	com_return_setter(com, data);
+}
+
+void get_usb_voltage_callback_threshold(const ComType com, const GetUSBVoltageCallbackThreshold *data) {
+	GetUSBVoltageCallbackThresholdReturn gvctr;
+
+	gvctr.header        = data->header;
+	gvctr.header.length = sizeof(GetUSBVoltageCallbackThresholdReturn);
+	gvctr.option        = master_callback.option_usb_voltage_save;
+	gvctr.min           = master_callback.min_usb_voltage_save;
+	gvctr.max           = master_callback.max_usb_voltage_save;
+
+	send_blocking_with_timeout(&gvctr, sizeof(GetUSBVoltageCallbackThresholdReturn), com);
+}
+
+void set_debounce_period(const ComType com, const SetDebouncePeriod *data) {
+	master_callback.debounce_period = data->debounce;
+	com_return_setter(com, data);
+}
+
+void get_debounce_period(const ComType com, const GetDebouncePeriod *data) {
+	GetDebouncePeriodReturn gdpr;
+
+	gdpr.header        = data->header;
+	gdpr.header.length = sizeof(GetDebouncePeriodReturn);
+	gdpr.debounce      = master_callback.debounce_period;
+
+	send_blocking_with_timeout(&gdpr, sizeof(GetDebouncePeriodReturn), com);
 }

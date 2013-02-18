@@ -52,3 +52,26 @@
 2.0.4: Reset WIFI Module after disassociate from AP
  - Fix problem with changing of slave addresses of Chibi and RS485 Extension
  - Externalize WIFI ringbuffer and feed bytes in state machine byte by byte (will allow the use of DMA controller later on)
+2.0.5: Reissue Low-Power-Mode after disassociate and add API for:
+ - SetWifiHostname
+ - GetWifiHostname
+ - SetCurrentCallbackPeriod
+ - GetCurrentCallbackPeriod
+ - SetVoltageCallbackPeriod
+ - GetVoltageCallbackPeriod
+ - SetUSBVoltageCallbackPeriod
+ - GetUSBVoltageCallbackPeriod
+ - SetCurrentCallbackThreshold
+ - GetCurrentCallbackThreshold
+ - SetVoltageCallbackThreshold
+ - GetVoltageCallbackThreshold
+ - SetUSBVoltageCallbackThreshold
+ - GetUSBVoltageCallbackThreshold
+ - SetDebouncePeriod
+ - GetDebouncePeriod
+ - Current (Callback)
+ - Voltage (Callback)
+ - USBVoltage (Callback)
+ - CurrentReached (Callback)
+ - VoltageReached (Callback)
+ - USBVoltageReached (Callback)

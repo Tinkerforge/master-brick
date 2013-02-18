@@ -48,25 +48,58 @@
 #include "config.h"
 
 extern ComInfo com_info;
-
 uint8_t master_mode = MASTER_MODE_NONE;
 
 extern ComInfo com_info;
 extern uint8_t rs485_first_message;
 extern uint8_t chibi_first_message;
 extern uint32_t usb_num_send_tries;
+extern bool usb_first_connection;
 
 bool chibi_enumerate_ready = false;
-
 bool master_startup_usb_connected = false;
-
-uint16_t master_usb_voltage = 0;
-uint16_t master_stack_voltage = 0;
-uint16_t master_stack_current = 0;
-
 uint8_t master_restart_counter = 0;
 
-extern bool usb_first_connection;
+MasterCallback master_callback = {
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_VALUE_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_OPTION_DEFAULT,
+	MASTER_CALLBACK_MIN_DEFAULT,
+	MASTER_CALLBACK_MAX_DEFAULT,
+	MASTER_CALLBACK_OPTION_DEFAULT,
+	MASTER_CALLBACK_MIN_DEFAULT,
+	MASTER_CALLBACK_MAX_DEFAULT,
+	MASTER_CALLBACK_OPTION_DEFAULT,
+	MASTER_CALLBACK_MIN_DEFAULT,
+	MASTER_CALLBACK_MAX_DEFAULT,
+	MASTER_CALLBACK_OPTION_DEFAULT,
+	MASTER_CALLBACK_MIN_DEFAULT,
+	MASTER_CALLBACK_MAX_DEFAULT,
+	MASTER_CALLBACK_OPTION_DEFAULT,
+	MASTER_CALLBACK_MIN_DEFAULT,
+	MASTER_CALLBACK_MAX_DEFAULT,
+	MASTER_CALLBACK_OPTION_DEFAULT,
+	MASTER_CALLBACK_MIN_DEFAULT,
+	MASTER_CALLBACK_MAX_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_PERIOD_DEFAULT,
+	MASTER_CALLBACK_DEBOUNCE_PERIOD_DEFAULT,
+	MASTER_CALLBACK_COUNTER_DEFAULT
+};
 
 void master_init(void) {
 	Pin power_pins[] = {PIN_STACK_VOLTAGE, PIN_STACK_CURRENT};
@@ -118,28 +151,155 @@ uint8_t master_get_hardware_version(void) {
 	}
 }
 
-void tick_task(const uint8_t tick_type) {
-	static uint8_t message_counter = 0;
-	static uint8_t sum_counter = 0;
-	static uint32_t usb_voltage_sum = 0;
-	static uint32_t stack_voltage_sum = 0;
-	static uint32_t stack_current_sum = 0;
+void master_handle_callbacks(const uint8_t tick_type) {
 	if(tick_type & TICK_TASK_TYPE_CALCULATION) {
-		sum_counter++;
-		usb_voltage_sum += adc_channel_get_data(USB_VOLTAGE_CHANNEL);
-		stack_voltage_sum += adc_channel_get_data(STACK_VOLTAGE_CHANNEL);
-		stack_current_sum += adc_channel_get_data(STACK_CURRENT_CHANNEL);
-		if(sum_counter == 100) {
-			master_usb_voltage = usb_voltage_sum/100;
-			master_stack_voltage = stack_voltage_sum/100;
-			master_stack_current = stack_current_sum/100;
+		master_callback.sum_counter++;
+		master_callback.stack_current_sum += adc_channel_get_data(STACK_CURRENT_CHANNEL);
+		master_callback.stack_voltage_sum += adc_channel_get_data(STACK_VOLTAGE_CHANNEL);
+		master_callback.usb_voltage_sum += adc_channel_get_data(USB_VOLTAGE_CHANNEL);
+		if(master_callback.sum_counter == MASTER_CALLBACK_VALUE_AVERAGE) {
+			master_callback.stack_current = (master_callback.stack_current_sum/MASTER_CALLBACK_VALUE_AVERAGE) * STACK_CURRENT_REFERENCE * STACK_CURRENT_MULTIPLIER / VOLTAGE_MAX_VALUE;
+			master_callback.stack_voltage = (master_callback.stack_voltage_sum/MASTER_CALLBACK_VALUE_AVERAGE) * MASTER_STACK_VOLTAGE_MULT/MASTER_STACK_VOLTAGE_DIV;
+			master_callback.usb_voltage = (master_callback.usb_voltage_sum/MASTER_CALLBACK_VALUE_AVERAGE) * USB_VOLTAGE_REFERENCE*USB_VOLTAGE_MULTIPLIER/(VOLTAGE_MAX_VALUE*USB_VOLTAGE_DIVISOR);
 
-			sum_counter = 0;
-			usb_voltage_sum = 0;
-			stack_voltage_sum = 0;
-			stack_current_sum = 0;
+			master_callback.sum_counter = 0;
+			master_callback.stack_current_sum = 0;
+			master_callback.stack_voltage_sum = 0;
+			master_callback.usb_voltage_sum = 0;
 		}
 
+		if(master_callback.period_stack_current_counter < UINT32_MAX) {
+			master_callback.period_stack_current_counter++;
+		}
+		if(master_callback.period_stack_voltage_counter < UINT32_MAX) {
+			master_callback.period_stack_voltage_counter++;
+		}
+		if(master_callback.period_usb_voltage_counter < UINT32_MAX) {
+			master_callback.period_usb_voltage_counter++;
+		}
+		if(master_callback.threshold_period_current_stack_current != master_callback.debounce_period) {
+			master_callback.threshold_period_current_stack_current++;
+		}
+		if(master_callback.threshold_period_current_stack_voltage != master_callback.debounce_period) {
+			master_callback.threshold_period_current_stack_voltage++;
+		}
+		if(master_callback.threshold_period_current_usb_voltage != master_callback.debounce_period) {
+			master_callback.threshold_period_current_usb_voltage++;
+		}
+	} else if(tick_type & TICK_TASK_TYPE_MESSAGE) {
+		// Handle period callbacks
+		if(master_callback.period_stack_current != 0 &&
+		   master_callback.period_stack_current <= master_callback.period_stack_current_counter) {
+			if(master_callback.stack_current_last != master_callback.stack_current) {
+				StackCurrent sc;
+				com_make_default_header(&sc, com_info.uid, sizeof(StackCurrent), FID_STACK_CURRENT);
+				sc.current = master_callback.stack_current;
+
+				send_blocking_with_timeout(&sc,
+				                           sizeof(StackCurrent),
+				                           com_info.current);
+
+				master_callback.period_stack_current_counter = 0;
+				master_callback.stack_current_last = master_callback.stack_current;
+			}
+		}
+
+		if(master_callback.period_stack_voltage != 0 &&
+		   master_callback.period_stack_voltage <= master_callback.period_stack_voltage_counter) {
+			if(master_callback.stack_voltage_last != master_callback.stack_voltage) {
+				StackVoltage sv;
+				com_make_default_header(&sv, com_info.uid, sizeof(StackVoltage), FID_STACK_VOLTAGE);
+				sv.voltage = master_callback.stack_voltage;
+
+				send_blocking_with_timeout(&sv,
+				                           sizeof(StackVoltage),
+				                           com_info.current);
+
+				master_callback.period_stack_voltage_counter = 0;
+				master_callback.stack_voltage_last = master_callback.stack_voltage;
+			}
+		}
+
+		if(master_callback.period_usb_voltage != 0 &&
+		   master_callback.period_usb_voltage <= master_callback.period_usb_voltage_counter) {
+			if(master_callback.usb_voltage_last != master_callback.usb_voltage) {
+				USBVoltage usb_voltage;
+				com_make_default_header(&usb_voltage, com_info.uid, sizeof(USBVoltage), FID_USB_VOLTAGE);
+				usb_voltage.voltage = master_callback.usb_voltage;
+
+				send_blocking_with_timeout(&usb_voltage,
+				                           sizeof(USBVoltage),
+				                           com_info.current);
+
+				master_callback.period_usb_voltage_counter = 0;
+				master_callback.usb_voltage_last = master_callback.usb_voltage;
+			}
+		}
+
+		// Handle threshold callbacks
+		if(((master_callback.option_stack_current == 'o') &&
+			((master_callback.stack_current < master_callback.min_stack_current) ||
+			 (master_callback.stack_current > master_callback.max_stack_current))) ||
+		   ((master_callback.option_stack_current == 'i') &&
+			((master_callback.stack_current > master_callback.min_stack_current) &&
+			 (master_callback.stack_current < master_callback.max_stack_current)))) {
+
+			if(master_callback.threshold_period_current_stack_current == master_callback.debounce_period) {
+				StackCurrentReached scr;
+				com_make_default_header(&scr, com_info.uid, sizeof(StackCurrentReached), FID_STACK_CURRENT_REACHED);
+				scr.current = master_callback.stack_current;
+
+				send_blocking_with_timeout(&scr,
+				                           sizeof(StackCurrentReached),
+				                           com_info.current);
+				master_callback.threshold_period_current_stack_current = 0;
+			}
+		}
+
+		if(((master_callback.option_stack_voltage == 'o') &&
+			((master_callback.stack_voltage < master_callback.min_stack_voltage) ||
+			 (master_callback.stack_voltage > master_callback.max_stack_voltage))) ||
+		   ((master_callback.option_stack_voltage == 'i') &&
+			((master_callback.stack_voltage > master_callback.min_stack_voltage) &&
+			 (master_callback.stack_voltage < master_callback.max_stack_voltage)))) {
+
+			if(master_callback.threshold_period_current_stack_voltage == master_callback.debounce_period) {
+				StackVoltageReached svr;
+				com_make_default_header(&svr, com_info.uid, sizeof(StackVoltageReached), FID_STACK_VOLTAGE_REACHED);
+				svr.voltage = master_callback.stack_voltage;
+
+				send_blocking_with_timeout(&svr,
+				                           sizeof(StackVoltageReached),
+				                           com_info.current);
+				master_callback.threshold_period_current_stack_voltage = 0;
+			}
+		}
+
+		if(((master_callback.option_usb_voltage == 'o') &&
+			((master_callback.usb_voltage < master_callback.min_usb_voltage) ||
+			 (master_callback.usb_voltage > master_callback.max_usb_voltage))) ||
+		   ((master_callback.option_usb_voltage == 'i') &&
+			((master_callback.usb_voltage > master_callback.min_usb_voltage) &&
+			 (master_callback.usb_voltage < master_callback.max_usb_voltage)))) {
+
+			if(master_callback.threshold_period_current_usb_voltage == master_callback.debounce_period) {
+				USBVoltageReached vr;
+				com_make_default_header(&vr, com_info.uid, sizeof(USBVoltageReached), FID_USB_VOLTAGE_REACHED);
+				vr.voltage = master_callback.usb_voltage;
+
+				send_blocking_with_timeout(&vr,
+				                           sizeof(USBVoltageReached),
+				                           com_info.current);
+				master_callback.threshold_period_current_usb_voltage = 0;
+			}
+		}
+	}
+}
+
+void tick_task(const uint8_t tick_type) {
+	master_handle_callbacks(tick_type);
+	static uint8_t message_counter = 0;
+	if(tick_type & TICK_TASK_TYPE_CALCULATION) {
 		if(master_startup_usb_connected ^ usb_is_connected()) {
 			master_restart_counter++;
 			if(master_restart_counter == 100) {

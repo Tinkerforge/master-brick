@@ -363,6 +363,30 @@ void wifi_command_send_at_wregdomain(void) {
 	logwohd("%c", str);
 }
 
+void wifi_command_send_at_ndhcp(void) {
+	WIFIHostname wifi_hostname;
+	wifi_read_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS);
+	if(wifi_hostname.key == WIFI_KEY) {
+		uint8_t length;
+		for(length = 0; length < 16; length++) {
+			if(wifi_hostname.hostname[length] == '\0') {
+				break;
+			}
+		}
+		if(length > 0) {
+			const char comma = ',';
+			wifi_data_send(&comma, 1);
+			wifi_data_send(wifi_hostname.hostname, length);
+#if LOGGING_LEVEL == LOGGING_DEBUG
+			logwohd(",");
+			for(uint8_t i = 0; i < length; i++) {
+				logwohd("%c", wifi_hostname.hostname[i]);
+			}
+#endif
+		}
+	}
+}
+
 void wifi_command_send(const WIFICommand command) {
 	wifi_command_parse_next = command;
 	wifi_data_send(wifi_command_str[command],
@@ -376,6 +400,7 @@ void wifi_command_send(const WIFICommand command) {
 #endif
 
 	switch(command) {
+		case WIFI_COMMAND_ID_AT_NDHCP_ON: wifi_command_send_at_ndhcp(); break;
 		case WIFI_COMMAND_ID_AT_WWPA: wifi_command_send_at_wwpa(); break;
 		case WIFI_COMMAND_ID_AT_WAUTO: wifi_command_send_at_auto(); break;
 		case WIFI_COMMAND_ID_AT_NAUTO: wifi_command_send_at_wauto(); break;

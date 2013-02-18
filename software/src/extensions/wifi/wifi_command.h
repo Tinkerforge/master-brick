@@ -89,6 +89,11 @@ typedef enum {
 	WIFI_ANSWER_ERROR
 } WIFIAnswer;
 
+typedef struct {
+	uint32_t key;
+	char hostname[16];
+} __attribute__((__packed__)) WIFIHostname;
+
 #define WIFI_COMMAND_AT               "AT"
 #define WIFI_COMMAND_AT_WD            "AT+WD"
 #define WIFI_COMMAND_AT_ATA           "ATA"
@@ -135,6 +140,7 @@ typedef enum {
 #define WIFI_COMMAND_AT_WRETRY        "AT+WRETRY=7"
 #define WIFI_COMMAND_AT_WSEC          "AT+WSEC=1"
 
+void wifi_command_send_at_ndhcp(void);
 void wifi_command_send_at_wwpa(void);
 void wifi_command_send_at_auto(void);
 void wifi_command_send_at_wauto(void);

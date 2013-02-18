@@ -70,6 +70,28 @@
 #define FID_GET_USB_VOLTAGE 40
 #define FID_SET_LONG_WIFI_KEY 41
 #define FID_GET_LONG_WIFI_KEY 42
+#define FID_SET_WIFI_HOSTNAME 43
+#define FID_GET_WIFI_HOSTNAME 44
+#define FID_SET_STACK_CURRENT_CALLBACK_PERIOD 45
+#define FID_GET_STACK_CURRENT_CALLBACK_PERIOD 46
+#define FID_SET_STACK_VOLTAGE_CALLBACK_PERIOD 47
+#define FID_GET_STACK_VOLTAGE_CALLBACK_PERIOD 48
+#define FID_SET_USB_VOLTAGE_CALLBACK_PERIOD 49
+#define FID_GET_USB_VOLTAGE_CALLBACK_PERIOD 50
+#define FID_SET_STACK_CURRENT_CALLBACK_THRESHOLD 51
+#define FID_GET_STACK_CURRENT_CALLBACK_THRESHOLD 52
+#define FID_SET_STACK_VOLTAGE_CALLBACK_THRESHOLD 53
+#define FID_GET_STACK_VOLTAGE_CALLBACK_THRESHOLD 54
+#define FID_SET_USB_VOLTAGE_CALLBACK_THRESHOLD 55
+#define FID_GET_USB_VOLTAGE_CALLBACK_THRESHOLD 56
+#define FID_SET_DEBOUNCE_PERIOD 57
+#define FID_GET_DEBOUNCE_PERIOD 58
+#define FID_STACK_CURRENT 59
+#define FID_STACK_VOLTAGE 60
+#define FID_USB_VOLTAGE 61
+#define FID_STACK_CURRENT_REACHED 62
+#define FID_STACK_VOLTAGE_REACHED 63
+#define FID_USB_VOLTAGE_REACHED 64
 
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -113,8 +135,29 @@
 	{FID_GET_WIFI_REGULATORY_DOMAIN, (message_handler_func_t)get_wifi_regulatory_domain}, \
 	{FID_GET_USB_VOLTAGE, (message_handler_func_t)get_usb_voltage}, \
 	{FID_SET_LONG_WIFI_KEY, (message_handler_func_t)set_long_wifi_key}, \
-	{FID_GET_LONG_WIFI_KEY, (message_handler_func_t)get_long_wifi_key},
-
+	{FID_GET_LONG_WIFI_KEY, (message_handler_func_t)get_long_wifi_key}, \
+	{FID_SET_WIFI_HOSTNAME, (message_handler_func_t)set_wifi_hostname}, \
+	{FID_GET_WIFI_HOSTNAME, (message_handler_func_t)get_wifi_hostname}, \
+	{FID_SET_STACK_CURRENT_CALLBACK_PERIOD, (message_handler_func_t)set_stack_current_callback_period}, \
+	{FID_GET_STACK_CURRENT_CALLBACK_PERIOD, (message_handler_func_t)get_stack_current_callback_period}, \
+	{FID_SET_STACK_VOLTAGE_CALLBACK_PERIOD, (message_handler_func_t)set_stack_voltage_callback_period}, \
+	{FID_GET_STACK_VOLTAGE_CALLBACK_PERIOD, (message_handler_func_t)get_stack_voltage_callback_period}, \
+	{FID_SET_USB_VOLTAGE_CALLBACK_PERIOD, (message_handler_func_t)set_usb_voltage_callback_period}, \
+	{FID_GET_USB_VOLTAGE_CALLBACK_PERIOD, (message_handler_func_t)get_usb_voltage_callback_period}, \
+	{FID_SET_STACK_CURRENT_CALLBACK_THRESHOLD, (message_handler_func_t)set_stack_current_callback_threshold}, \
+	{FID_GET_STACK_CURRENT_CALLBACK_THRESHOLD, (message_handler_func_t)get_stack_current_callback_threshold}, \
+	{FID_SET_STACK_VOLTAGE_CALLBACK_THRESHOLD, (message_handler_func_t)set_stack_voltage_callback_threshold}, \
+	{FID_GET_STACK_VOLTAGE_CALLBACK_THRESHOLD, (message_handler_func_t)get_stack_voltage_callback_threshold}, \
+	{FID_SET_USB_VOLTAGE_CALLBACK_THRESHOLD, (message_handler_func_t)set_usb_voltage_callback_threshold}, \
+	{FID_GET_USB_VOLTAGE_CALLBACK_THRESHOLD, (message_handler_func_t)get_usb_voltage_callback_threshold}, \
+	{FID_SET_DEBOUNCE_PERIOD, (message_handler_func_t)set_debounce_period}, \
+	{FID_GET_DEBOUNCE_PERIOD, (message_handler_func_t)get_debounce_period}, \
+	{FID_STACK_CURRENT, (message_handler_func_t)NULL}, \
+	{FID_STACK_VOLTAGE, (message_handler_func_t)NULL}, \
+	{FID_USB_VOLTAGE, (message_handler_func_t)NULL}, \
+	{FID_STACK_CURRENT_REACHED, (message_handler_func_t)NULL}, \
+	{FID_STACK_VOLTAGE_REACHED, (message_handler_func_t)NULL}, \
+	{FID_USB_VOLTAGE_REACHED, (message_handler_func_t)NULL},
 
 typedef struct {
 	MessageHeader header;
@@ -479,6 +522,160 @@ typedef struct {
 	char key[64];
 } __attribute__((__packed__)) GetLongWifiKeyReturn;
 
+typedef struct {
+	MessageHeader header;
+	char hostname[16];
+} __attribute__((__packed__)) SetWifiHostname;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetWifiHostname;
+
+typedef struct {
+	MessageHeader header;
+	char hostname[16];
+} __attribute__((__packed__)) GetWifiHostnameReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t debounce;
+} __attribute__((__packed__)) SetDebouncePeriod;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetDebouncePeriod;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t debounce;
+} __attribute__((__packed__)) GetDebouncePeriodReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t period;
+} __attribute__((__packed__)) SetStackCurrentCallbackPeriod;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetStackCurrentCallbackPeriod;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t period;
+} __attribute__((__packed__)) GetStackCurrentCallbackPeriodReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t period;
+} __attribute__((__packed__)) SetStackVoltageCallbackPeriod;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetStackVoltageCallbackPeriod;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t period;
+} __attribute__((__packed__)) GetStackVoltageCallbackPeriodReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t period;
+} __attribute__((__packed__)) SetUSBVoltageCallbackPeriod;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetUSBVoltageCallbackPeriod;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t period;
+} __attribute__((__packed__)) GetUSBVoltageCallbackPeriodReturn;
+
+typedef struct {
+	MessageHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} __attribute__((__packed__)) SetStackCurrentCallbackThreshold;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetStackCurrentCallbackThreshold;
+
+typedef struct {
+	MessageHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} __attribute__((__packed__)) GetStackCurrentCallbackThresholdReturn;
+
+typedef struct {
+	MessageHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} __attribute__((__packed__)) SetStackVoltageCallbackThreshold;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetStackVoltageCallbackThreshold;
+
+typedef struct {
+	MessageHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} __attribute__((__packed__)) GetStackVoltageCallbackThresholdReturn;
+
+typedef struct {
+	MessageHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} __attribute__((__packed__)) SetUSBVoltageCallbackThreshold;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetUSBVoltageCallbackThreshold;
+
+typedef struct {
+	MessageHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} __attribute__((__packed__)) GetUSBVoltageCallbackThresholdReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint16_t current;
+} __attribute__((__packed__)) StackCurrent;
+
+typedef struct {
+	MessageHeader header;
+	uint16_t voltage;
+} __attribute__((__packed__)) StackVoltage;
+
+typedef struct {
+	MessageHeader header;
+	uint16_t voltage;
+} __attribute__((__packed__)) USBVoltage;
+
+typedef struct {
+	MessageHeader header;
+	uint16_t current;
+} __attribute__((__packed__)) StackCurrentReached;
+
+typedef struct {
+	MessageHeader header;
+	uint16_t voltage;
+} __attribute__((__packed__)) StackVoltageReached;
+
+typedef struct {
+	MessageHeader header;
+	uint16_t voltage;
+} __attribute__((__packed__)) USBVoltageReached;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -521,5 +718,21 @@ void get_wifi_regulatory_domain(const ComType com, const GetWifiRegulatoryDomain
 void get_usb_voltage(const ComType com, const GetUSBVoltage *data);
 void set_long_wifi_key(const ComType com, const SetLongWifiKey *data);
 void get_long_wifi_key(const ComType com, const GetLongWifiKey *data);
+void set_wifi_hostname(const ComType com, const SetWifiHostname *data);
+void get_wifi_hostname(const ComType com, const GetWifiHostname *data);
+void set_stack_current_callback_period(const ComType com, const SetStackCurrentCallbackPeriod *data);
+void get_stack_current_callback_period(const ComType com, const GetStackCurrentCallbackPeriod *data);
+void set_stack_voltage_callback_period(const ComType com, const SetStackVoltageCallbackPeriod *data);
+void get_stack_voltage_callback_period(const ComType com, const GetStackVoltageCallbackPeriod *data);
+void set_usb_voltage_callback_period(const ComType com, const SetUSBVoltageCallbackPeriod *data);
+void get_usb_voltage_callback_period(const ComType com, const GetUSBVoltageCallbackPeriod *data);
+void set_stack_current_callback_threshold(const ComType com, const SetStackCurrentCallbackThreshold *data);
+void get_stack_current_callback_threshold(const ComType com, const GetStackCurrentCallbackThreshold *data);
+void set_stack_voltage_callback_threshold(const ComType com, const SetStackVoltageCallbackThreshold *data);
+void get_stack_voltage_callback_threshold(const ComType com, const GetStackVoltageCallbackThreshold *data);
+void set_usb_voltage_callback_threshold(const ComType com, const SetUSBVoltageCallbackThreshold *data);
+void get_usb_voltage_callback_threshold(const ComType com, const GetUSBVoltageCallbackThreshold *data);
+void set_debounce_period(const ComType com, const SetDebouncePeriod *data);
+void get_debounce_period(const ComType com, const GetDebouncePeriod *data);
 
 #endif

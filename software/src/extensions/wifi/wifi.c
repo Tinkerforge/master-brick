@@ -209,8 +209,12 @@ void wifi_init_next(void) {
 
 		case WIFI_COMMAND_ID_AT_WD: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WD);
-			wifi_init_state = WIFI_COMMAND_ID_AT_WRXPS_OFF;
-		    break;
+		    if(wifi_power_mode == WIFI_POWER_MODE_FULL_SPEED) {
+		    	wifi_init_state = WIFI_COMMAND_ID_AT_WRXPS_OFF;
+		    } else {
+		    	wifi_init_state = WIFI_COMMAND_ID_AT_WRXPS_ON;
+		    }
+			break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WRXPS_OFF: {
@@ -222,6 +226,18 @@ void wifi_init_next(void) {
 		case WIFI_COMMAND_ID_AT_WRXACTIVE_ON: {
 			// Wifi module always on (no sleep)
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_ON);
+			wifi_init_state = WIFI_COMMAND_ID_AT_WSYNCINTRL;
+		    break;
+		}
+
+		case WIFI_COMMAND_ID_AT_WRXPS_ON: {
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_ON);
+			wifi_init_state = WIFI_COMMAND_ID_AT_WRXACTIVE_OFF;
+		    break;
+		}
+
+		case WIFI_COMMAND_ID_AT_WRXACTIVE_OFF: {
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_OFF);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WSYNCINTRL;
 		    break;
 		}
