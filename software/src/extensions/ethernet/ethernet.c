@@ -122,19 +122,40 @@ uint16_t ethernet_send(const void *data, const uint16_t length, uint32_t *option
 
 uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
 	static uint8_t socket = 0;
+
+	if(length < 8) {
+		return 0;
+	}
+
 	if(socket >= ETHERNET_MAX_SOCKETS) {
 		socket = 0;
 	}
 
 	uint8_t read_length = 0;
 	for(; socket < ETHERNET_MAX_SOCKETS; socket++) {
-		read_length = ethernet_low_level_read_data_tcp(socket, data, length);
+		read_length = ethernet_low_level_read_data_tcp(socket, data, 8);
 		if(read_length != 0) {
 			break;
 		}
 	}
 
 	if(read_length != 0) {
+		uint8_t to_read = ((MessageHeader*)data)->length;
+		if(to_read > 80) {
+			// TODO: what do we do here?
+			logethe("Message length too big\n\r");
+		}
+		if(to_read > length) {
+			// TODO: what do we do here?
+			logethe("Buffer too small\n\r");
+		}
+		while(read_length < to_read) {
+			read_length += ethernet_low_level_read_data_tcp(socket, ((uint8_t*)data) + read_length, to_read-read_length);
+		}
+#if LOGGING_LEVEL == LOGGING_DEBUG
+		com_debug_message(data);
+#endif
+
 		brickd_route_from((const uint8_t*)data, socket);
 		socket++;
 	}

@@ -262,6 +262,7 @@ void wifi_init_next(void) {
 //		    break;
 //		}
 
+
 		case WIFI_COMMAND_ID_AT_WRETRY: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WRETRY);
 			wifi_init_state = WIFI_COMMAND_ID_AT_ASYNCMSGFMT;
@@ -670,6 +671,7 @@ void wifi_tick(const uint8_t tick_type) {
 
 		case WIFI_STATE_ASSOCIATED: {
 			if(wifi_new_cid != -1) {
+				//wifi_command_send(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
 				brick_init_enumeration(COM_WIFI);
 				wifi_new_cid = -1;
 			}

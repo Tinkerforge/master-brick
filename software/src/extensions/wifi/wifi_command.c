@@ -135,6 +135,7 @@ static const uint8_t wifi_command_length[] = {
 };
 
 extern WifiConfiguration wifi_configuration;
+extern int8_t wifi_new_cid;
 
 WIFICommand wifi_command_parse_next = WIFI_COMMAND_ID_NONE;
 
@@ -387,6 +388,13 @@ void wifi_command_send_at_ndhcp(void) {
 	}
 }
 
+void wifi_command_send_at_setsockopt(void) {
+	char str[16] = {'\0'};
+	sprintf(str, "%d,6,4002,0,4", wifi_new_cid);
+	wifi_data_send(str, strlen(str));
+	logwohd("%s", str);
+}
+
 void wifi_command_send(const WIFICommand command) {
 	wifi_command_parse_next = command;
 	wifi_data_send(wifi_command_str[command],
@@ -412,6 +420,7 @@ void wifi_command_send(const WIFICommand command) {
 		case WIFI_COMMAND_ID_AT_WEAP: wifi_command_send_at_weap(); break;
 		case WIFI_COMMAND_ID_AT_ATS: wifi_command_send_at_ats(); break;
 		case WIFI_COMMAND_ID_AT_WREGDOMAIN: wifi_command_send_at_wregdomain(); break;
+		case WIFI_COMMAND_ID_AT_SETSOCKOPT_TC: wifi_command_send_at_setsockopt(); break;
 		default: break;
 	}
 

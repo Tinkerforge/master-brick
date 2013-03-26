@@ -60,6 +60,7 @@ bool wifi_ringbuffer_is_full(void) {
 
 bool wifi_ringbuffer_add(const char data) {
 	if(wifi_ringbuffer_is_full()) {
+		logwifie("Add: Ringbuffer overflow\n\r");
 		wifi_ringbuffer_overflow++;
 		return false;
 	}
@@ -89,6 +90,7 @@ bool wifi_ringbuffer_add(const char data) {
 
 bool wifi_ringbuffer_get(char *data) {
 	if(wifi_ringbuffer_is_empty()) {
+		logwifie("Get: Ringbuffer empty\n\r");
 		return false;
 	}
 	*data = wifi_ringbuffer[wifi_ringbuffer_start];

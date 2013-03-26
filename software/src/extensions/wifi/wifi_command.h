@@ -152,6 +152,7 @@ void wifi_command_send_at_weapconf(void);
 void wifi_command_send_at_weap(void);
 void wifi_command_send_at_ats(void);
 void wifi_command_send_at_wregdomain(void);
+void wifi_command_send_at_setsockopt(void);
 
 void wifi_command_parse(const char *data, const uint8_t length);
 void wifi_command_parse_reset(const char *data, const uint8_t length);

@@ -89,14 +89,19 @@ bool wifi_data_next_handle_ringbuffer(char *ndata, bool transceive) {
 	} else {
 		if(wifi_buffer_size_recv != 0) {
 			// What should we do if ringbuffer is full here?
+			if(wifi_ringbuffer_is_full()) {
+				logwifie("Ringbuffer full, possibly overflow\n\r");
+			}
 			wifi_ringbuffer_add(*ndata);
 			return false;
 		}
 
 		// We can handle new data now, but we first have to use up ringbuffer
 		if(!wifi_ringbuffer_is_empty()) {
+			char tmp;
+			wifi_ringbuffer_get(&tmp);
 			wifi_ringbuffer_add(*ndata);
-			wifi_ringbuffer_get(ndata);
+			*ndata = tmp;
 		}
 		return true;
 	}
@@ -135,7 +140,7 @@ void wifi_data_next_handle_wait_for_esc(char ndata) {
 		}
 
 		if(ndata < WIFI_DATA_ASCII_START || ndata > WIFI_DATA_ASCII_END) {
-			logwifid("ndata not ASCII (0): %d\n\r", ndata);
+			logwifid("ndata not ASCII (0): %x\n\r", ndata);
 			// TODO: No ESC, no \r or \n and no ASCII. What now?
 		}
 	}
@@ -152,7 +157,7 @@ void wifi_data_next_handle_wait_for_command_start(char ndata) {
 	}
 
 	if(ndata < WIFI_DATA_ASCII_START || ndata > WIFI_DATA_ASCII_END) {
-		logwifid("ndata not ASCII (1): %d\n\r", ndata);
+		logwifid("ndata not ASCII (1): %x\n\r", ndata);
 		// TODO: ndata not ASCII: What now?
 	}
 
@@ -178,11 +183,11 @@ void wifi_data_next_handle_wait_for_command_end(char ndata) {
 	}
 
 	if(ndata < WIFI_DATA_ASCII_START || ndata > WIFI_DATA_ASCII_END) {
-		logwifid("ndata not ASCII (2): %d\n\r", ndata);
+		logwifid("ndata not ASCII (2): %x\n\r", ndata);
 		// TODO: ndata not ASCII: What now?
 	}
 
-	if(wifi_buffer_command_length >= WIFI_COMMAND_BUFFER_SIZE) {
+	if(wifi_buffer_command_length >= (WIFI_COMMAND_BUFFER_SIZE-1)) {
 		logwifid("wifi_buffer_command_length > 128: %d\n\r", wifi_buffer_command_length);
 		// TODO: wifi_buffer_command_length > 128, what now?
 		return;
@@ -196,6 +201,11 @@ void wifi_data_next_handle_wait_for_esc_char(char ndata) {
 	logwohd("%c", ndata);
 	if(ndata == WIFI_DATA_CHAR_Z) {
 		wifi_data_state = WIFI_DATA_WAIT_FOR_CID;
+#if LOGGING_LEVEL == LOGGING_DEBUG
+		if(wifi_data_recv_length != 0) {
+			logwifid("<ESC>Z while buffer full\n\r");
+		}
+#endif
 		wifi_data_recv_length = 0;
 		wifi_data_recv_length_desired = 0;
 	} else if(ndata == WIFI_DATA_CHAR_A) {
@@ -308,12 +318,13 @@ void wifi_data_next_handle_wait_for_cid(char ndata) {
 void wifi_data_next_handle_wait_for_length(char ndata) {
 	logwohd("%c", ndata);
 	wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata) * wifi_data_lenght_mul[wifi_data_recv_length];
-	if(wifi_data_recv_length_desired > 80) {
-		logwifie("Got recv length desired > 80: %d (1), i: %d, %d\n\r", wifi_data_recv_length_desired, wifi_data_recv_length, ndata);
-		// TODO: what do we do here?
-	}
 	wifi_data_recv_length++;
 	if(wifi_data_recv_length == 4) {
+#if LOGGING_LEVEL == LOGGING_DEBUG
+		if(wifi_data_recv_length_desired > 80) {
+			logwifid("Got recv length desired > 80: %d (1), i: %d, %d\n\r", wifi_data_recv_length_desired, wifi_data_recv_length, ndata);
+		}
+#endif
 		wifi_data_state = WIFI_DATA_WAIT_FOR_DATA;
 		wifi_data_recv_length = 0;
 		logwohd(": [");
@@ -321,7 +332,13 @@ void wifi_data_next_handle_wait_for_length(char ndata) {
 }
 
 void wifi_data_next_handle_wait_for_data(char ndata) {
-	logwohd("%x, ", ndata);
+#if LOGGING_LEVEL == LOGGING_DEBUG
+	if(wifi_buffer_size_counter == 0) {
+		logwohd("{");
+	}
+#endif
+
+	logwohd("r%x, ", ndata);
 	wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
 	wifi_buffer_size_counter++;
 
@@ -341,6 +358,7 @@ void wifi_data_next_handle_wait_for_data(char ndata) {
 			brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
 
 			wifi_buffer_size_counter = 0;
+			logwohd("}\n\r");
 		}
 	}
 
@@ -409,7 +427,7 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 	const uint16_t free = wifi_ringbuffer_get_free();
 
 	// Received data wouldn't fit anymore, we have to throw away data :-(
-	if(free < (WIFI_DATA_ESCAPE_BUFFER_SIZE+length+2)) {
+	if(free < (WIFI_DATA_ESCAPE_BUFFER_SIZE+length+2)*2) { // *2 since every byte could be a stuffing byte
 		logwifiw("Ringbuffer overflow\n\r");
 		wifi_ringbuffer_overflow++;
 		led_on(LED_EXT_BLUE_2);
