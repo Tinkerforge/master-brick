@@ -135,6 +135,11 @@ uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
 	for(; socket < ETHERNET_MAX_SOCKETS; socket++) {
 		read_length = ethernet_low_level_read_data_tcp(socket, data, 8);
 		if(read_length != 0) {
+			while(read_length < 8) {
+				read_length += ethernet_low_level_read_data_tcp(socket,
+				                                                ((uint8_t*)data) + read_length,
+				                                                8 - read_length);
+			}
 			break;
 		}
 	}
@@ -149,12 +154,14 @@ uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
 			// TODO: what do we do here?
 			logethe("Buffer too small\n\r");
 		}
+
 		while(read_length < to_read) {
-			read_length += ethernet_low_level_read_data_tcp(socket, ((uint8_t*)data) + read_length, to_read-read_length);
+			read_length += ethernet_low_level_read_data_tcp(socket,
+			                                                ((uint8_t*)data) + read_length,
+			                                                to_read - read_length);
 		}
-#if LOGGING_LEVEL == LOGGING_DEBUG
-		com_debug_message(data);
-#endif
+
+//		com_debug_message(data);
 
 		brickd_route_from((const uint8_t*)data, socket);
 		socket++;

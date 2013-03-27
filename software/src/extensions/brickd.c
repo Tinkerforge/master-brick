@@ -59,7 +59,7 @@ void brickd_route_from(const void *data, const uint8_t cid) {
 	brickd_counter++;
 	uint32_t diff = 0;
 
-	for(uint8_t i = 0; i < 10; i++) {
+	for(uint8_t i = 0; i < BRICKD_ROUTING_TABLE_SIZE; i++) {
 		if(brickd_routing_table[i].cid == -1) {
 			brickd_routing_table[i].uid = data_header->uid;
 			brickd_routing_table[i].func_id = data_header->fid;

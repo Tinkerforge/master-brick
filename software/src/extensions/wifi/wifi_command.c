@@ -389,8 +389,10 @@ void wifi_command_send_at_ndhcp(void) {
 }
 
 void wifi_command_send_at_setsockopt(void) {
-	char str[16] = {'\0'};
-	sprintf(str, "%d,6,4002,0,4", wifi_new_cid);
+	char str[20] = {'\0'};
+//	sprintf(str, "%d,6,4002,0,4", wifi_new_cid);
+//	sprintf(str, "%d,6,1,1,4", wifi_new_cid);
+	sprintf(str, "%d,65535,1002,1600,4", wifi_new_cid);
 	wifi_data_send(str, strlen(str));
 	logwohd("%s", str);
 }
@@ -605,6 +607,7 @@ void wifi_command_parse(const char *data, const uint8_t length) {
 		case WIFI_COMMAND_ID_AT_WRXPS_ON:
 		case WIFI_COMMAND_ID_AT_WRXPS_OFF:
 		case WIFI_COMMAND_ID_AT_WD:
+		case WIFI_COMMAND_ID_AT_SETSOCKOPT_TC:
 		case WIFI_COMMAND_ID_AT_ATV0: wifi_command_parse_other(data, length); break;
 		case WIFI_COMMAND_ID_AT_ATE0: wifi_command_parse_ate0(data, length); break;
 		case WIFI_COMMAND_ID_AT_WA: wifi_command_parse_wa(data, length); break;

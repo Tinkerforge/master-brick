@@ -675,6 +675,7 @@ void wifi_tick(const uint8_t tick_type) {
 				brick_init_enumeration(COM_WIFI);
 				wifi_new_cid = -1;
 			}
+
 			PIO_Clear(&extension_pins[WIFI_LED]);
 			break;
 		}

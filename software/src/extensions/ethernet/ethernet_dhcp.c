@@ -511,7 +511,7 @@ void dhcp_check_state(const uint8_t s) {
 	}
 
 
-	switch( dhcp_state ) {
+	switch(dhcp_state) {
 		case STATE_DHCP_DISCOVER: {
 			if(type == DHCP_OFFER) {
 				dhcp_reset_time();
