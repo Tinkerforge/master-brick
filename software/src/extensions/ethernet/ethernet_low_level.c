@@ -41,6 +41,8 @@ uint8_t ehternet_low_level_subnet_mask[ETHERNET_IP_SIZE] = {255, 255, 255, 0};
 
 extern bool ethernet_dhcp_server;
 
+bool ethernet_low_level_socket_open[ETHERNET_MAX_SOCKETS] = {false, false, false, false, false, false, false};
+
 void ethernet_low_level_reset(void) {
 	PIO_Clear(&extension_pins[ETHERNET_RESET]);
 	SLEEP_US(2);
@@ -171,9 +173,14 @@ void ethernet_low_level_set_retry_count(const uint8_t retry_count) {
 }
 
 uint8_t ethernet_low_level_read_data_tcp(const uint8_t socket, uint8_t *buffer, const uint8_t length) {
-	if(ethernet_low_level_get_status(socket) != ETH_VAL_SN_SR_SOCK_ESTABLISHED) {
-		return 0;
+	uint8_t status = ethernet_low_level_get_status(socket);
+	if(status != ETH_VAL_SN_SR_SOCK_ESTABLISHED) {
+		if(!ethernet_low_level_socket_open[socket]) {
+			return 0;
+		}
 	}
+
+	ethernet_low_level_socket_open[socket] = true;
 
 	const uint16_t recv_length = ethernet_low_level_get_received_data_length(socket);
 	uint16_t read_length = MIN(length, recv_length);
@@ -200,6 +207,12 @@ uint8_t ethernet_low_level_read_data_tcp(const uint8_t socket, uint8_t *buffer, 
 
 	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_CR_RECV);
 	while(ethernet_read_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket)) != 0);
+
+	if(read_length == 0) {
+		if(status != ETH_VAL_SN_SR_SOCK_ESTABLISHED) {
+			ethernet_low_level_socket_open[socket] = false;
+		}
+	}
 
 	return read_length;
 }
