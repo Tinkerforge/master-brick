@@ -39,6 +39,7 @@
 #include "bricklib/drivers/uid/uid.h"
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/adc/adc.h"
+#include "bricklib/drivers/wdt/wdt.h"
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/utility/init.h"
 #include "bricklib/utility/util_definitions.h"
@@ -77,6 +78,7 @@ void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName)
 
 void blinkenlights(const uint8_t length) {
     for(uint8_t j = 0; j < length; j++) {
+    	wdt_restart();
 		for(uint8_t i = LED_EXT_BLUE_0; i <= LED_EXT_BLUE_3; i++) {
 			led_blink(i, BLINK_DELAY);
 		}
@@ -112,6 +114,7 @@ int main() {
     }
 
 	brick_init();
+	wdt_restart();
 
 #ifdef PROFILING
     profiling_init();
@@ -132,6 +135,7 @@ int main() {
     led_off(LED_EXT_BLUE_2);
     led_off(LED_EXT_BLUE_3);
 
+    wdt_restart();
     Pin pin_3v3_enable = PIN_3V3_ENABLE;
     if(PIO_Get(&pin_master_detect)) {
     	pin_3v3_enable.type = PIO_OUTPUT_1;
@@ -146,9 +150,11 @@ int main() {
     	logsi("Configuring as Stack-Master\n\r");
 
         spi_stack_master_init();
+        wdt_restart();
     	logsi("SPI Stack for Master initialized\n\r");
 
         routing_table_create_stack();
+        wdt_restart();
         logsi("Master Routing table created\n\r");
 
         extension_init();
@@ -191,6 +197,7 @@ int main() {
     	master_mode |= MASTER_MODE_SLAVE;
     	logsi("Configuring as Stack-Slave\n\r");
         spi_stack_slave_init();
+        wdt_restart();
         logsi("SPI Stack for Slave initialized\n\r");
 
     	xTaskCreate(spi_stack_slave_message_loop,
@@ -202,6 +209,7 @@ int main() {
     }
 
 	brick_init_start_tick_task();
+	wdt_restart();
 	logsi("Starting Scheduler\n\r");
 
 	vTaskStartScheduler();

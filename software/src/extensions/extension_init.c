@@ -28,6 +28,7 @@
 #include "bricklib/com/i2c/i2c_clear_bus.h"
 #include "bricklib/com/com.h"
 #include "bricklib/com/com_common.h"
+#include "bricklib/drivers/wdt/wdt.h"
 #include "extensions/chibi/chibi_init.h"
 #include "extensions/chibi/chibi_config.h"
 #include "extensions/chibi/chibi_low_level.h"
@@ -133,6 +134,7 @@ void extension_init(void) {
 
 	extension_i2c_init();
 	for(uint8_t i = 0; i < 2; i++) {
+		wdt_restart();
 		if(extension_is_present(i)) {
 			uint8_t type = extension_get_type(i);
 			logexti("Extension %d present: %d\n\r", i, type);
