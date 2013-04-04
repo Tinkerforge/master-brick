@@ -57,7 +57,10 @@ bool wifi_task_created = false;
 uint8_t wifi_buffer_recv[WIFI_BUFFER_SIZE] = {0};
 uint16_t wifi_buffer_size_recv = 0;
 
+int8_t wifi_force_ack_counter[WIFI_DATA_MAX_CID] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+
 extern Pin extension_pins[];
+extern bool wifi_xoff;
 
 WifiConfiguration wifi_configuration = {
 	"TinkerforgeWLAN",
@@ -262,6 +265,12 @@ void wifi_init_next(void) {
 //		    break;
 //		}
 
+//		case WIFI_COMMAND_ID_AT_WIEEEPSPOLL: {
+//		    wifi_command_send(WIFI_COMMAND_ID_AT_WIEEEPSPOLL);
+//			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY;
+//		    break;
+//		}
+
 
 		case WIFI_COMMAND_ID_AT_WRETRY: {
 		    wifi_command_send(WIFI_COMMAND_ID_AT_WRETRY);
@@ -454,6 +463,9 @@ void wifi_init_extension(const uint8_t extension) {
 uint16_t wifi_send(const void *data, const uint16_t length, uint32_t *options) {
 	if(wifi_status.state != WIFI_STATE_ASSOCIATED) {
 		return 0;
+	}
+	if(wifi_xoff) {
+		return length;
 	}
 
 	led_rxtx++;
@@ -671,9 +683,22 @@ void wifi_tick(const uint8_t tick_type) {
 
 		case WIFI_STATE_ASSOCIATED: {
 			if(wifi_new_cid != -1) {
-				//wifi_command_send(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
+//				wifi_command_send(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
 				brick_init_enumeration(COM_WIFI);
 				wifi_new_cid = -1;
+			}
+
+			if(!wifi_xoff) {
+				for(uint8_t i = 0; i < WIFI_DATA_MAX_CID; i++) {
+					if(wifi_force_ack_counter[i] > -1) {
+						wifi_force_ack_counter[i]--;
+						if(wifi_force_ack_counter[i] == 0) {
+							MessageHeader header;
+							com_make_default_header(&header, 0, sizeof(MessageHeader), 0);
+							wifi_data_send_escape_cid((const char *)&header, sizeof(MessageHeader), i);
+						}
+					}
+				}
 			}
 
 			PIO_Clear(&extension_pins[WIFI_LED]);

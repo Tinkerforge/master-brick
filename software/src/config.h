@@ -307,6 +307,8 @@
 #define PIN_EXT_SCK       {1 << 2, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT}
 
 // ************** MASTER DEBUGGING **************
+#define PIN_STACK_SYNC    {1 << 7, PIOB, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT}
+
 #if(DEBUG_MASTER)
 #define logmasterd(str, ...) do{logd("master: " str, ##__VA_ARGS__);}while(0)
 #define logmasteri(str, ...) do{logi("master: " str, ##__VA_ARGS__);}while(0)

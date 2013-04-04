@@ -83,7 +83,8 @@ static const char *wifi_command_str[] = {
 	WIFI_COMMAND_AT_WM_AP,
 	WIFI_COMMAND_AT_WREGDOMAIN,
 	WIFI_COMMAND_AT_WRETRY,
-	WIFI_COMMAND_AT_WSEC
+	WIFI_COMMAND_AT_WSEC,
+	WIFI_COMMAND_AT_WIEEEPSPOLL
 };
 
 static const uint8_t wifi_command_length[] = {
@@ -131,7 +132,8 @@ static const uint8_t wifi_command_length[] = {
 	sizeof(WIFI_COMMAND_AT_WM_AP)-1,
 	sizeof(WIFI_COMMAND_AT_WREGDOMAIN)-1,
 	sizeof(WIFI_COMMAND_AT_WRETRY)-1,
-	sizeof(WIFI_COMMAND_AT_WSEC)-1
+	sizeof(WIFI_COMMAND_AT_WSEC)-1,
+	sizeof(WIFI_COMMAND_AT_WIEEEPSPOLL)-1
 };
 
 extern WifiConfiguration wifi_configuration;
@@ -390,9 +392,9 @@ void wifi_command_send_at_ndhcp(void) {
 
 void wifi_command_send_at_setsockopt(void) {
 	char str[20] = {'\0'};
-//	sprintf(str, "%d,6,4002,0,4", wifi_new_cid);
+	sprintf(str, "%d,6,4002,0,4", wifi_new_cid);
 //	sprintf(str, "%d,6,1,1,4", wifi_new_cid);
-	sprintf(str, "%d,65535,1002,1600,4", wifi_new_cid);
+	//sprintf(str, "%d,65535,1002,1600,4", wifi_new_cid);
 	wifi_data_send(str, strlen(str));
 	logwohd("%s", str);
 }
@@ -608,6 +610,7 @@ void wifi_command_parse(const char *data, const uint8_t length) {
 		case WIFI_COMMAND_ID_AT_WRXPS_OFF:
 		case WIFI_COMMAND_ID_AT_WD:
 		case WIFI_COMMAND_ID_AT_SETSOCKOPT_TC:
+		case WIFI_COMMAND_ID_AT_WIEEEPSPOLL:
 		case WIFI_COMMAND_ID_AT_ATV0: wifi_command_parse_other(data, length); break;
 		case WIFI_COMMAND_ID_AT_ATE0: wifi_command_parse_ate0(data, length); break;
 		case WIFI_COMMAND_ID_AT_WA: wifi_command_parse_wa(data, length); break;

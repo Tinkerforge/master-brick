@@ -75,3 +75,4 @@
  - CurrentReached (Callback)
  - VoltageReached (Callback)
  - USBVoltageReached (Callback)
+2.0.6: Add forced ACK after 10ms without answer and handle WIFI xon/xoff commands of GS1011MEES

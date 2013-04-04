@@ -36,6 +36,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+//#define WIFI_DEBUG_PRINT_DATA
+
 WIFIDataState wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 uint16_t wifi_data_recv_length_desired = 0;
 uint16_t wifi_data_recv_length = 0;
@@ -52,10 +54,12 @@ extern WifiStatus wifi_status;
 extern uint8_t WIFI_DATA_RDY;
 extern int8_t wifi_new_cid;
 extern uint32_t wifi_ringbuffer_overflow;
+extern int8_t wifi_force_ack_counter[WIFI_DATA_MAX_CID];
 
 static const uint16_t wifi_data_lenght_mul[4] = {1000, 100, 10, 1};
 
 bool wifi_data_currently_stuffing = false;
+bool wifi_xoff = false;
 
 bool wifi_data_cid_present[WIFI_DATA_MAX_CID] = {false};
 int8_t wifi_data_expecting_new_cid = -1;
@@ -112,11 +116,32 @@ bool wifi_data_next_handle_stuffing(char *ndata) {
 	if(wifi_data_currently_stuffing) {
 		*ndata ^= 0x20;
 		wifi_data_currently_stuffing = false;
-	} else if(wifi_low_level_is_byte_stuffing(*ndata)) {
-		if(*ndata == WIFI_LOW_LEVEL_SPI_ESC_CHAR) {
-			wifi_data_currently_stuffing = true;
+	} else {
+		switch(*ndata) {
+			case WIFI_LOW_LEVEL_SPI_ESC_CHAR: {
+				wifi_data_currently_stuffing = true;
+				return false;
+			}
+
+			case WIFI_LOW_LEVEL_SPI_XOFF_CHAR: {
+				wifi_xoff = true;
+				return false;
+			}
+
+			case WIFI_LOW_LEVEL_SPI_XON_CHAR: {
+				wifi_xoff = false;
+				return false;
+			}
+
+			case WIFI_LOW_LEVEL_SPI_IDLE_CHAR:
+			case WIFI_LOW_LEVEL_SPI_INVALID_CHAR_ALL_ONE:
+			case WIFI_LOW_LEVEL_SPI_INVALID_CHAR_ALL_ZERO:
+			case WIFI_LOW_LEVEL_SPI_LINK_READY: {
+				return false;
+			}
 		}
-		return false;
+
+		return true;
 	}
 
 	return true;
@@ -124,7 +149,9 @@ bool wifi_data_next_handle_stuffing(char *ndata) {
 
 void wifi_data_next_handle_wait_for_esc(char ndata) {
 	if(ndata == WIFI_DATA_CHAR_ESC) {
+#ifdef WIFI_DEBUG_PRINT_DATA
 		logwifid("Data Recv: <ESC>");
+#endif
 		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC_CHAR;
 	} else {
 		if(ndata == '\r' || ndata == '\n') {
@@ -198,7 +225,9 @@ void wifi_data_next_handle_wait_for_command_end(char ndata) {
 }
 
 void wifi_data_next_handle_wait_for_esc_char(char ndata) {
+#ifdef WIFI_DEBUG_PRINT_DATA
 	logwohd("%c", ndata);
+#endif
 	if(ndata == WIFI_DATA_CHAR_Z) {
 		wifi_data_state = WIFI_DATA_WAIT_FOR_CID;
 #if LOGGING_LEVEL == LOGGING_DEBUG
@@ -218,7 +247,9 @@ void wifi_data_next_handle_wait_for_esc_char(char ndata) {
 		wifi_data_recv_length = 0;
 		wifi_data_recv_length_desired = 0;
 	} else if(ndata == WIFI_DATA_CHAR_O) {
+#ifdef WIFI_DEBUG_PRINT_DATA
 		logwohd("\n\r");
+#endif
 		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
 	} else {
 		logwohd("\n\r");
@@ -248,7 +279,7 @@ void wifi_data_next_handle_wait_for_async(char ndata) {
 		}
 
 		default: {
-			logwifid("Unexpected Async option: %d\n\r", ndata);
+			logwifiw("Unexpected Async option: %d\n\r", ndata);
 			break;
 		}
 	}
@@ -310,13 +341,17 @@ void wifi_data_next_handle_wait_for_async_read_msg(char ndata) {
 }
 
 void wifi_data_next_handle_wait_for_cid(char ndata) {
+#ifdef WIFI_DEBUG_PRINT_DATA
 	logwohd("%c", ndata);
+#endif
 	wifi_data_current_cid = wifi_data_hex_to_int(ndata);
 	wifi_data_state = WIFI_DATA_WAIT_FOR_LENGTH;
 }
 
 void wifi_data_next_handle_wait_for_length(char ndata) {
+#ifdef WIFI_DEBUG_PRINT_DATA
 	logwohd("%c", ndata);
+#endif
 	wifi_data_recv_length_desired += wifi_data_hex_to_int(ndata) * wifi_data_lenght_mul[wifi_data_recv_length];
 	wifi_data_recv_length++;
 	if(wifi_data_recv_length == 4) {
@@ -327,18 +362,22 @@ void wifi_data_next_handle_wait_for_length(char ndata) {
 #endif
 		wifi_data_state = WIFI_DATA_WAIT_FOR_DATA;
 		wifi_data_recv_length = 0;
+#ifdef WIFI_DEBUG_PRINT_DATA
 		logwohd(": [");
+#endif
 	}
 }
 
 void wifi_data_next_handle_wait_for_data(char ndata) {
+#ifdef WIFI_DEBUG_PRINT_DATA
 #if LOGGING_LEVEL == LOGGING_DEBUG
 	if(wifi_buffer_size_counter == 0) {
 		logwohd("{");
 	}
 #endif
 
-	logwohd("r%x, ", ndata);
+	logwohd("%x, ", ndata);
+#endif
 	wifi_buffer_recv[wifi_buffer_size_counter] = ndata;
 	wifi_buffer_size_counter++;
 
@@ -358,7 +397,13 @@ void wifi_data_next_handle_wait_for_data(char ndata) {
 			brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
 
 			wifi_buffer_size_counter = 0;
+
+			// We will force an ACK in 10ms
+			wifi_force_ack_counter[wifi_data_current_cid] = 10;
+
+#ifdef WIFI_DEBUG_PRINT_DATA
 			logwohd("}\n\r");
+#endif
 		}
 	}
 
@@ -367,7 +412,9 @@ void wifi_data_next_handle_wait_for_data(char ndata) {
 		wifi_data_recv_length_desired = 0;
 		wifi_data_recv_length = 0;
 		wifi_data_state = WIFI_DATA_WAIT_FOR_ESC;
+#ifdef WIFI_DEBUG_PRINT_DATA
 		logwohd("]\n\r");
+#endif
 	}
 }
 
@@ -430,12 +477,14 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 	if(free < (WIFI_DATA_ESCAPE_BUFFER_SIZE+length+2)*2) { // *2 since every byte could be a stuffing byte
 		logwifiw("Ringbuffer overflow\n\r");
 		wifi_ringbuffer_overflow++;
-		led_on(LED_EXT_BLUE_2);
 		return;
 	}
 	wifi_data_send(escape_buffer, WIFI_DATA_ESCAPE_BUFFER_SIZE);
 	wifi_data_send(data, length);
 
+	wifi_force_ack_counter[cid] = -1; // An ACK will be transmitted with the send here
+
+#ifdef WIFI_DEBUG_PRINT_DATA
 #if LOGGING_LEVEL == LOGGING_DEBUG
 	if(!wifi_data_cid_present[cid]) {
 		logwifid("CID not present anymore... %d\n\r", cid);
@@ -445,6 +494,7 @@ void wifi_data_send_escape_cid(const char *data, const uint16_t length, const ui
 		logwohd("%x, ", data[i]);
 	}
 	logwohd("]\n\r");
+#endif
 #endif
 }
 

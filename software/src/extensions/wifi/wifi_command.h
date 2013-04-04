@@ -73,6 +73,7 @@ typedef enum {
 	WIFI_COMMAND_ID_AT_WREGDOMAIN,
 	WIFI_COMMAND_ID_AT_WRETRY,
 	WIFI_COMMAND_ID_AT_WSEC,
+	WIFI_COMMAND_ID_AT_WIEEEPSPOLL,
 	WIFI_COMMAND_ID_END,
 	WIFI_COMMAND_ID_NONE,
 	WIFI_COMMAND_ID_RESET
@@ -139,6 +140,7 @@ typedef struct {
 #define WIFI_COMMAND_AT_WREGDOMAIN    "AT+WREGDOMAIN="
 #define WIFI_COMMAND_AT_WRETRY        "AT+WRETRY=7"
 #define WIFI_COMMAND_AT_WSEC          "AT+WSEC=1"
+#define WIFI_COMMAND_AT_WIEEEPSPOLL   "AT+WIEEEPSPOLL=0"
 
 void wifi_command_send_at_ndhcp(void);
 void wifi_command_send_at_wwpa(void);
