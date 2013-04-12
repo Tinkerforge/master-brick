@@ -92,6 +92,13 @@
 #define FID_STACK_CURRENT_REACHED 62
 #define FID_STACK_VOLTAGE_REACHED 63
 #define FID_USB_VOLTAGE_REACHED 64
+#define FID_IS_ETHERNET_PRESENT 65
+#define FID_SET_ETHERNET_CONFIGURATION 66
+#define FID_GET_ETHERNET_CONFIGURATION 67
+#define FID_GET_ETHERNET_STATUS 68
+#define FID_SET_ETHERNET_HOSTNAME 69
+#define FID_SET_ETHERNET_MAC 70
+
 
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -157,7 +164,14 @@
 	{FID_USB_VOLTAGE, (message_handler_func_t)NULL}, \
 	{FID_STACK_CURRENT_REACHED, (message_handler_func_t)NULL}, \
 	{FID_STACK_VOLTAGE_REACHED, (message_handler_func_t)NULL}, \
-	{FID_USB_VOLTAGE_REACHED, (message_handler_func_t)NULL},
+	{FID_USB_VOLTAGE_REACHED, (message_handler_func_t)NULL}, \
+	{FID_IS_ETHERNET_PRESENT, (message_handler_func_t)is_ethernet_present}, \
+	{FID_SET_ETHERNET_CONFIGURATION, (message_handler_func_t)set_ethernet_configuration}, \
+	{FID_GET_ETHERNET_CONFIGURATION, (message_handler_func_t)get_ethernet_configuration}, \
+	{FID_GET_ETHERNET_STATUS, (message_handler_func_t)get_ethernet_status}, \
+	{FID_SET_ETHERNET_HOSTNAME, (message_handler_func_t)set_ethernet_hostname}, \
+	{FID_SET_ETHERNET_MAC, (message_handler_func_t)set_ethernet_mac},
+
 
 typedef struct {
 	MessageHeader header;
@@ -676,6 +690,62 @@ typedef struct {
 	uint16_t voltage;
 } __attribute__((__packed__)) USBVoltageReached;
 
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) IsEthernetPresent;
+
+typedef struct {
+	MessageHeader header;
+	bool present;
+} __attribute__((__packed__)) IsEthernetPresentReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t connection;
+	uint8_t ip[4];
+	uint8_t subnet_mask[4];
+	uint8_t gateway[4];
+	uint16_t port;
+} __attribute__((__packed__)) SetEthernetConfiguration;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetEthernetConfiguration;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t connection;
+	uint8_t ip[4];
+	uint8_t subnet_mask[4];
+	uint8_t gateway[4];
+	uint16_t port;
+} __attribute__((__packed__)) GetEthernetConfigurationReturn;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetEthernetStatus;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t mac_address[6];
+	uint8_t ip[4];
+	uint8_t subnet_mask[4];
+	uint8_t gateway[4];
+	uint32_t rx_count;
+	uint32_t tx_count;
+	char hostname[32];
+} __attribute__((__packed__)) GetEthernetStatusReturn;
+
+typedef struct {
+	MessageHeader header;
+	char hostname[32];
+} __attribute__((__packed__)) SetEthernetHostname;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t mac_address[6];
+} __attribute__((__packed__)) SetEthernetMAC;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -734,5 +804,11 @@ void set_usb_voltage_callback_threshold(const ComType com, const SetUSBVoltageCa
 void get_usb_voltage_callback_threshold(const ComType com, const GetUSBVoltageCallbackThreshold *data);
 void set_debounce_period(const ComType com, const SetDebouncePeriod *data);
 void get_debounce_period(const ComType com, const GetDebouncePeriod *data);
+void is_ethernet_present(const ComType com, const IsEthernetPresent *data);
+void set_ethernet_configuration(const ComType com, const SetEthernetConfiguration *data);
+void get_ethernet_configuration(const ComType com, const GetEthernetConfiguration *data);
+void get_ethernet_status(const ComType com, const GetEthernetStatus *data);
+void set_ethernet_hostname(const ComType com, const SetEthernetHostname *data);
+void set_ethernet_mac(const ComType com, const SetEthernetMAC *data);
 
 #endif

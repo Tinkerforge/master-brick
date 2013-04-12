@@ -78,3 +78,4 @@
 2.0.6: Add forced ACK after 10ms without answer
  - Handle WIFI xon/xoff commands of GS1011MEES
  - Add watchdog timer (restart after 16s of "deadlock")
+2.1.0: Add support for Ethernet Extension

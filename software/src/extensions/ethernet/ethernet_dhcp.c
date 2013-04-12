@@ -33,11 +33,7 @@
 
 #define HOST_NAME "EthernetExtension"
 
-extern uint8_t ethernet_low_level_mac[];
-extern uint8_t ethernet_low_level_ip[];
-extern uint8_t ethernet_low_level_gw[];
-extern uint8_t ethernet_low_level_dns[];
-extern uint8_t ehternet_low_level_subnet_mask[];
+extern EthernetStatus ethernet_status;
 
 
 static uint8_t dhcp_dns_server_ip[4] = {0, 0, 0, 0};
@@ -114,12 +110,12 @@ void dhcp_send_discover(const uint8_t s) {
 	dhcp_message.xid = htonl(dhcp_xid);
 	dhcp_message.secs = htons(DHCP_SECS);
 	dhcp_message.flags = htons(DHCP_FLAGSBROADCAST);
-	dhcp_message.chaddr[0] = ethernet_low_level_mac[0];
-	dhcp_message.chaddr[1] = ethernet_low_level_mac[1];
-	dhcp_message.chaddr[2] = ethernet_low_level_mac[2];
-	dhcp_message.chaddr[3] = ethernet_low_level_mac[3];
-	dhcp_message.chaddr[4] = ethernet_low_level_mac[4];
-	dhcp_message.chaddr[5] = ethernet_low_level_mac[5];
+	dhcp_message.chaddr[0] = ethernet_status.mac_address[0];
+	dhcp_message.chaddr[1] = ethernet_status.mac_address[1];
+	dhcp_message.chaddr[2] = ethernet_status.mac_address[2];
+	dhcp_message.chaddr[3] = ethernet_status.mac_address[3];
+	dhcp_message.chaddr[4] = ethernet_status.mac_address[4];
+	dhcp_message.chaddr[5] = ethernet_status.mac_address[5];
 
 	uint32_t i = 0;
 	// Magic Cookie
@@ -137,26 +133,25 @@ void dhcp_send_discover(const uint8_t s) {
 	dhcp_message.OPT[i++] = dhcpClientIdentifier;
 	dhcp_message.OPT[i++] = 0x07;
 	dhcp_message.OPT[i++] = 0x01;
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[0];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[1];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[2];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[3];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[4];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[5];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[0];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[1];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[2];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[3];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[4];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[5];
 
 	// Host name
 	dhcp_message.OPT[i++] = hostName;
-	dhcp_message.OPT[i++] = strlen(HOST_NAME) + 6; // length of hostname + 6
-	strcpy((char*)&(dhcp_message.OPT[i]), HOST_NAME);
+	uint8_t hostname_length = ETHERNET_HOSTNAME_LENGTH;
+	if(ethernet_status.hostname[ETHERNET_HOSTNAME_LENGTH-1] != '\0') {
+		hostname_length = strlen(ethernet_status.hostname);
+	}
+	dhcp_message.OPT[i++] = hostname_length;
+	memcpy((char*)&(dhcp_message.OPT[i]), ethernet_status.hostname, hostname_length);
 
-	i += strlen(HOST_NAME);
+	i += hostname_length;
 
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[3]/16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[3] % 16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[4]/16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[4] % 16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[5]/16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[5] % 16);
+	dhcp_message.OPT[i++] = int_to_char(ethernet_status.mac_address[5] % 16);
 
 	dhcp_message.OPT[i++] = dhcpParamRequest;
 	dhcp_message.OPT[i++] = 0x06;
@@ -187,18 +182,18 @@ void dhcp_send_request(const uint8_t s) {
 		dhcp_message.flags = htons(DHCP_FLAGSBROADCAST);
 	} else {
 		dhcp_message.flags = 0; // For Unicast
-		dhcp_message.ciaddr[0] = ethernet_low_level_ip[0];
-		dhcp_message.ciaddr[1] = ethernet_low_level_ip[1];
-		dhcp_message.ciaddr[2] = ethernet_low_level_ip[2];
-		dhcp_message.ciaddr[3] = ethernet_low_level_ip[3];
+		dhcp_message.ciaddr[0] = ethernet_status.ip[0];
+		dhcp_message.ciaddr[1] = ethernet_status.ip[1];
+		dhcp_message.ciaddr[2] = ethernet_status.ip[2];
+		dhcp_message.ciaddr[3] = ethernet_status.ip[3];
 	}
 
-	dhcp_message.chaddr[0] = ethernet_low_level_mac[0];
-	dhcp_message.chaddr[1] = ethernet_low_level_mac[1];
-	dhcp_message.chaddr[2] = ethernet_low_level_mac[2];
-	dhcp_message.chaddr[3] = ethernet_low_level_mac[3];
-	dhcp_message.chaddr[4] = ethernet_low_level_mac[4];
-	dhcp_message.chaddr[5] = ethernet_low_level_mac[5];
+	dhcp_message.chaddr[0] = ethernet_status.mac_address[0];
+	dhcp_message.chaddr[1] = ethernet_status.mac_address[1];
+	dhcp_message.chaddr[2] = ethernet_status.mac_address[2];
+	dhcp_message.chaddr[3] = ethernet_status.mac_address[3];
+	dhcp_message.chaddr[4] = ethernet_status.mac_address[4];
+	dhcp_message.chaddr[5] = ethernet_status.mac_address[5];
 
 	uint32_t i = 0;
 	// Magic Cookie
@@ -215,20 +210,20 @@ void dhcp_send_request(const uint8_t s) {
 	dhcp_message.OPT[i++] = dhcpClientIdentifier;
 	dhcp_message.OPT[i++] = 0x07;
 	dhcp_message.OPT[i++] = 0x01;
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[0];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[1];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[2];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[3];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[4];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[5];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[0];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[1];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[2];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[3];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[4];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[5];
 
 	if(dhcp_state < STATE_DHCP_LEASED) {
 		dhcp_message.OPT[i++] = dhcpRequestedIPaddr;
 		dhcp_message.OPT[i++] = 0x04;
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[0];
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[1];
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[2];
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[3];
+		dhcp_message.OPT[i++] = ethernet_status.ip[0];
+		dhcp_message.OPT[i++] = ethernet_status.ip[1];
+		dhcp_message.OPT[i++] = ethernet_status.ip[2];
+		dhcp_message.OPT[i++] = ethernet_status.ip[3];
 
 		dhcp_message.OPT[i++] = dhcpServerIdentifier;
 		dhcp_message.OPT[i++] = 0x04;
@@ -238,19 +233,17 @@ void dhcp_send_request(const uint8_t s) {
 		dhcp_message.OPT[i++] = dhcp_dns_server_ip[3];
 	}
 
+
 	// Host name
 	dhcp_message.OPT[i++] = hostName;
-	dhcp_message.OPT[i++] = strlen(HOST_NAME) + 6; // length of hostname + 6
-	strcpy((char*)&(dhcp_message.OPT[i]), HOST_NAME);
+	uint8_t hostname_length = ETHERNET_HOSTNAME_LENGTH;
+	if(ethernet_status.hostname[ETHERNET_HOSTNAME_LENGTH-1] != '\0') {
+		hostname_length = strlen(ethernet_status.hostname);
+	}
+	dhcp_message.OPT[i++] = hostname_length;
+	memcpy((char*)&(dhcp_message.OPT[i]), ethernet_status.hostname, hostname_length);
 
-	i += strlen(HOST_NAME);
-
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[3]/16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[3] % 16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[4]/16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[4] % 16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[5]/16);
-	dhcp_message.OPT[i++] = int_to_char(ethernet_low_level_mac[5] % 16);
+	i += hostname_length;
 
 	dhcp_message.OPT[i++] = dhcpParamRequest;
 	dhcp_message.OPT[i++] = 0x08;
@@ -293,12 +286,12 @@ void dhcp_send_release_decline(const uint8_t s, const char msgtype) {
 	dhcp_message.secs = htons(DHCP_SECS);
 	dhcp_message.flags = 0;	//DHCP_FLAGSBROADCAST;
 
-	dhcp_message.chaddr[0] = ethernet_low_level_mac[0];
-	dhcp_message.chaddr[1] = ethernet_low_level_mac[1];
-	dhcp_message.chaddr[2] = ethernet_low_level_mac[2];
-	dhcp_message.chaddr[3] = ethernet_low_level_mac[3];
-	dhcp_message.chaddr[4] = ethernet_low_level_mac[4];
-	dhcp_message.chaddr[5] = ethernet_low_level_mac[5];
+	dhcp_message.chaddr[0] = ethernet_status.mac_address[0];
+	dhcp_message.chaddr[1] = ethernet_status.mac_address[1];
+	dhcp_message.chaddr[2] = ethernet_status.mac_address[2];
+	dhcp_message.chaddr[3] = ethernet_status.mac_address[3];
+	dhcp_message.chaddr[4] = ethernet_status.mac_address[4];
+	dhcp_message.chaddr[5] = ethernet_status.mac_address[5];
 
 	uint32_t i = 0;
 
@@ -316,12 +309,12 @@ void dhcp_send_release_decline(const uint8_t s, const char msgtype) {
 	dhcp_message.OPT[i++] = dhcpClientIdentifier;
 	dhcp_message.OPT[i++] = 0x07;
 	dhcp_message.OPT[i++] = 0x01;
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[0];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[1];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[2];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[3];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[4];
-	dhcp_message.OPT[i++] = ethernet_low_level_mac[5];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[0];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[1];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[2];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[3];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[4];
+	dhcp_message.OPT[i++] = ethernet_status.mac_address[5];
 
 	dhcp_message.OPT[i++] = dhcpServerIdentifier;
 	dhcp_message.OPT[i++] = 0x04;
@@ -333,10 +326,10 @@ void dhcp_send_release_decline(const uint8_t s, const char msgtype) {
 	if(msgtype) {
 		dhcp_message.OPT[i++] = dhcpRequestedIPaddr;
 		dhcp_message.OPT[i++] = 0x04;
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[0];
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[1];
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[2];
-		dhcp_message.OPT[i++] = ethernet_low_level_ip[3];
+		dhcp_message.OPT[i++] = ethernet_status.ip[0];
+		dhcp_message.OPT[i++] = ethernet_status.ip[1];
+		dhcp_message.OPT[i++] = ethernet_status.ip[2];
+		dhcp_message.OPT[i++] = ethernet_status.ip[3];
 		dhcp_message.OPT[i++] = endOption;
 	} else {
 		dhcp_message.OPT[i++] = endOption;
@@ -376,7 +369,7 @@ char dhcp_parse_msg(const uint8_t s, const uint32_t length) {
 		logethi("No dhcp message\n\r");
 	} else {
 		if(svr_port == DHCP_SERVER_PORT) {
-			if(memcmp(dhcp_message.chaddr, ethernet_low_level_mac, 6) != 0 || dhcp_message.xid != htonl(dhcp_xid)) {
+			if(memcmp(dhcp_message.chaddr, ethernet_status.mac_address, 6) != 0 || dhcp_message.xid != htonl(dhcp_xid)) {
 				return 0;
 			}
 
@@ -396,8 +389,8 @@ char dhcp_parse_msg(const uint8_t s, const uint32_t length) {
 				}
 			}
 
-			memcpy(ethernet_low_level_ip, dhcp_message.yiaddr, 4);
-			logethi("New dhcp ip: %d.%d.%d.%d\n\r", ethernet_low_level_ip[0], ethernet_low_level_ip[1], ethernet_low_level_ip[2], ethernet_low_level_ip[3]);
+			memcpy(ethernet_status.ip, dhcp_message.yiaddr, 4);
+			logethi("New dhcp ip: %d.%d.%d.%d\n\r", ethernet_status.ip[0], ethernet_status.ip[1], ethernet_status.ip[2], ethernet_status.ip[3]);
 
 			type = 0;
 			p = (uint8_t *)(&dhcp_message.op);
@@ -423,21 +416,21 @@ char dhcp_parse_msg(const uint8_t s, const uint32_t length) {
 
 					case subnetMask: {
 						opt_len =* p++;
-						memcpy(ehternet_low_level_subnet_mask, p, 4);
+						memcpy(ethernet_status.subnet_mask, p, 4);
 
 						break;
 					}
 
 					case routersOnSubnet: {
 						opt_len = *p++;
-						memcpy(ethernet_low_level_gw, p, 4);
+						memcpy(ethernet_status.gateway, p, 4);
 
 						break;
 					}
 
 					case dns: {
 						opt_len = *p++;
-						memcpy(ethernet_low_level_dns, p, 4);
+						// TODO: Save DNS IP?
 						break;
 					}
 
@@ -544,7 +537,7 @@ void dhcp_check_state(const uint8_t s) {
 		case STATE_DHCP_LEASED: {
 			if((lease_time.l_val != 0xffffffff) && ((lease_time.l_val/2) < dhcp_time)) {
 				type = 0;
-				memcpy(dhcp_old_ip, ethernet_low_level_ip, 4);
+				memcpy(dhcp_old_ip, ethernet_status.ip, 4);
 				dhcp_xid++;
 				dhcp_send_request(s);
 				dhcp_state = STATE_DHCP_REREQUEST;
@@ -555,7 +548,7 @@ void dhcp_check_state(const uint8_t s) {
 
 		case STATE_DHCP_REREQUEST: {
 			if(type == DHCP_ACK) {
-				memcpy(dhcp_old_ip, ethernet_low_level_ip, 4);
+				memcpy(dhcp_old_ip, ethernet_status.ip, 4);
 
 				dhcp_reset_time();
 				dhcp_state = STATE_DHCP_LEASED;
@@ -618,9 +611,9 @@ void dhcp_check_timeout(void) {
 
 
 void dhcp_set_network(void) {
-	ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_low_level_gw, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SUBNET_MASK, ehternet_low_level_subnet_mask, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_low_level_ip, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_status.gateway, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ETH_REG_SUBNET_MASK, ethernet_status.subnet_mask, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_status.ip, ETHERNET_IP_SIZE);
 }
 
 
@@ -658,14 +651,14 @@ void dhcp_tick(const uint8_t tick_type) {
 
 uint32_t dhcp_init_socket(const uint8_t s) {
 	dhcp_xid = DHCP_START_XID;
-	memset(ehternet_low_level_subnet_mask, 0, 4);
-	memset(ethernet_low_level_gw, 0, 4);
-	memset(ehternet_low_level_subnet_mask, 0, 4);
+	memset(ethernet_status.subnet_mask, 0, 4);
+	memset(ethernet_status.gateway, 0, 4);
+	memset(ethernet_status.ip, 0, 4);
 
-	ethernet_write_buffer(ETH_REG_SOURCE_HW_ADDRESS, ethernet_low_level_mac, ETHERNET_MAC_SIZE);
-	ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_low_level_gw, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SUBNET_MASK, ehternet_low_level_subnet_mask, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_low_level_ip, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ETH_REG_SOURCE_HW_ADDRESS, ethernet_status.mac_address, ETHERNET_MAC_SIZE);
+	ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_status.gateway, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ETH_REG_SUBNET_MASK, ethernet_status.subnet_mask, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_status.ip, ETHERNET_IP_SIZE);
 
 	dhcp_socket = s;
 	return dhcp_create_socket(s);

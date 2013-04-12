@@ -29,17 +29,16 @@
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/utility/util_definitions.h"
 
+#include <string.h>
+
 extern Pin extension_pins[];
 extern uint8_t ETHERNET_CS;
 extern uint8_t ETHERNET_RESET;
 
-uint8_t ethernet_low_level_mac[ETHERNET_MAC_SIZE] = {0xAA, 0xBB, 0x11, 0x23, 0xAD, 0x7C};
-uint8_t ethernet_low_level_ip[ETHERNET_IP_SIZE] = {192, 168, 178, 2};
-uint8_t ethernet_low_level_gw[ETHERNET_IP_SIZE] = {192, 168, 178, 1};
-uint8_t ethernet_low_level_dns[ETHERNET_IP_SIZE] = {0, 0, 0, 0};
-uint8_t ehternet_low_level_subnet_mask[ETHERNET_IP_SIZE] = {255, 255, 255, 0};
-
 extern bool ethernet_dhcp_server;
+extern EthernetStatus ethernet_status;
+
+uint16_t ethernet_port = 4223;
 
 bool ethernet_low_level_socket_open[ETHERNET_MAX_SOCKETS] = {false, false, false, false, false, false, false};
 
@@ -50,8 +49,40 @@ void ethernet_low_level_reset(void) {
 	SLEEP_MS(150);
 }
 
+void ethernet_low_level_get_default_hostname(char hostname[ETHERNET_HOSTNAME_LENGTH]) {
+	const uint8_t tflen = 11;
+	memcpy(hostname, "Tinkerforge", tflen);
+	hostname[tflen + 0] = int_to_char(ethernet_status.mac_address[3]/16);
+	hostname[tflen + 1] = int_to_char(ethernet_status.mac_address[3] % 16);
+	hostname[tflen + 2] = int_to_char(ethernet_status.mac_address[4]/16);
+	hostname[tflen + 3] = int_to_char(ethernet_status.mac_address[4] % 16);
+	hostname[tflen + 4] = int_to_char(ethernet_status.mac_address[5]/16);
+	hostname[tflen + 5] = int_to_char(ethernet_status.mac_address[5] % 16);
+}
+
 void ethernet_low_level_init(void) {
 	logethi("Start low level init\n\r");
+
+	EthernetConfiguration ec = ETHERNET_CONFIGURATION_DEFAULT;
+
+	if(ethernet_read_config((char*)ethernet_status.mac_address, ETHERNET_MAC_SIZE, ETHERNET_MAC_POS)) {
+		ethernet_low_level_get_default_hostname(ec.hostname);
+		ethernet_read_config((char*)&ec, sizeof(ec), ETHERNET_CONFIGURATION_POS);
+	} else {
+		ethernet_low_level_get_default_hostname(ec.hostname);
+		ethernet_write_config((char*)&ec, sizeof(ec), ETHERNET_CONFIGURATION_POS);
+	}
+
+	memcpy(ethernet_status.hostname, ec.hostname, ETHERNET_HOSTNAME_LENGTH);
+	ethernet_port = ec.port;
+
+	if(ec.connection == ETHERNET_CONNECTION_STATIC) {
+		ethernet_dhcp_server = false;
+		memcpy(ethernet_status.gateway, ec.gateway, ETHERNET_IP_SIZE);
+		memcpy(ethernet_status.subnet_mask, ec.subnet_mask, ETHERNET_IP_SIZE);
+		memcpy(ethernet_status.ip, ec.ip, ETHERNET_IP_SIZE);
+	}
+
 	ethernet_low_level_reset();
 
 	// Configure socket memory
@@ -60,16 +91,16 @@ void ethernet_low_level_init(void) {
 		ethernet_write_register(ETH_REG_SN_RXMEM_SIZE | ETH_REG_SOCKET_NUM(i), ETHERNET_RX_SIZE);
 	}
 
-	ethernet_write_buffer(ETH_REG_SOURCE_HW_ADDRESS, ethernet_low_level_mac, ETHERNET_MAC_SIZE);
+	ethernet_write_buffer(ETH_REG_SOURCE_HW_ADDRESS, ethernet_status.mac_address, ETHERNET_MAC_SIZE);
 
 	// Configure network
 	if(ethernet_dhcp_server) {
 		dhcp_init_socket(DHCP_SOCKET);
 		dhcp_get_ip();
 	} else {
-		ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_low_level_gw, ETHERNET_IP_SIZE);
-		ethernet_write_buffer(ETH_REG_SUBNET_MASK, ehternet_low_level_subnet_mask, ETHERNET_IP_SIZE);
-		ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_low_level_ip, ETHERNET_IP_SIZE);
+		ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_status.gateway, ETHERNET_IP_SIZE);
+		ethernet_write_buffer(ETH_REG_SUBNET_MASK, ethernet_status.subnet_mask, ETHERNET_IP_SIZE);
+		ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_status.ip, ETHERNET_IP_SIZE);
 	}
 
 	for(uint8_t socket = 0; socket < ETHERNET_MAX_SOCKETS; socket++) {
@@ -93,8 +124,8 @@ void ethernet_low_level_socket_init(const uint8_t socket) {
 	}
 
 	ethernet_write_register(ETH_REG_SN_MR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_MR_PROTO_TCP | ETH_VAL_SN_MR_ND_MC);
-	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)), (4223 & 0xFF00) >> 8);
-	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)) + 1, 4223 & 0x00FF);
+	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)), (ethernet_port & 0xFF00) >> 8);
+	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)) + 1, ethernet_port & 0x00FF);
 	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_CR_OPEN);
 
 	ethernet_low_level_set_retry_time(6000);
@@ -214,6 +245,7 @@ uint8_t ethernet_low_level_read_data_tcp(const uint8_t socket, uint8_t *buffer, 
 		}
 	}
 
+	ethernet_status.rx_count += read_length;
 	return read_length;
 }
 
@@ -248,6 +280,7 @@ uint8_t ethernet_low_level_write_data_tcp(const uint8_t socket, const uint8_t *b
 	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_CR_SEND);
 	while(ethernet_read_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket)) != 0);
 
+	ethernet_status.tx_count += length;
 	return length;
 }
 

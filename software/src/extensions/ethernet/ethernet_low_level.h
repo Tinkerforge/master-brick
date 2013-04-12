@@ -24,6 +24,8 @@
 
 #include <stdint.h>
 
+#include "ethernet_config.h"
+
 #define ETH_REG_MODE                   0x0000
 #define ETH_REG_GATEWAY_ADDRESS        0x0001
 #define ETH_REG_SUBNET_MASK            0x0005
@@ -132,6 +134,7 @@
 #define ETH_VAL_SN_IMR_DISCON          (1 << 1)
 #define ETH_VAL_SN_IMR_CON             (1 << 0)
 
+void ethernet_low_level_get_default_hostname(char hostname[ETHERNET_HOSTNAME_LENGTH]);
 void ethernet_low_level_reset(void);
 void ethernet_low_level_init(void);
 void ethernet_low_level_disconnect(const uint8_t socket);

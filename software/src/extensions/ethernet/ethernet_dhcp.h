@@ -178,5 +178,7 @@ char dhcp_check_leased_ip(void);
 void dhcp_get_ip(void);
 uint32_t dhcp_init_socket(const uint8_t s);
 
+char int_to_char(const uint8_t value);
+
 
 #endif

@@ -36,6 +36,9 @@
 #include "extensions/extension_i2c.h"
 #include "extensions/extension_init.h"
 #include "bricklib/utility/util_definitions.h"
+#include "extensions/ethernet/ethernet_config.h"
+#include "extensions/ethernet/ethernet.h"
+#include "extensions/ethernet/ethernet_low_level.h"
 
 extern ComInfo com_info;
 extern uint8_t chibi_receiver_input_power;
@@ -56,6 +59,8 @@ extern uint32_t wifi_ringbuffer_overflow;
 extern uint16_t wifi_ringbuffer_low_watermark;
 
 extern MasterCallback master_callback;
+
+extern EthernetStatus ethernet_status;
 
 void get_stack_voltage(const ComType com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -992,4 +997,87 @@ void get_debounce_period(const ComType com, const GetDebouncePeriod *data) {
 	gdpr.debounce      = master_callback.debounce_period;
 
 	send_blocking_with_timeout(&gdpr, sizeof(GetDebouncePeriodReturn), com);
+}
+
+void is_ethernet_present(const ComType com, const IsEthernetPresent *data) {
+	IsEthernetPresentReturn iepr;
+
+	iepr.header        = data->header;
+	iepr.header.length = sizeof(IsEthernetPresentReturn);
+	iepr.present       = com_info.ext[0] == COM_ETHERNET || com_info.ext[1] == COM_ETHERNET;
+
+	send_blocking_with_timeout(&iepr, sizeof(IsEthernetPresentReturn), com);
+
+	logwifii("is_ethernet_present: %d\n\r", iepr.present);
+}
+
+void set_ethernet_configuration(const ComType com, const SetEthernetConfiguration *data) {
+	ethernet_write_config(((char*)data) + sizeof(MessageHeader),
+	                      sizeof(SetEthernetConfiguration) - sizeof(MessageHeader),
+	                      ETHERNET_CONFIGURATION_POS);
+
+	logwifii("set_ethernet_configuration: %d, %d.%d.%d.%d:%d\n\r", data->connection,
+	                                                               data->ip[3],
+	                                                               data->ip[2],
+	                                                               data->ip[1],
+	                                                               data->ip[0],
+	                                                               data->port);
+
+	com_return_setter(com, data);
+}
+
+void get_ethernet_configuration(const ComType com, const GetEthernetConfiguration *data) {
+	GetEthernetConfigurationReturn gecr;
+
+	gecr.header        = data->header;
+	gecr.header.length = sizeof(GetEthernetConfigurationReturn);
+
+	ethernet_read_config(((char*)&gecr) + sizeof(MessageHeader),
+	                     sizeof(GetEthernetConfigurationReturn) - sizeof(MessageHeader),
+	                     ETHERNET_CONFIGURATION_POS);
+
+	send_blocking_with_timeout(&gecr, sizeof(GetEthernetConfigurationReturn), com);
+
+	logwifii("get_ethernet_configuration: %d, %d.%d.%d.%d:%d\n\r", gecr.connection,
+	                                                               gecr.ip[3],
+	                                                               gecr.ip[2],
+	                                                               gecr.ip[1],
+	                                                               gecr.ip[0],
+	                                                               gecr.port);
+}
+
+void get_ethernet_status(const ComType com, const GetEthernetStatus *data) {
+	GetEthernetStatusReturn gesr;
+
+	gesr.header        = data->header;
+	gesr.header.length = sizeof(GetEthernetStatusReturn);
+	memcpy(gesr.mac_address, &ethernet_status, sizeof(EthernetStatus));
+
+	send_blocking_with_timeout(&gesr, sizeof(GetEthernetStatusReturn), com);
+}
+
+void set_ethernet_hostname(const ComType com, const SetEthernetHostname *data) {
+	char hostname[ETHERNET_HOSTNAME_LENGTH] = {'\0'};
+
+	uint8_t i = 0;
+	for(; i < ETHERNET_HOSTNAME_LENGTH; i++) {
+		if(data->hostname[i] == '\0') {
+			break;
+		}
+		hostname[i] = data->hostname[i];
+	}
+
+	if(i == 0) {
+		ethernet_low_level_get_default_hostname(hostname);
+	}
+
+	ethernet_write_config(hostname, ETHERNET_HOSTNAME_LENGTH, ETHERNET_HOSTNAME_POS);
+	com_return_setter(com, data);
+}
+
+void set_ethernet_mac(const ComType com, const SetEthernetMAC *data) {
+	ethernet_write_config((const char *)data->mac_address,
+	                      sizeof(SetEthernetMAC) - sizeof(MessageHeader),
+	                      ETHERNET_MAC_POS);
+	com_return_setter(com, data);
 }

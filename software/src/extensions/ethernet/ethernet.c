@@ -26,6 +26,7 @@
 #include "ethernet_dhcp.h"
 
 #include "extensions/brickd.h"
+#include "extensions/extension_i2c.h"
 
 #include "bricklib/com/com.h"
 #include "bricklib/com/com_common.h"
@@ -36,12 +37,15 @@
 #include "bricklib/drivers/usart/usart.h"
 
 extern Pin extension_pins[];
+extern ComInfo com_info;
 uint8_t ETHERNET_CS = ETHERNET_CS_0;
 uint8_t ETHERNET_RESET = ETHERNET_RESET_0;
 uint8_t ETHERNET_INT = ETHERNET_INT_0;
 uint8_t ETHERNET_PWDN = ETHERNET_PWDN_0;
 
 bool ethernet_dhcp_server = true;
+
+EthernetStatus ethernet_status = ETHERNET_STATUS_DEFAULT;
 
 void ethernet_init_extension(uint8_t extension) {
 	if(extension == 0) {
@@ -219,4 +223,120 @@ void ethernet_tick(const uint8_t tick_type) {
 			}
 		}
 	}
+}
+
+
+// TODO: Centralize WIFI and Ethernet read/write key/config
+uint32_t ethernet_read_key(void) {
+	uint8_t extension;
+	if(com_info.ext[0] == COM_ETHERNET) {
+		extension = 0;
+	} else if(com_info.ext[1] == COM_ETHERNET) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return 0;
+	}
+
+	uint32_t key = 0;
+	extension_i2c_read(extension,
+					   ETHERNET_KEY_POS,
+					   (char*)&key,
+					   4);
+	return key;
+}
+
+void ethernet_write_key(void) {
+	uint8_t extension;
+	if(com_info.ext[0] == COM_ETHERNET) {
+		extension = 0;
+	} else if(com_info.ext[1] == COM_ETHERNET) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	uint32_t key = ETHERNET_KEY;
+	extension_i2c_write(extension,
+	                    ETHERNET_KEY_POS,
+					    (char*)&key,
+					    4);
+}
+
+bool ethernet_read_config(char *data, const uint8_t length, const uint16_t position) {
+	uint8_t extension;
+	if(com_info.ext[0] == COM_ETHERNET) {
+		extension = 0;
+	} else if(com_info.ext[1] == COM_ETHERNET) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return false;
+	}
+
+	if(ethernet_read_key() != ETHERNET_KEY) {
+		logethw("Key mismatch\n\r");
+		ethernet_write_config(data, length, position);
+		return false;
+	}
+
+	uint8_t i;
+	for(i = 0; i < length/32; i++) {
+		extension_i2c_read(extension,
+						   position + i*32,
+						   data + i*32,
+						   32);
+	}
+
+	uint8_t reminder = length - i*32;
+	if(reminder != 0) {
+		extension_i2c_read(extension,
+						   position + i*32,
+						   data + i*32,
+						   reminder);
+	}
+
+	return true;
+}
+
+void ethernet_write_config(const char *data, const uint8_t length, const uint16_t position) {
+	uint8_t extension;
+	if(com_info.ext[0] == COM_ETHERNET) {
+		extension = 0;
+	} else if(com_info.ext[1] == COM_ETHERNET) {
+		extension = 1;
+	} else {
+		// TODO: Error?
+		return;
+	}
+
+	uint8_t reminder = 32 - (position % 32);
+	if(reminder != 32) {
+		reminder = MIN(length, reminder);
+		extension_i2c_write(extension,
+						    position,
+						    data,
+						    reminder);
+	} else {
+		reminder = 0;
+	}
+
+	uint8_t i = 0;
+	for(i = 0; i < (length - reminder)/32; i++) {
+		extension_i2c_write(extension,
+						    position + reminder + i*32,
+						    data + reminder + i*32,
+						    32);
+	}
+
+	uint8_t last = (length - reminder) - i*32;
+	if(last != 0) {
+		extension_i2c_write(extension,
+						    position + reminder + i*32,
+						    data + reminder + i*32,
+						    last);
+	}
+
+	ethernet_write_key();
 }
