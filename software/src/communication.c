@@ -888,6 +888,7 @@ void set_stack_current_callback_threshold(const ComType com, const SetStackCurre
 		master_callback.max_stack_current = data->min;
 	} else {
 		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+		return;
 	}
 
 	master_callback.threshold_period_current_stack_current = master_callback.debounce_period;
@@ -927,6 +928,7 @@ void set_stack_voltage_callback_threshold(const ComType com, const SetStackVolta
 		master_callback.max_stack_voltage = data->min;
 	} else {
 		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+		return;
 	}
 
 	master_callback.threshold_period_current_stack_voltage = master_callback.debounce_period;
@@ -966,6 +968,7 @@ void set_usb_voltage_callback_threshold(const ComType com, const SetUSBVoltageCa
 		master_callback.max_usb_voltage = data->min;
 	} else {
 		com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_INVALID_PARAMETER, com);
+		return;
 	}
 
 	master_callback.threshold_period_current_stack_voltage = master_callback.debounce_period;
