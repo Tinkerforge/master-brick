@@ -44,7 +44,7 @@ bool ethernet_low_level_socket_open[ETHERNET_MAX_SOCKETS] = {false, false, false
 
 void ethernet_low_level_reset(void) {
 	PIO_Clear(&extension_pins[ETHERNET_RESET]);
-	SLEEP_US(2);
+	SLEEP_US(10);
 	PIO_Set(&extension_pins[ETHERNET_RESET]);
 	SLEEP_MS(150);
 }
