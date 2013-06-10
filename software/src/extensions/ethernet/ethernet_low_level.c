@@ -84,6 +84,7 @@ void ethernet_low_level_init(void) {
 	}
 
 	ethernet_low_level_reset();
+	ethernet_low_level_reset();
 
 	// Configure socket memory
 	for(uint8_t i = 0; i < ETHERNET_NUM_SOCKETS; i++) {

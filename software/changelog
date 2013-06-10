@@ -80,3 +80,4 @@
  - Add watchdog timer (restart after 16s of "deadlock")
 2.1.0: Add support for Ethernet Extension
 2.1.1: Increase ethernet reset holding time from 2us to 10us to ensure proper bootup
+2.1.2: Call ethernet reset function 2 times to make sure it works allways
