@@ -57,8 +57,6 @@ extern uint32_t usb_num_send_tries;
 extern bool usb_first_connection;
 
 bool chibi_enumerate_ready = false;
-bool master_startup_usb_connected = false;
-uint8_t master_restart_counter = 0;
 
 MasterCallback master_callback = {
 	MASTER_CALLBACK_VALUE_DEFAULT,
@@ -299,16 +297,7 @@ void master_handle_callbacks(const uint8_t tick_type) {
 void tick_task(const uint8_t tick_type) {
 	master_handle_callbacks(tick_type);
 	static uint8_t message_counter = 0;
-	if(tick_type & TICK_TASK_TYPE_CALCULATION) {
-		if(master_startup_usb_connected ^ usb_is_connected()) {
-			master_restart_counter++;
-			if(master_restart_counter == 100) {
-				usb_isr_vbus(NULL);
-			}
-		} else {
-			master_restart_counter = 0;
-		}
-	} else if(tick_type & TICK_TASK_TYPE_MESSAGE) {
+	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
 		if(usb_first_connection && !usbd_hal_is_disabled(IN_EP)) {
 			message_counter++;
 			if(message_counter >= 100) {
