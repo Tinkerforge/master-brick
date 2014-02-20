@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<head>
+		<title>Tinkerforge | JavaScript Example</title>
+	</head>
+	<body>
+        <div style="text-align:center;">
+		    <h1>Master Brick Stack Status Example</h1>
+		    <p>
+			    <input value="localhost" id="host" type="text" size="20">:
+			    <input value="80" id="port" type="text" size="5">,
+			    <input value="uid" id="uid" type="text" size="5">
+			    <input value="Start Example" id="start" type="button" onclick="start();">
+		    </p>
+		    <p>
+			    <textarea id="text" cols="80" rows="24" style="resize:none;">Press "Start Example" to begin ...</textarea>
+		    </p>
+        <div>
+		<script src="./Tinkerforge.js" type='text/javascript'></script>
+		<script type='text/javascript'>
+            var ipcon;
+            var textArea = document.getElementById("text");
+			function start() {
+                textArea.value = "";
+				var HOST = document.getElementById("host").value;
+				var PORT = parseInt(document.getElementById("port").value);
+				var UID	= document.getElementById("uid").value;
+                if(ipcon !== undefined) {
+                    ipcon.disconnect();
+                }
+                ipcon = new Tinkerforge.IPConnection();// Create IP connection
+                var master = new Tinkerforge.BrickMaster(UID, ipcon);// Create device object
+                ipcon.connect(HOST, PORT,
+                    function(error) {
+                        textArea.value += 'Error: '+error+'\n';        
+                    }
+                );// Connect to brickd
+
+                // Don't use device before ipcon is connected
+                ipcon.on(Tinkerforge.IPConnection.CALLBACK_CONNECTED,
+                    function(connectReason) {
+                        // Get voltage and current from stack (in mV/mA)
+                        master.getStackVoltage(
+                            function(voltage) {
+                                textArea.value += 'Stack Voltage: '+voltage/1000+' V\n';
+                            },
+                            function(error) {
+                                textArea.value += 'Error: '+error+'\n';
+                            }
+                        );
+                        master.getStackCurrent(
+                            function(current) {
+                                textArea.value += 'Stack Current: '+current/1000+' A\n';
+                            },
+                            function(error) {
+                                textArea.value += 'Error: '+error+'\n';
+                            }
+                        );
+                    }
+                );
+			}
+		</script>
+	</body>
+</html>
+
+
