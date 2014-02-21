@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.h: Implementation of Master-Brick specific messages
  *
@@ -98,6 +98,8 @@
 #define FID_GET_ETHERNET_STATUS 68
 #define FID_SET_ETHERNET_HOSTNAME 69
 #define FID_SET_ETHERNET_MAC 70
+#define FID_SET_ETHERNET_WEBSOCKET_CONFIGURATION 71
+#define FID_GET_ETHERNET_WEBSOCKET_CONFIGURATION 72
 
 
 #define COM_MESSAGES_USER \
@@ -170,7 +172,9 @@
 	{FID_GET_ETHERNET_CONFIGURATION, (message_handler_func_t)get_ethernet_configuration}, \
 	{FID_GET_ETHERNET_STATUS, (message_handler_func_t)get_ethernet_status}, \
 	{FID_SET_ETHERNET_HOSTNAME, (message_handler_func_t)set_ethernet_hostname}, \
-	{FID_SET_ETHERNET_MAC, (message_handler_func_t)set_ethernet_mac},
+	{FID_SET_ETHERNET_MAC, (message_handler_func_t)set_ethernet_mac}, \
+	{FID_SET_ETHERNET_WEBSOCKET_CONFIGURATION, (message_handler_func_t)set_ethernet_websocket_configuration}, \
+	{FID_GET_ETHERNET_WEBSOCKET_CONFIGURATION, (message_handler_func_t)get_ethernet_websocket_configuration},
 
 
 typedef struct {
@@ -746,6 +750,22 @@ typedef struct {
 	uint8_t mac_address[6];
 } __attribute__((__packed__)) SetEthernetMAC;
 
+typedef struct {
+	MessageHeader header;
+	uint8_t sockets;
+	uint16_t port;
+} __attribute__((__packed__)) SetEthernetWebsocketConfiguration;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetEthernetWebsocketConfiguration;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t sockets;
+	uint16_t port;
+} __attribute__((__packed__)) GetEthernetWebsocketConfigurationReturn;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -810,5 +830,7 @@ void get_ethernet_configuration(const ComType com, const GetEthernetConfiguratio
 void get_ethernet_status(const ComType com, const GetEthernetStatus *data);
 void set_ethernet_hostname(const ComType com, const SetEthernetHostname *data);
 void set_ethernet_mac(const ComType com, const SetEthernetMAC *data);
+void set_ethernet_websocket_configuration(const ComType com, const SetEthernetWebsocketConfiguration *data);
+void get_ethernet_websocket_configuration(const ComType com, const GetEthernetWebsocketConfiguration *data);
 
 #endif

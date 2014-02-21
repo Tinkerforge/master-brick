@@ -40,6 +40,7 @@
 #include "extensions/chibi/chibi_slave.h"
 #include "extensions/chibi/chibi_low_level.h"
 #include "extensions/rs485/rs485_config.h"
+
 #include "extensions/rs485/rs485_master.h"
 #include "extensions/rs485/rs485_low_level.h"
 #include "extensions/wifi/wifi.h"

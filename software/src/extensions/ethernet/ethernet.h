@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * ethernet.h: High Level Ethernet protocol implementation
  *
@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ETHERNET_CONFIGURATION_DEFAULT {0, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 4223, "Tinkerforge"}
+#define ETHERNET_CONFIGURATION_DEFAULT {0, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 4223, "Tinkerforge", 3, 4225}
 #define ETHERNET_STATUS_DEFAULT        {{0x40, 0xD8, 0x55, 0x02, 0xA0, 0x00}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 0, 0, "TBD"}
 
 typedef struct {
@@ -35,6 +35,8 @@ typedef struct {
 	uint8_t gateway[4];
 	uint16_t port;
 	char hostname[32];
+	uint8_t websocket_sockets;
+	uint16_t websocket_port;
 } __attribute__((__packed__)) EthernetConfiguration;
 
 typedef struct {
@@ -46,6 +48,8 @@ typedef struct {
 	uint32_t tx_count;
 	char hostname[32];
 } __attribute__((__packed__)) EthernetStatus;
+
+typedef uint8_t (*read_data_tcp_t)(const uint8_t, uint8_t*, const uint8_t);
 
 void ethernet_init_extension(uint8_t extension);
 bool ethernet_init(void);

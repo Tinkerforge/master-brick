@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * ethernet_low_level.h: Low level Ethernet protocol implementation
  *
@@ -137,6 +137,7 @@
 void ethernet_low_level_get_default_hostname(char hostname[ETHERNET_HOSTNAME_LENGTH]);
 void ethernet_low_level_reset(void);
 void ethernet_low_level_init(void);
+void ethernet_low_level_emergency_disconnect(const uint8_t socket);
 void ethernet_low_level_disconnect(const uint8_t socket);
 uint8_t ethernet_low_level_get_status(const uint8_t socket);
 void ethernet_low_level_socket_init(const uint8_t socket);
@@ -145,6 +146,7 @@ uint16_t ethernet_low_level_get_received_data_length(const uint8_t socket);
 uint16_t ethernet_low_level_get_free_data_length(const uint8_t socket);
 uint16_t ethernet_low_level_get_transmit_pointer(const uint8_t socket);
 void ethernet_low_level_set_transmit_pointer(const uint8_t socket, const uint16_t pointer);
+uint8_t ethernet_low_level_write_data_tcp_blocking(const uint8_t socket, const uint8_t *buffer, const uint8_t length);
 uint8_t ethernet_low_level_read_data_tcp(const uint8_t socket, uint8_t *buffer, const uint8_t length);
 uint8_t ethernet_low_level_write_data_tcp(const uint8_t socket, const uint8_t *buffer, const uint8_t length);
 uint16_t ethernet_low_level_read_data_udp(const uint8_t socket, uint8_t *buffer, const uint16_t length, uint8_t ip[4], uint16_t *port);

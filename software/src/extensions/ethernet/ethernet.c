@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * ethernet.c: High Level Ethernet protocol implementation
  *
@@ -21,6 +21,7 @@
 
 #include "ethernet.h"
 
+#include "ethernet_websocket.h"
 #include "ethernet_config.h"
 #include "ethernet_low_level.h"
 #include "ethernet_dhcp.h"
@@ -38,6 +39,8 @@
 
 extern Pin extension_pins[];
 extern ComInfo com_info;
+extern uint8_t ethernet_plain_sockets;
+
 uint8_t ETHERNET_CS = ETHERNET_CS_0;
 uint8_t ETHERNET_RESET = ETHERNET_RESET_0;
 uint8_t ETHERNET_INT = ETHERNET_INT_0;
@@ -113,15 +116,24 @@ bool ethernet_init(void) {
 
 uint16_t ethernet_send(const void *data, const uint16_t length, uint32_t *options) {
 	const int8_t socket = brickd_route_to((const uint8_t*)data);
+
 	if(socket == -1) {
 		for(uint8_t socket_i = 0; socket_i < ETHERNET_MAX_SOCKETS; socket_i++) {
-			ethernet_low_level_write_data_tcp(socket_i, data, length);
+			if(socket_i < ethernet_plain_sockets) {
+				ethernet_low_level_write_data_tcp(socket_i, data, length);
+			} else {
+				ethernet_websocket_write_data_tcp(socket_i, data, length);
+			}
 		}
 
 		return length;
 	}
 
-	return ethernet_low_level_write_data_tcp(socket, data, length);
+	if(socket < ethernet_plain_sockets) {
+		return ethernet_low_level_write_data_tcp(socket, data, length);
+	} else {
+		return ethernet_websocket_write_data_tcp(socket, data, length);
+	}
 }
 
 uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
@@ -136,13 +148,20 @@ uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
 	}
 
 	uint8_t read_length = 0;
+	read_data_tcp_t read_data_tcp = ethernet_low_level_read_data_tcp;
 	for(; socket < ETHERNET_MAX_SOCKETS; socket++) {
-		read_length = ethernet_low_level_read_data_tcp(socket, data, 8);
+		if(socket < ethernet_plain_sockets) {
+			read_data_tcp = ethernet_low_level_read_data_tcp;
+		} else {
+			read_data_tcp = ethernet_websocket_read_data_tcp;
+		}
+
+		read_length = read_data_tcp(socket, data, 8);
 		if(read_length != 0) {
 			while(read_length < 8) {
-				read_length += ethernet_low_level_read_data_tcp(socket,
-				                                                ((uint8_t*)data) + read_length,
-				                                                8 - read_length);
+				read_length += read_data_tcp(socket,
+			                                 ((uint8_t*)data) + read_length,
+			                                 8 - read_length);
 			}
 			break;
 		}
@@ -151,25 +170,26 @@ uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(read_length != 0) {
 		uint8_t to_read = ((MessageHeader*)data)->length;
 		if(to_read > 80) {
-			// TODO: what do we do here?
-			logethe("Message length too big\n\r");
+			logethe("Message length not in range: %d\n\r", to_read);
+			ethernet_low_level_emergency_disconnect(socket);
+			return 0;
 		}
 		if(to_read > length) {
-			// TODO: what do we do here?
-			logethe("Buffer too small\n\r");
+			logethe("Buffer too small: %d > %d\n\r", to_read, length);
+			ethernet_low_level_emergency_disconnect(socket);
+			return 0;
 		}
 
 		while(read_length < to_read) {
-			read_length += ethernet_low_level_read_data_tcp(socket,
-			                                                ((uint8_t*)data) + read_length,
-			                                                to_read - read_length);
+			read_length += read_data_tcp(socket,
+			                             ((uint8_t*)data) + read_length,
+			                             to_read - read_length);
 		}
-
-//		com_debug_message(data);
 
 		brickd_route_from((const uint8_t*)data, socket);
 		socket++;
 	}
+
 
 	return read_length;
 }

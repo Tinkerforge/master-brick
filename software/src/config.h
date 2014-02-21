@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2013 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * config.h: Master-Brick specific configuration
  *
@@ -32,8 +32,8 @@
 #include "extensions/extension_config.h"
 
 #define BRICK_FIRMWARE_VERSION_MAJOR 2
-#define BRICK_FIRMWARE_VERSION_MINOR 1
-#define BRICK_FIRMWARE_VERSION_REVISION 2
+#define BRICK_FIRMWARE_VERSION_MINOR 2
+#define BRICK_FIRMWARE_VERSION_REVISION 0
 
 #define BRICK_HARDWARE_VERSION_MAJOR_20 2
 #define BRICK_HARDWARE_VERSION_MINOR_20 0
@@ -57,9 +57,9 @@
 //#define PROFILING_TIME 100 // After how many seconds profiling is printed
 
 #define DISABLE_JTAG_ON_STARTUP
-//#define LOGGING_SERIAL
-//#define LOGGING_LEVEL LOGGING_DEBUG
-#define LOGGING_LEVEL LOGGING_NONE
+#define LOGGING_SERIAL
+#define LOGGING_LEVEL LOGGING_DEBUG
+//#define LOGGING_LEVEL LOGGING_NONE
 
 // ************** BRICK SETTINGS **************
 

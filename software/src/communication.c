@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2013 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.c: Implementation of Master-Brick specific messages
  *
@@ -1083,4 +1083,34 @@ void set_ethernet_mac(const ComType com, const SetEthernetMAC *data) {
 	                      sizeof(SetEthernetMAC) - sizeof(MessageHeader),
 	                      ETHERNET_MAC_POS);
 	com_return_setter(com, data);
+}
+
+void set_ethernet_websocket_configuration(const ComType com, const SetEthernetWebsocketConfiguration *data) {
+	SetEthernetWebsocketConfiguration new_conf = {
+		{0}, MIN(data->sockets, 7), data->port
+	};
+
+	ethernet_write_config(((char*)&new_conf) + sizeof(MessageHeader),
+	                      sizeof(SetEthernetWebsocketConfiguration) - sizeof(MessageHeader),
+	                      ETHERNET_WEBSOCKET_CONFIGURATION_POS);
+
+	logwifii("set_ethernet_websocket_configuration: %d, %d\n\r", new_conf.sockets,
+	                                                             new_conf.port);
+	com_return_setter(com, data);
+}
+
+void get_ethernet_websocket_configuration(const ComType com, const GetEthernetWebsocketConfiguration *data) {
+	GetEthernetWebsocketConfigurationReturn gewscr;
+
+	gewscr.header        = data->header;
+	gewscr.header.length = sizeof(GetEthernetWebsocketConfigurationReturn);
+
+	ethernet_read_config(((char*)&gewscr) + sizeof(MessageHeader),
+	                     sizeof(GetEthernetWebsocketConfigurationReturn) - sizeof(MessageHeader),
+	                     ETHERNET_WEBSOCKET_CONFIGURATION_POS);
+
+	send_blocking_with_timeout(&gewscr, sizeof(GetEthernetWebsocketConfigurationReturn), com);
+
+	logwifii("get_ethernet_websocket_configuration: %d, %d\n\r", gewscr.sockets,
+	                                                             gewscr.port);
 }

@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * ethernet_low_level.c: Low level Ethernet protocol implementation
  *
@@ -25,6 +25,7 @@
 
 #include "ethernet_config.h"
 #include "ethernet_dhcp.h"
+#include "ethernet_websocket.h"
 
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/utility/util_definitions.h"
@@ -38,7 +39,9 @@ extern uint8_t ETHERNET_RESET;
 extern bool ethernet_dhcp_server;
 extern EthernetStatus ethernet_status;
 
+uint8_t ethernet_plain_sockets = 4;
 uint16_t ethernet_port = 4223;
+uint16_t ethernet_websocket_port = 4280;
 
 bool ethernet_low_level_socket_open[ETHERNET_MAX_SOCKETS] = {false, false, false, false, false, false, false};
 
@@ -75,6 +78,8 @@ void ethernet_low_level_init(void) {
 
 	memcpy(ethernet_status.hostname, ec.hostname, ETHERNET_HOSTNAME_LENGTH);
 	ethernet_port = ec.port;
+	ethernet_websocket_port = ec.websocket_port;
+	ethernet_plain_sockets = ETHERNET_MAX_SOCKETS - ec.websocket_sockets;
 
 	if(ec.connection == ETHERNET_CONNECTION_STATIC) {
 		ethernet_dhcp_server = false;
@@ -110,6 +115,16 @@ void ethernet_low_level_init(void) {
 	}
 }
 
+// Should be called if we have an irreversible protocol failure
+void ethernet_low_level_emergency_disconnect(const uint8_t socket) {
+	logethe("Emergency disconnect on socket %d\n\r", socket);
+	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_CR_DISCON);
+
+	// Read buffer until emtpy
+	uint8_t tmp_buffer[10];
+	while(ethernet_low_level_read_data_tcp(socket, tmp_buffer, 10) == 10);
+}
+
 void ethernet_low_level_disconnect(const uint8_t socket) {
 	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_CR_DISCON);
 }
@@ -124,9 +139,15 @@ void ethernet_low_level_socket_init(const uint8_t socket) {
 		return;
 	}
 
+	uint16_t port = ethernet_port;
+	if(socket >= ethernet_plain_sockets) {
+		ethernet_websocket_init(socket);
+		port = ethernet_websocket_port;
+	}
+
 	ethernet_write_register(ETH_REG_SN_MR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_MR_PROTO_TCP | ETH_VAL_SN_MR_ND_MC);
-	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)), (ethernet_port & 0xFF00) >> 8);
-	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)) + 1, ethernet_port & 0x00FF);
+	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)), (port & 0xFF00) >> 8);
+	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(socket)) + 1, port & 0x00FF);
 	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_CR_OPEN);
 
 	ethernet_low_level_set_retry_time(6000);
@@ -248,6 +269,22 @@ uint8_t ethernet_low_level_read_data_tcp(const uint8_t socket, uint8_t *buffer, 
 
 	ethernet_status.rx_count += read_length;
 	return read_length;
+}
+
+uint8_t ethernet_low_level_write_data_tcp_blocking(const uint8_t socket, const uint8_t *buffer, const uint8_t length) {
+	uint8_t status = ethernet_low_level_get_status(socket);
+	if(status != ETH_VAL_SN_SR_SOCK_ESTABLISHED) {
+		// Return 0 if socket is not established
+		return 0;
+	}
+
+	uint8_t length_to_send = length;
+
+	while(length_to_send > 0) {
+		length_to_send -= ethernet_low_level_write_data_tcp(socket, buffer, length_to_send);
+	}
+
+	return length;
 }
 
 uint8_t ethernet_low_level_write_data_tcp(const uint8_t socket, const uint8_t *buffer, const uint8_t length) {

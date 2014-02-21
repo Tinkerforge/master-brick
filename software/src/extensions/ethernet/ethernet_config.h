@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2012-2014 Olaf Lüke <olaf@tinkerforge.com>
  *
  * ethernet_config.h: Configuration of Ethernet implementation
  *
@@ -28,6 +28,7 @@
 #define ETHERNET_KEY_POS 4
 #define ETHERNET_CONFIGURATION_POS 8
 #define ETHERNET_HOSTNAME_POS (ETHERNET_CONFIGURATION_POS + sizeof(SetEthernetConfiguration) - sizeof(MessageHeader))
+#define ETHERNET_WEBSOCKET_CONFIGURATION_POS (ETHERNET_HOSTNAME_POS + sizeof(SetEthernetHostname) - sizeof(MessageHeader))
 #define ETHERNET_MAC_POS (32*4)
 
 #define ETHERNET_HOSTNAME_LENGTH 32
