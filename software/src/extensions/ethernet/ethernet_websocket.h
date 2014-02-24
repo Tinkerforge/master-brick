@@ -24,6 +24,12 @@
 
 #include <stdint.h>
 
+typedef enum {
+	WEBSOCKET_STATE_WAIT_FOR_HANDSHAKE = 0,
+	WEBSOCKET_STATE_HANDSHAKE_DONE,
+	WEBSOCKET_STATE_WEBSOCKET_HEADER_DONE
+} EthernetWebsocketState;
+
 void ethernet_websocket_init(const uint8_t socket);
 uint8_t ethernet_websocket_read_data_tcp(const uint8_t socket, uint8_t *buffer, const uint8_t length);
 uint8_t ethernet_websocket_write_data_tcp(const uint8_t socket, const uint8_t *buffer, const uint8_t length);
