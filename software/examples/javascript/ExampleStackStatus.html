@@ -9,9 +9,9 @@
 		    <h1>Master Brick Stack Status Example</h1>
 		    <p>
 			    <input value="localhost" id="host" type="text" size="20">:
-			    <input value="80" id="port" type="text" size="5">,
+			    <input value="4280" id="port" type="text" size="5">,
 			    <input value="uid" id="uid" type="text" size="5">
-			    <input value="Start Example" id="start" type="button" onclick="start();">
+			    <input value="Start Example" id="start" type="button" onclick="startExample();">
 		    </p>
 		    <p>
 			    <textarea id="text" cols="80" rows="24" style="resize:none;">Press "Start Example" to begin ...</textarea>
@@ -21,7 +21,7 @@
 		<script type='text/javascript'>
             var ipcon;
             var textArea = document.getElementById("text");
-			function start() {
+			function startExample() {
                 textArea.value = "";
 				var HOST = document.getElementById("host").value;
 				var PORT = parseInt(document.getElementById("port").value);
