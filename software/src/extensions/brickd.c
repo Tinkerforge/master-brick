@@ -216,7 +216,6 @@ void brickd_authenticate(const ComType com, const Authenticate *data) {
 	if(cid < 0 || cid > 15) {
 		logexte("brickd_authenticate: Invalid cid %d\n\r", cid);
 		// TODO: What now?
-		com_return_setter(com, data);
 		return;
 	}
 
@@ -228,7 +227,6 @@ void brickd_authenticate(const ComType com, const Authenticate *data) {
 		case BRICKD_AUTHENTICATION_STATE_ENABLED: {
 			logexte("Failure during authentication request: %d -> %d\n\r", state, cid);
 			brickd_disconnect_by_com_and_cid(com, cid);
-			com_return_setter(com, data);
 			return;
 		}
 
@@ -252,7 +250,6 @@ void brickd_authenticate(const ComType com, const Authenticate *data) {
 		// TODO: Read wifi secret
 	} else {
 		brickd_authentication_state[cid] = BRICKD_AUTHENTICATION_STATE_ENABLED;
-		com_return_setter(com, data);
 		return;
 	}
 
