@@ -25,6 +25,8 @@
 #include "bricklib/com/spi/spi_stack/spi_stack_select.h"
 #include "bricklib/com/spi/spi_stack/spi_stack_master.h"
 #include "bricklib/com/com_messages.h"
+#include "bricklib/com/com.h"
+#include "extensions/brickd.h"
 #include "bricklib/utility/util_definitions.h"
 
 extern uint16_t spi_stack_buffer_size_recv;
@@ -133,7 +135,7 @@ void routing_add_route(const uint32_t uid, const RouteTo route_to) {
 	}
 }
 
-void routing_master_from_pc(const char *data, const uint16_t length) {
+void routing_master_from_pc(const char *data, const uint16_t length, const ComType com) {
 	uint32_t uid = ((MessageHeader*)data)->uid;
 
 	// Broadcast
@@ -148,6 +150,22 @@ void routing_master_from_pc(const char *data, const uint16_t length) {
 		}
 		if(com_info.ext_type[1] == COM_TYPE_MASTER) {
 			send_blocking_with_timeout(data, length, com_info.ext[1]);
+		}
+	// Message for brickd
+	} else if(uid == 1) {
+		if(com == COM_ETHERNET || com == COM_WIFI) {
+			MessageHeader *header = (MessageHeader*)data;
+			switch(header->fid) {
+				case BRICKD_FID_GET_AUTHENTICATION_NONCE: {
+					brickd_get_authentication_nonce(com, (GetAuthenticationNonce*)data);
+					break;
+				}
+
+				case BRICKD_FID_AUTHENTICATE: {
+					brickd_authenticate(com, (Authenticate*)data);
+					break;
+				}
+			}
 		}
 	// Discover Route
 	} else {

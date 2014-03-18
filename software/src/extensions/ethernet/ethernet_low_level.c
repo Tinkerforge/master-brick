@@ -27,6 +27,8 @@
 #include "ethernet_dhcp.h"
 #include "ethernet_websocket.h"
 
+#include "extensions/brickd.h"
+
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/utility/util_definitions.h"
 
@@ -38,6 +40,7 @@ extern uint8_t ETHERNET_RESET;
 
 extern bool ethernet_dhcp_server;
 extern EthernetStatus ethernet_status;
+extern BrickdAuthenticationState brickd_authentication_state[];
 
 uint8_t ethernet_plain_sockets = 4;
 uint16_t ethernet_port = 4223;
@@ -137,6 +140,10 @@ void ethernet_low_level_socket_init(const uint8_t socket) {
 	logethd("Socket %d: start initialization\n\r", socket);
 	if(ethernet_low_level_get_status(socket) != ETH_VAL_SN_SR_SOCK_CLOSED) {
 		return;
+	}
+
+	if(brickd_authentication_state[socket] != BRICKD_AUTHENTICATION_STATE_DISABLED) {
+		brickd_authentication_state[socket] = BRICKD_AUTHENTICATION_STATE_ENABLED;
 	}
 
 	uint16_t port = ethernet_port;

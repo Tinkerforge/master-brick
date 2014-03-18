@@ -29,6 +29,7 @@
 #define ETHERNET_CONFIGURATION_POS 8
 #define ETHERNET_HOSTNAME_POS (ETHERNET_CONFIGURATION_POS + sizeof(SetEthernetConfiguration) - sizeof(MessageHeader))
 #define ETHERNET_WEBSOCKET_CONFIGURATION_POS (ETHERNET_HOSTNAME_POS + sizeof(SetEthernetHostname) - sizeof(MessageHeader))
+#define ETHERNET_AUTHENTICATION_SECRET_POS (ETHERNET_WEBSOCKET_CONFIGURATION_POS + sizeof(SetEthernetWebsocketConfiguration) - sizeof(MessageHeader))
 #define ETHERNET_MAC_POS (32*4)
 
 #define ETHERNET_HOSTNAME_LENGTH 32

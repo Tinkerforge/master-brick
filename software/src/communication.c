@@ -1114,3 +1114,26 @@ void get_ethernet_websocket_configuration(const ComType com, const GetEthernetWe
 	logwifii("get_ethernet_websocket_configuration: %d, %d\n\r", gewscr.sockets,
 	                                                             gewscr.port);
 }
+
+void set_ethernet_authentication_secret(const ComType com, const SetEthernetAuthenticationSecret *data) {
+	char secret_to_write[AUTHENTICATION_SECRET_LENGTH] = {0};
+	for(uint8_t i = 0; i < AUTHENTICATION_SECRET_LENGTH; i++) {
+		if(data->secret[i] == '\0') {
+			break;
+		}
+		secret_to_write[i] = data->secret[i];
+	}
+
+	ethernet_write_config(secret_to_write, AUTHENTICATION_SECRET_LENGTH, ETHERNET_AUTHENTICATION_SECRET_POS);
+	com_return_setter(com, data);
+}
+
+void get_ethernet_authentication_secret(const ComType com, const GetEthernetAuthenticationSecret *data) {
+	GetEthernetAuthenticationSecretReturn geasr;
+
+	geasr.header        = data->header;
+	geasr.header.length = sizeof(GetEthernetAuthenticationSecretReturn);
+	ethernet_read_config((char*)&geasr.secret, AUTHENTICATION_SECRET_LENGTH, ETHERNET_AUTHENTICATION_SECRET_POS);
+
+	send_blocking_with_timeout(&geasr, sizeof(GetEthernetAuthenticationSecretReturn), com);
+}

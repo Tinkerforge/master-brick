@@ -24,10 +24,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "bricklib/com/com_common.h"
 
 #define BRICKD_ROUTING_TABLE_SIZE 10
 
 typedef struct BrickdRouting BrickdRouting;
+
+typedef enum {
+	BRICKD_AUTHENTICATION_STATE_DISABLED = 0,
+	BRICKD_AUTHENTICATION_STATE_ENABLED,
+	BRICKD_AUTHENTICATION_STATE_NONCE_SEND,
+	BRICKD_AUTHENTICATION_STATE_DONE
+} BrickdAuthenticationState;
 
 struct BrickdRouting {
 	uint32_t uid;
@@ -36,6 +44,31 @@ struct BrickdRouting {
 	uint8_t seqence_number;
 	int8_t cid;
 };
+
+#define BRICKD_FID_GET_AUTHENTICATION_NONCE 1
+#define BRICKD_FID_AUTHENTICATE 2
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((packed)) GetAuthenticationNonce;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t server_nonce[4];
+} __attribute__((packed)) GetAuthenticationNonceReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t client_nonce[4];
+	uint8_t digest[20];
+} __attribute__((packed)) Authenticate;
+
+void brickd_get_authentication_nonce(const ComType com, const GetAuthenticationNonce *data);
+void brickd_authenticate(const ComType com, const Authenticate *data);
+void brickd_set_authentication_seed(const uint32_t seed);
+void brickd_enable_authentication(void);
+void brickd_disable_authentication(void);
+bool brickd_check_auth(const MessageHeader *header, const int8_t cid);
 
 void brickd_init(void);
 uint32_t brickd_counter_diff(const uint32_t new, const uint32_t old);

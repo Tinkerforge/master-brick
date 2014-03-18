@@ -35,6 +35,7 @@
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/utility/init.h"
 
+#include "extensions/brickd.h"
 #include "extensions/extension_i2c.h"
 #include "extensions/chibi/chibi_master.h"
 #include "extensions/chibi/chibi_slave.h"
@@ -138,6 +139,20 @@ void master_init(void) {
 		adc_channel_disable(ADC_CAL_LOW_CHANNEL);
 		adc_channel_disable(ADC_CAL_HIGH_CHANNEL);
 	}
+
+
+	// Make random number from temperature
+	uint32_t seed = 0;
+	for(uint8_t i = 0; i < 32; i++) {
+		SLEEP_MS(2);
+		seed |= (adc_get_temperature() & 1) << i;
+	}
+
+	// Xorshift random number generator
+	seed ^= seed << 13;
+	seed ^= seed >> 17;
+	seed ^= seed << 5;
+	brickd_set_authentication_seed(seed);
 }
 
 uint8_t master_get_hardware_version(void) {

@@ -100,6 +100,17 @@ bool ethernet_init(void) {
 
 	ethernet_low_level_init();
 
+	// Enable authentication if key is set
+	char secret = '\0';
+	ethernet_read_config(&secret, 1, ETHERNET_AUTHENTICATION_SECRET_POS);
+
+	logethi("First secret char: %x\n\r", secret);
+	if(secret == '\0') {
+		brickd_disable_authentication();
+	} else {
+		brickd_enable_authentication();
+	}
+
 	brickd_init();
 
 	xTaskCreate(ethernet_message_loop,
@@ -119,13 +130,19 @@ uint16_t ethernet_send(const void *data, const uint16_t length, uint32_t *option
 
 	if(socket == -1) {
 		for(uint8_t socket_i = 0; socket_i < ETHERNET_MAX_SOCKETS; socket_i++) {
-			if(socket_i < ethernet_plain_sockets) {
-				ethernet_low_level_write_data_tcp(socket_i, data, length);
-			} else {
-				ethernet_websocket_write_data_tcp(socket_i, data, length);
+			if(brickd_check_auth(data, socket_i)) {
+				if(socket_i < ethernet_plain_sockets) {
+					ethernet_low_level_write_data_tcp(socket_i, data, length);
+				} else {
+					ethernet_websocket_write_data_tcp(socket_i, data, length);
+				}
 			}
 		}
 
+		return length;
+	}
+
+	if(!brickd_check_auth(data, socket)) {
 		return length;
 	}
 
@@ -184,6 +201,10 @@ uint16_t ethernet_recv(void *data, const uint16_t length, uint32_t *options) {
 			read_length += read_data_tcp(socket,
 			                             ((uint8_t*)data) + read_length,
 			                             to_read - read_length);
+		}
+
+		if(!brickd_check_auth(data, socket)) {
+			return 0;
 		}
 
 		brickd_route_from((const uint8_t*)data, socket);

@@ -23,6 +23,7 @@
 #define ROUTING_H
 
 #include <stdint.h>
+#include "bricklib/com/com.h"
 
 #define ROUTING_TABLE_MAX_SIZE  64
 
@@ -46,6 +47,6 @@ RouteTo routing_route_stack_to(const uint32_t uid);
 RouteTo routing_route_extension_to(const uint32_t uid);
 void routing_add_route(const uint32_t uid, const RouteTo route_to);
 void routing_table_create_stack(void);
-void routing_master_from_pc(const char *data, const uint16_t length);
+void routing_master_from_pc(const char *data, const uint16_t length, const ComType com);
 
 #endif

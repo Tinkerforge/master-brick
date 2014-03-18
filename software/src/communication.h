@@ -28,6 +28,8 @@
 
 #include "bricklib/com/com_common.h"
 
+#define AUTHENTICATION_SECRET_LENGTH 64
+
 #define FID_GET_STACK_VOLTAGE 1
 #define FID_GET_STACK_CURRENT 2
 #define FID_SET_EXTENSION_TYPE 3
@@ -100,6 +102,8 @@
 #define FID_SET_ETHERNET_MAC 70
 #define FID_SET_ETHERNET_WEBSOCKET_CONFIGURATION 71
 #define FID_GET_ETHERNET_WEBSOCKET_CONFIGURATION 72
+#define FID_SET_ETHERNET_AUTHENTICATION_SECRET 73
+#define FID_GET_ETHERNET_AUTHENTICATION_SECRET 74
 
 
 #define COM_MESSAGES_USER \
@@ -174,8 +178,9 @@
 	{FID_SET_ETHERNET_HOSTNAME, (message_handler_func_t)set_ethernet_hostname}, \
 	{FID_SET_ETHERNET_MAC, (message_handler_func_t)set_ethernet_mac}, \
 	{FID_SET_ETHERNET_WEBSOCKET_CONFIGURATION, (message_handler_func_t)set_ethernet_websocket_configuration}, \
-	{FID_GET_ETHERNET_WEBSOCKET_CONFIGURATION, (message_handler_func_t)get_ethernet_websocket_configuration},
-
+	{FID_GET_ETHERNET_WEBSOCKET_CONFIGURATION, (message_handler_func_t)get_ethernet_websocket_configuration}, \
+	{FID_SET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)set_ethernet_authentication_secret}, \
+	{FID_GET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)get_ethernet_authentication_secret},
 
 typedef struct {
 	MessageHeader header;
@@ -766,6 +771,20 @@ typedef struct {
 	uint16_t port;
 } __attribute__((__packed__)) GetEthernetWebsocketConfigurationReturn;
 
+typedef struct {
+	MessageHeader header;
+	char secret[AUTHENTICATION_SECRET_LENGTH];
+} __attribute__((__packed__)) SetEthernetAuthenticationSecret;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetEthernetAuthenticationSecret;
+
+typedef struct {
+	MessageHeader header;
+	char secret[AUTHENTICATION_SECRET_LENGTH];
+} __attribute__((__packed__)) GetEthernetAuthenticationSecretReturn;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -832,5 +851,7 @@ void set_ethernet_hostname(const ComType com, const SetEthernetHostname *data);
 void set_ethernet_mac(const ComType com, const SetEthernetMAC *data);
 void set_ethernet_websocket_configuration(const ComType com, const SetEthernetWebsocketConfiguration *data);
 void get_ethernet_websocket_configuration(const ComType com, const GetEthernetWebsocketConfiguration *data);
+void set_ethernet_authentication_secret(const ComType com, const SetEthernetAuthenticationSecret *data);
+void get_ethernet_authentication_secret(const ComType com, const GetEthernetAuthenticationSecret *data);
 
 #endif
