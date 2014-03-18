@@ -2,18 +2,18 @@ var Tinkerforge = require('tinkerforge');
 
 var HOST = 'localhost';
 var PORT = 4223;
-var UID = '6CPWYS';// Change to your UID
+var UID = '6CPWYS'; // Change to your UID
 
-var ipcon = new Tinkerforge.IPConnection();// Create IP connection
-var master = new Tinkerforge.BrickMaster(UID, ipcon);// Create device object
+var ipcon = new Tinkerforge.IPConnection(); // Create IP connection
+var master = new Tinkerforge.BrickMaster(UID, ipcon); // Create device object
 
 ipcon.connect(HOST, PORT,
     function(error) {
         console.log('Error: '+error);        
     }
-);// Connect to brickd
-
+); // Connect to brickd
 // Don't use device before ipcon is connected
+
 ipcon.on(Tinkerforge.IPConnection.CALLBACK_CONNECTED,
     function(connectReason) {
         // Get voltage and current from stack (in mV/mA)
@@ -43,4 +43,3 @@ process.stdin.on('data',
         process.exit(0);
     }
 );
-
