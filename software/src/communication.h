@@ -104,6 +104,8 @@
 #define FID_GET_ETHERNET_WEBSOCKET_CONFIGURATION 72
 #define FID_SET_ETHERNET_AUTHENTICATION_SECRET 73
 #define FID_GET_ETHERNET_AUTHENTICATION_SECRET 74
+#define FID_SET_WIFI_AUTHENTICATION_SECRET 75
+#define FID_GET_WIFI_AUTHENTICATION_SECRET 76
 
 
 #define COM_MESSAGES_USER \
@@ -180,7 +182,9 @@
 	{FID_SET_ETHERNET_WEBSOCKET_CONFIGURATION, (message_handler_func_t)set_ethernet_websocket_configuration}, \
 	{FID_GET_ETHERNET_WEBSOCKET_CONFIGURATION, (message_handler_func_t)get_ethernet_websocket_configuration}, \
 	{FID_SET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)set_ethernet_authentication_secret}, \
-	{FID_GET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)get_ethernet_authentication_secret},
+	{FID_GET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)get_ethernet_authentication_secret}, \
+	{FID_SET_WIFI_AUTHENTICATION_SECRET, (message_handler_func_t)set_wifi_authentication_secret}, \
+	{FID_GET_WIFI_AUTHENTICATION_SECRET, (message_handler_func_t)get_wifi_authentication_secret},
 
 typedef struct {
 	MessageHeader header;
@@ -785,6 +789,20 @@ typedef struct {
 	char secret[AUTHENTICATION_SECRET_LENGTH];
 } __attribute__((__packed__)) GetEthernetAuthenticationSecretReturn;
 
+typedef struct {
+	MessageHeader header;
+	char secret[AUTHENTICATION_SECRET_LENGTH];
+} __attribute__((__packed__)) SetWifiAuthenticationSecret;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetWifiAuthenticationSecret;
+
+typedef struct {
+	MessageHeader header;
+	char secret[AUTHENTICATION_SECRET_LENGTH];
+} __attribute__((__packed__)) GetWifiAuthenticationSecretReturn;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -853,5 +871,7 @@ void set_ethernet_websocket_configuration(const ComType com, const SetEthernetWe
 void get_ethernet_websocket_configuration(const ComType com, const GetEthernetWebsocketConfiguration *data);
 void set_ethernet_authentication_secret(const ComType com, const SetEthernetAuthenticationSecret *data);
 void get_ethernet_authentication_secret(const ComType com, const GetEthernetAuthenticationSecret *data);
+void set_wifi_authentication_secret(const ComType com, const SetWifiAuthenticationSecret *data);
+void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticationSecret *data);
 
 #endif

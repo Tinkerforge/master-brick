@@ -101,11 +101,11 @@ bool ethernet_init(void) {
 	ethernet_low_level_init();
 
 	// Enable authentication if key is set
-	char secret = '\0';
-	ethernet_read_config(&secret, 1, ETHERNET_AUTHENTICATION_SECRET_POS);
+	EthernetAuthenticationSecret eas = {0, "\0"};
+	ethernet_read_config((char*)&eas, 5, ETHERNET_AUTHENTICATION_SECRET_POS);
 
-	logethi("First secret char: %x\n\r", secret);
-	if(secret == '\0') {
+	logethi("First secret char: %x\n\r", eas.secret[0]);
+	if(eas.key != ETHERNET_KEY || eas.secret[0] == '\0') {
 		brickd_disable_authentication();
 	} else {
 		brickd_enable_authentication();

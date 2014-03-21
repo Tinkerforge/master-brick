@@ -136,6 +136,17 @@ bool wifi_init(void) {
 
 	led_off(LED_EXT_BLUE_3);
 
+	// Enable authentication if key is set
+	WIFIAuthenticationSecret was = {0, "\0"};
+	wifi_read_config((char*)&was, 5, WIFI_AUTHENTICATION_SECRET_POS);
+
+	logwifii("First secret char: %x\n\r", was.secret[0]);
+	if(was.key != WIFI_KEY || was.secret[0] == '\0') {
+		brickd_disable_authentication();
+	} else {
+		brickd_enable_authentication();
+	}
+
 	brickd_init();
 	wifi_low_level_deselect();
 
@@ -199,19 +210,19 @@ void wifi_init_next(void) {
 	static uint8_t counter = 0;
 	switch(wifi_init_state) {
 		case WIFI_COMMAND_ID_AT_ATE0: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_ATE0);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_ATE0, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_ATV0;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_ATV0: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_ATV0);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_ATV0, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WD;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WD: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WD);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WD, NULL);
 		    if(wifi_power_mode == WIFI_POWER_MODE_FULL_SPEED) {
 		    	wifi_init_state = WIFI_COMMAND_ID_AT_WRXPS_OFF;
 		    } else {
@@ -221,38 +232,38 @@ void wifi_init_next(void) {
 		}
 
 		case WIFI_COMMAND_ID_AT_WRXPS_OFF: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_OFF);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_OFF, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WRXACTIVE_ON;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WRXACTIVE_ON: {
 			// Wifi module always on (no sleep)
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_ON);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_ON, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WSYNCINTRL;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WRXPS_ON: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_ON);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_ON, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WRXACTIVE_OFF;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WRXACTIVE_OFF: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_OFF);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_OFF, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WSYNCINTRL;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WSYNCINTRL: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WSYNCINTRL);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WSYNCINTRL, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY; //WIFI_COMMAND_ID_AT_ATS;
 		    break;
 		}
 
 //		case WIFI_COMMAND_ID_AT_ATS: {
-//		    wifi_command_send(WIFI_COMMAND_ID_AT_ATS);
+//		    wifi_command_send(WIFI_COMMAND_ID_AT_ATS, NULL);
 //			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY; //WIFI_COMMAND_ID_AT_PSPOLLINTRL;
 //		    break;
 //		}
@@ -260,39 +271,39 @@ void wifi_init_next(void) {
 //      Use default poll intervall, otherwise the WIFI Extension dis- and reassociates
 //      after a while if nothing is sent
 //		case WIFI_COMMAND_ID_AT_PSPOLLINTRL: {
-//		    wifi_command_send(WIFI_COMMAND_ID_AT_PSPOLLINTRL);
+//		    wifi_command_send(WIFI_COMMAND_ID_AT_PSPOLLINTRL, NULL);
 //			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY;
 //		    break;
 //		}
 
 //		case WIFI_COMMAND_ID_AT_WIEEEPSPOLL: {
-//		    wifi_command_send(WIFI_COMMAND_ID_AT_WIEEEPSPOLL);
+//		    wifi_command_send(WIFI_COMMAND_ID_AT_WIEEEPSPOLL, NULL);
 //			wifi_init_state = WIFI_COMMAND_ID_AT_WRETRY;
 //		    break;
 //		}
 
 
 		case WIFI_COMMAND_ID_AT_WRETRY: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WRETRY);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WRETRY, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_ASYNCMSGFMT;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_ASYNCMSGFMT: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_ASYNCMSGFMT);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_ASYNCMSGFMT, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WREGDOMAIN;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WREGDOMAIN: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WREGDOMAIN);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WREGDOMAIN, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_BDATA_ON;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_BDATA_ON: {
 			// Bulk mode data transfer
-		    wifi_command_send(WIFI_COMMAND_ID_AT_BDATA_ON);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_BDATA_ON, NULL);
 
 		    if(wifi_configuration.encryption == ENCRYPTION_WPA) {
 		    	wifi_init_state = WIFI_COMMAND_ID_AT_WWPA;
@@ -307,25 +318,25 @@ void wifi_init_next(void) {
 		}
 
 		case WIFI_COMMAND_ID_AT_WSEC: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WSEC);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WSEC, NULL);
 			wifi_init_state = wifi_init_next_state_dhcp();
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WAUTH_WEP: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WAUTH_WEP);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WAUTH_WEP, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WWEP;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WWEP: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WWEP);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WWEP, NULL);
 			wifi_init_state = wifi_init_next_state_dhcp();
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WEAPCONF: {
-			wifi_command_send(WIFI_COMMAND_ID_AT_WEAPCONF);
+			wifi_command_send(WIFI_COMMAND_ID_AT_WEAPCONF, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WEAP;
 			break;
 		}
@@ -336,7 +347,7 @@ void wifi_init_next(void) {
 					counter++;
 					if(wifi_configuration.ca_certificate_length > 0) {
 						eap_type = 0;
-						wifi_command_send(WIFI_COMMAND_ID_AT_WEAP);
+						wifi_command_send(WIFI_COMMAND_ID_AT_WEAP, NULL);
 					} else {
 						counter++;
 					}
@@ -354,7 +365,7 @@ void wifi_init_next(void) {
 					counter++;
 					if(wifi_configuration.client_certificate_length > 0) {
 						eap_type = 1;
-						wifi_command_send(WIFI_COMMAND_ID_AT_WEAP);
+						wifi_command_send(WIFI_COMMAND_ID_AT_WEAP, NULL);
 					} else {
 						counter++;
 					}
@@ -372,7 +383,7 @@ void wifi_init_next(void) {
 					counter++;
 					if(wifi_configuration.private_key_length > 0) {
 						eap_type = 2;
-						wifi_command_send(WIFI_COMMAND_ID_AT_WEAP);
+						wifi_command_send(WIFI_COMMAND_ID_AT_WEAP, NULL);
 					} else {
 						counter = 0;
 						wifi_init_state = wifi_init_next_state_dhcp();
@@ -391,49 +402,49 @@ void wifi_init_next(void) {
 		}
 
 		case WIFI_COMMAND_ID_AT_WWPA: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WWPA);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WWPA, NULL);
 		    wifi_init_state = wifi_init_next_state_dhcp();
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NDHCP_ON: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_NDHCP_ON);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_NDHCP_ON, NULL);
 			wifi_init_state = wifi_init_next_state_connection();
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NSET: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_NSET);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_NSET, NULL);
 			wifi_init_state = wifi_init_next_state_connection();
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WM_AP: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_AP);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_AP, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WA;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WM_ADHOC: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_ADHOC);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_ADHOC, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WA;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WM_IFACE: {
-		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_IFACE);
+		    wifi_command_send(WIFI_COMMAND_ID_AT_WM_IFACE, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_WA;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_WA: {
-			wifi_command_send(WIFI_COMMAND_ID_AT_WA);
+			wifi_command_send(WIFI_COMMAND_ID_AT_WA, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_AT_NSTCP;
 		    break;
 		}
 
 		case WIFI_COMMAND_ID_AT_NSTCP: {
-			wifi_command_send(WIFI_COMMAND_ID_AT_NSTCP);
+			wifi_command_send(WIFI_COMMAND_ID_AT_NSTCP, NULL);
 			wifi_init_state = WIFI_COMMAND_ID_NONE;
 		    break;
 		}
@@ -663,7 +674,7 @@ void wifi_tick(const uint8_t tick_type) {
 					wifi_counter = 0;
 					wifi_status.state = WIFI_STATE_ASSOCIATED;
 					logwifii("Initialization successful\n\r");
-					wifi_command_send(WIFI_COMMAND_ID_AT_NSTAT);
+					wifi_command_send(WIFI_COMMAND_ID_AT_NSTAT, NULL);
 					return;
 				}
 
@@ -747,11 +758,11 @@ void wifi_tick(const uint8_t tick_type) {
 void wifi_set_power_mode(const uint8_t mode) {
 	if(mode == WIFI_POWER_MODE_LOW_POWER) {
 		wifi_power_mode = WIFI_POWER_MODE_LOW_POWER;
-		wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_ON);
-		wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_OFF);
+		wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_ON, NULL);
+		wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_OFF, NULL);
 	} else {
 		wifi_power_mode = WIFI_POWER_MODE_FULL_SPEED;
-		wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_ON);
-		wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_OFF);
+		wifi_command_send(WIFI_COMMAND_ID_AT_WRXACTIVE_ON, NULL);
+		wifi_command_send(WIFI_COMMAND_ID_AT_WRXPS_OFF, NULL);
 	}
 }

@@ -24,6 +24,11 @@
 
 #include "extensions/extension_config.h"
 
+typedef struct {
+	uint32_t key;
+	char secret[64];
+} __attribute__((__packed__)) WIFIAuthenticationSecret;
+
 #define WIFI_KEY (42 | (23 << 8) | (17 << 16) | 8)
 #define WIFI_KEY_POS 4
 #define WIFI_CONFIGURATION_POS 8
@@ -33,6 +38,7 @@
 #define WIFI_PASSWORD_POS (WIFI_USERNAME_POS + 32)
 #define WIFI_LONG_KEY_POS (WIFI_PASSWORD_POS + 32)
 #define WIFI_HOSTNAME_POS (WIFI_LONG_KEY_POS + 64)
+#define WIFI_AUTHENTICATION_SECRET_POS (WIFI_HOSTNAME_POS + sizeof(WIFIHostname))
 
 #define WIFI_CA_CERTIFICATE_POS 1024
 #define WIFI_CLIENT_CERTIFICATE_POS (WIFI_CA_CERTIFICATE_POS + WIFI_CA_CERTIFICATE_MAX_LENGTH)

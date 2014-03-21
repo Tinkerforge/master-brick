@@ -30,6 +30,8 @@
 #include "bricklib/logging/logging.h"
 #include "extensions/ethernet/ethernet_config.h"
 #include "extensions/ethernet/ethernet_low_level.h"
+#include "extensions/wifi/wifi_command.h"
+#include "extensions/wifi/wifi_config.h"
 
 #define MAX_SOCKETS 16
 
@@ -150,7 +152,9 @@ void brickd_disconnect_by_com_and_cid(const ComType com, int8_t cid) {
 			ethernet_low_level_emergency_disconnect(cid);
 		}
 	} else if(com == COM_WIFI) {
-		// TODO
+		if(cid >= 0 && cid < 16) {
+			wifi_command_send(WIFI_COMMAND_ID_AT_NCLOSE, (void*)(int32_t)cid);
+		}
 	}
 }
 
@@ -245,9 +249,17 @@ void brickd_authenticate(const ComType com, const Authenticate *data) {
 	char secret[AUTHENTICATION_SECRET_LENGTH+1] = {0};
 
 	if(com == COM_ETHERNET) {
-		ethernet_read_config(secret, AUTHENTICATION_SECRET_LENGTH, ETHERNET_AUTHENTICATION_SECRET_POS);
+		EthernetAuthenticationSecret eas = {0, "\0"};
+		ethernet_read_config((char*)&eas, sizeof(EthernetAuthenticationSecret), ETHERNET_AUTHENTICATION_SECRET_POS);
+		if(eas.key == ETHERNET_KEY) {
+			memcpy(secret, eas.secret, AUTHENTICATION_SECRET_LENGTH);
+		}
 	} else if(com == COM_WIFI) {
-		// TODO: Read wifi secret
+		WIFIAuthenticationSecret was = {0, "\0"};
+		wifi_read_config((char*)&was, sizeof(WIFIAuthenticationSecret), WIFI_AUTHENTICATION_SECRET_POS);
+		if(was.key == WIFI_KEY) {
+			memcpy(secret, was.secret, AUTHENTICATION_SECRET_LENGTH);
+		}
 	} else {
 		brickd_authentication_state[cid] = BRICKD_AUTHENTICATION_STATE_ENABLED;
 		return;
@@ -258,6 +270,7 @@ void brickd_authenticate(const ComType com, const Authenticate *data) {
 	if(memcmp(data->digest, digest, SHA1_DIGEST_LENGTH) != 0) {
 		brickd_authentication_state[cid] = BRICKD_AUTHENTICATION_STATE_ENABLED;
 		brickd_disconnect_by_com_and_cid(com, cid);
+		return;
 	} else {
 		brickd_authentication_state[cid] = BRICKD_AUTHENTICATION_STATE_DONE;
 	}

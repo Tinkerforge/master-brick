@@ -74,6 +74,7 @@ typedef enum {
 	WIFI_COMMAND_ID_AT_WRETRY,
 	WIFI_COMMAND_ID_AT_WSEC,
 	WIFI_COMMAND_ID_AT_WIEEEPSPOLL,
+	WIFI_COMMAND_ID_AT_NCLOSE,
 	WIFI_COMMAND_ID_END,
 	WIFI_COMMAND_ID_NONE,
 	WIFI_COMMAND_ID_RESET
@@ -141,6 +142,7 @@ typedef struct {
 #define WIFI_COMMAND_AT_WRETRY        "AT+WRETRY=7"
 #define WIFI_COMMAND_AT_WSEC          "AT+WSEC=1"
 #define WIFI_COMMAND_AT_WIEEEPSPOLL   "AT+WIEEEPSPOLL=0"
+#define WIFI_COMMAND_AT_NCLOSE        "AT+NCLOSE="
 
 void wifi_command_send_at_ndhcp(void);
 void wifi_command_send_at_wwpa(void);
@@ -155,6 +157,7 @@ void wifi_command_send_at_weap(void);
 void wifi_command_send_at_ats(void);
 void wifi_command_send_at_wregdomain(void);
 void wifi_command_send_at_setsockopt(void);
+void wifi_command_send_at_nclose(int8_t cid);
 
 void wifi_command_parse(const char *data, const uint8_t length);
 void wifi_command_parse_reset(const char *data, const uint8_t length);
@@ -168,6 +171,6 @@ char* wifi_command_parse_ip(const char *data, const char *search_str, uint8_t *r
 char* wifi_command_parse_mac(const char *data, const char *search_str, uint8_t *result);
 void wifi_command_flush(void);
 
-void wifi_command_send(const WIFICommand command);
+void wifi_command_send(const WIFICommand command, void *options);
 
 #endif

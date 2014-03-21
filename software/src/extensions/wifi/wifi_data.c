@@ -55,6 +55,7 @@ extern uint8_t WIFI_DATA_RDY;
 extern int8_t wifi_new_cid;
 extern uint32_t wifi_ringbuffer_overflow;
 extern int8_t wifi_force_ack_counter[WIFI_DATA_MAX_CID];
+extern BrickdAuthenticationState brickd_authentication_state[];
 
 static const uint16_t wifi_data_lenght_mul[4] = {1000, 100, 10, 1};
 
@@ -393,8 +394,10 @@ void wifi_data_next_handle_wait_for_data(char ndata) {
 				led_on(LED_EXT_BLUE_3);
 			}
 
-			wifi_buffer_size_recv = wifi_buffer_size_counter;
-			brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
+			if(brickd_check_auth((MessageHeader*)wifi_buffer_recv, wifi_data_current_cid)) {
+				wifi_buffer_size_recv = wifi_buffer_size_counter;
+				brickd_route_from(wifi_buffer_recv, wifi_data_current_cid);
+			}
 
 			wifi_buffer_size_counter = 0;
 
@@ -515,6 +518,9 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 	if(cid == -1) {
 		for(uint8_t i = 1; i < WIFI_DATA_MAX_CID; i++) {
 			if(wifi_data_cid_present[i]) {
+				if(!brickd_check_auth((MessageHeader*)data, i)) {
+					return;
+				}
 				wifi_data_send_escape_cid(data, length, i);
 			}
 		}
@@ -523,6 +529,10 @@ void wifi_data_send_escape(const char *data, const uint16_t length) {
 		if(!wifi_data_cid_present[cid]) {
 			return;
 		}
+	}
+
+	if(!brickd_check_auth((MessageHeader*)data, cid)) {
+		return;
 	}
 
 	wifi_data_send_escape_cid(data, length, cid);
@@ -565,6 +575,10 @@ char wifi_data_int_to_hex(const int8_t c) {
 
 void wifi_data_disconnect(const uint8_t cid) {
 	if(cid > 0 && cid < 16) {
+		if(brickd_authentication_state[cid] != BRICKD_AUTHENTICATION_STATE_DISABLED) {
+			brickd_authentication_state[cid] = BRICKD_AUTHENTICATION_STATE_ENABLED;
+		}
+
 		wifi_data_cid_present[cid] = false;
 		brickd_disconnect(cid);
 	}

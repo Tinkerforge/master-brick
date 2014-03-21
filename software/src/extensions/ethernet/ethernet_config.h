@@ -24,6 +24,11 @@
 
 #include "bricklib/logging/logging.h"
 
+typedef struct {
+	uint32_t key;
+	char secret[64];
+} __attribute__((__packed__)) EthernetAuthenticationSecret;
+
 #define ETHERNET_KEY (42 | (23 << 8) | (17 << 16) | (8 << 24))
 #define ETHERNET_KEY_POS 4
 #define ETHERNET_CONFIGURATION_POS 8
