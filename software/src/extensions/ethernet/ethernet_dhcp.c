@@ -143,15 +143,13 @@ void dhcp_send_discover(const uint8_t s) {
 	// Host name
 	dhcp_message.OPT[i++] = hostName;
 	uint8_t hostname_length = ETHERNET_HOSTNAME_LENGTH;
-	if(ethernet_status.hostname[ETHERNET_HOSTNAME_LENGTH-1] != '\0') {
+	if(ethernet_status.hostname[ETHERNET_HOSTNAME_LENGTH-1] == '\0') {
 		hostname_length = strlen(ethernet_status.hostname);
 	}
 	dhcp_message.OPT[i++] = hostname_length;
 	memcpy((char*)&(dhcp_message.OPT[i]), ethernet_status.hostname, hostname_length);
 
 	i += hostname_length;
-
-	dhcp_message.OPT[i++] = int_to_char(ethernet_status.mac_address[5] % 16);
 
 	dhcp_message.OPT[i++] = dhcpParamRequest;
 	dhcp_message.OPT[i++] = 0x06;
