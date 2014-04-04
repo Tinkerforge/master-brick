@@ -1025,7 +1025,7 @@ void is_ethernet_present(const ComType com, const IsEthernetPresent *data) {
 void set_ethernet_configuration(const ComType com, const SetEthernetConfiguration *data) {
 	ethernet_write_config(((char*)data) + sizeof(MessageHeader),
 	                      sizeof(SetEthernetConfiguration) - sizeof(MessageHeader),
-	                      ETHERNET_CONFIGURATION_POS);
+	                      ETHERNET_CONFIGURATION_POS, ETHERNET_KEY_POS);
 
 	logethi("set_ethernet_configuration: %d, %d.%d.%d.%d:%d\n\r", data->connection,
 	                                                              data->ip[3],
@@ -1045,7 +1045,7 @@ void get_ethernet_configuration(const ComType com, const GetEthernetConfiguratio
 
 	ethernet_read_config(((char*)&gecr) + sizeof(MessageHeader),
 	                     sizeof(GetEthernetConfigurationReturn) - sizeof(MessageHeader),
-	                     ETHERNET_CONFIGURATION_POS);
+	                     ETHERNET_CONFIGURATION_POS, ETHERNET_KEY_POS);
 
 	send_blocking_with_timeout(&gecr, sizeof(GetEthernetConfigurationReturn), com);
 
@@ -1082,14 +1082,14 @@ void set_ethernet_hostname(const ComType com, const SetEthernetHostname *data) {
 		ethernet_low_level_get_default_hostname(hostname);
 	}
 
-	ethernet_write_config(hostname, ETHERNET_HOSTNAME_LENGTH, ETHERNET_HOSTNAME_POS);
+	ethernet_write_config(hostname, ETHERNET_HOSTNAME_LENGTH, ETHERNET_HOSTNAME_POS, 0);
 	com_return_setter(com, data);
 }
 
 void set_ethernet_mac(const ComType com, const SetEthernetMAC *data) {
 	ethernet_write_config((const char *)data->mac_address,
 	                      sizeof(SetEthernetMAC) - sizeof(MessageHeader),
-	                      ETHERNET_MAC_POS);
+	                      ETHERNET_MAC_POS, ETHERNET_KEY_POS);
 	com_return_setter(com, data);
 }
 
@@ -1100,7 +1100,7 @@ void set_ethernet_websocket_configuration(const ComType com, const SetEthernetWe
 
 	ethernet_write_config(((char*)&new_conf) + sizeof(MessageHeader),
 	                      sizeof(SetEthernetWebsocketConfiguration) - sizeof(MessageHeader),
-	                      ETHERNET_WEBSOCKET_CONFIGURATION_POS);
+	                      ETHERNET_WEBSOCKET_CONFIGURATION_POS, 0);
 
 	logethi("set_ethernet_websocket_configuration: %d, %d\n\r", new_conf.sockets,
 	                                                            new_conf.port);
@@ -1115,7 +1115,7 @@ void get_ethernet_websocket_configuration(const ComType com, const GetEthernetWe
 
 	ethernet_read_config(((char*)&gewscr) + sizeof(MessageHeader),
 	                     sizeof(GetEthernetWebsocketConfigurationReturn) - sizeof(MessageHeader),
-	                     ETHERNET_WEBSOCKET_CONFIGURATION_POS);
+	                     ETHERNET_WEBSOCKET_CONFIGURATION_POS, 0);
 
 	send_blocking_with_timeout(&gewscr, sizeof(GetEthernetWebsocketConfigurationReturn), com);
 
@@ -1124,16 +1124,16 @@ void get_ethernet_websocket_configuration(const ComType com, const GetEthernetWe
 }
 
 void set_ethernet_authentication_secret(const ComType com, const SetEthernetAuthenticationSecret *data) {
-	EthernetAuthenticationSecret eas = {ETHERNET_KEY, "\0"};
+	char secret[AUTHENTICATION_SECRET_LENGTH] = {'\0'};
 
 	for(uint8_t i = 0; i < AUTHENTICATION_SECRET_LENGTH; i++) {
 		if(data->secret[i] == '\0') {
 			break;
 		}
-		eas.secret[i] = data->secret[i];
+		secret[i] = data->secret[i];
 	}
 
-	ethernet_write_config((char*)&eas, sizeof(EthernetAuthenticationSecret), ETHERNET_AUTHENTICATION_SECRET_POS);
+	ethernet_write_config(secret, AUTHENTICATION_SECRET_LENGTH, ETHERNET_AUTHENTICATION_SECRET_POS, ETHERNET_AUTHENTICATION_SECRET_KEY_POS);
 	com_return_setter(com, data);
 }
 
@@ -1142,14 +1142,8 @@ void get_ethernet_authentication_secret(const ComType com, const GetEthernetAuth
 
 	geasr.header        = data->header;
 	geasr.header.length = sizeof(GetEthernetAuthenticationSecretReturn);
-
-	EthernetAuthenticationSecret eas = {0, "\0"};
-	ethernet_read_config((char*)&eas, sizeof(EthernetAuthenticationSecret), ETHERNET_AUTHENTICATION_SECRET_POS);
-	if(eas.key != ETHERNET_KEY) {
-		memset(geasr.secret, 0, AUTHENTICATION_SECRET_LENGTH);
-	} else {
-		memcpy(geasr.secret, eas.secret, AUTHENTICATION_SECRET_LENGTH);
-	}
+	memset(geasr.secret, 0, AUTHENTICATION_SECRET_LENGTH);
+	ethernet_read_config(geasr.secret, AUTHENTICATION_SECRET_LENGTH, ETHERNET_AUTHENTICATION_SECRET_POS, ETHERNET_AUTHENTICATION_SECRET_KEY_POS);
 
 	send_blocking_with_timeout(&geasr, sizeof(GetEthernetAuthenticationSecretReturn), com);
 }
@@ -1169,12 +1163,12 @@ void set_wifi_authentication_secret(const ComType com, const SetWifiAuthenticati
 }
 
 void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticationSecret *data) {
-	GetWifiAuthenticationSecretReturn geasr;
+	GetWifiAuthenticationSecretReturn gwasr;
 
-	geasr.header        = data->header;
-	geasr.header.length = sizeof(GetWifiAuthenticationSecretReturn);
-	memset(geasr.secret, 0, AUTHENTICATION_SECRET_LENGTH);
-	wifi_read_config(geasr.secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
+	gwasr.header        = data->header;
+	gwasr.header.length = sizeof(GetWifiAuthenticationSecretReturn);
+	memset(gwasr.secret, 0, AUTHENTICATION_SECRET_LENGTH);
+	wifi_read_config(gwasr.secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 
-	send_blocking_with_timeout(&geasr, sizeof(GetWifiAuthenticationSecretReturn), com);
+	send_blocking_with_timeout(&gwasr, sizeof(GetWifiAuthenticationSecretReturn), com);
 }

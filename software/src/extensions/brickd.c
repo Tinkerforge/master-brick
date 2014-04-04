@@ -249,11 +249,7 @@ void brickd_authenticate(const ComType com, const Authenticate *data) {
 	char secret[AUTHENTICATION_SECRET_LENGTH+1] = {0};
 
 	if(com == COM_ETHERNET) {
-		EthernetAuthenticationSecret eas = {0, "\0"};
-		ethernet_read_config((char*)&eas, sizeof(EthernetAuthenticationSecret), ETHERNET_AUTHENTICATION_SECRET_POS);
-		if(eas.key == ETHERNET_KEY) {
-			memcpy(secret, eas.secret, AUTHENTICATION_SECRET_LENGTH);
-		}
+		ethernet_read_config(secret, AUTHENTICATION_SECRET_LENGTH, ETHERNET_AUTHENTICATION_SECRET_POS, ETHERNET_AUTHENTICATION_SECRET_KEY_POS);
 	} else if(com == COM_WIFI) {
 		wifi_read_config(secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 	} else {

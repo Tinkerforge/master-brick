@@ -101,11 +101,11 @@ bool ethernet_init(void) {
 	ethernet_low_level_init();
 
 	// Enable authentication if key is set
-	EthernetAuthenticationSecret eas = {0, "\0"};
-	ethernet_read_config((char*)&eas, 5, ETHERNET_AUTHENTICATION_SECRET_POS);
+	char secret[AUTHENTICATION_SECRET_LENGTH] = {'\0'};
+	ethernet_read_config(secret, AUTHENTICATION_SECRET_LENGTH, ETHERNET_AUTHENTICATION_SECRET_POS, ETHERNET_AUTHENTICATION_SECRET_KEY_POS);
 
-	logethi("First secret char: %x\n\r", eas.secret[0]);
-	if(eas.key != ETHERNET_KEY || eas.secret[0] == '\0') {
+	logethi("First secret char: %x\n\r", secret[0]);
+	if(secret[0] == '\0') {
 		brickd_disable_authentication();
 	} else {
 		brickd_enable_authentication();
@@ -268,7 +268,7 @@ void ethernet_tick(const uint8_t tick_type) {
 
 
 // TODO: Centralize WIFI and Ethernet read/write key/config
-uint32_t ethernet_read_key(void) {
+uint32_t ethernet_read_key(uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_ETHERNET) {
 		extension = 0;
@@ -281,13 +281,13 @@ uint32_t ethernet_read_key(void) {
 
 	uint32_t key = 0;
 	extension_i2c_read(extension,
-					   ETHERNET_KEY_POS,
+	                   key_pos,
 					   (char*)&key,
 					   4);
 	return key;
 }
 
-void ethernet_write_key(void) {
+void ethernet_write_key(uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_ETHERNET) {
 		extension = 0;
@@ -300,12 +300,12 @@ void ethernet_write_key(void) {
 
 	uint32_t key = ETHERNET_KEY;
 	extension_i2c_write(extension,
-	                    ETHERNET_KEY_POS,
+	                    key_pos,
 					    (char*)&key,
 					    4);
 }
 
-bool ethernet_read_config(char *data, const uint8_t length, const uint16_t position) {
+bool ethernet_read_config(char *data, const uint8_t length, const uint16_t position, uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_ETHERNET) {
 		extension = 0;
@@ -316,10 +316,12 @@ bool ethernet_read_config(char *data, const uint8_t length, const uint16_t posit
 		return false;
 	}
 
-	if(ethernet_read_key() != ETHERNET_KEY) {
-		logethw("Key mismatch\n\r");
-		ethernet_write_config(data, length, position);
-		return false;
+	if(key_pos != 0) {
+		if(ethernet_read_key(key_pos) != ETHERNET_KEY) {
+			logethw("Key mismatch\n\r");
+			ethernet_write_config(data, length, position, key_pos);
+			return false;
+		}
 	}
 
 	uint8_t i;
@@ -341,7 +343,7 @@ bool ethernet_read_config(char *data, const uint8_t length, const uint16_t posit
 	return true;
 }
 
-void ethernet_write_config(const char *data, const uint8_t length, const uint16_t position) {
+void ethernet_write_config(const char *data, const uint8_t length, const uint16_t position, uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_ETHERNET) {
 		extension = 0;
@@ -379,5 +381,7 @@ void ethernet_write_config(const char *data, const uint8_t length, const uint16_
 						    last);
 	}
 
-	ethernet_write_key();
+	if(key_pos != 0) {
+		ethernet_write_key(key_pos);
+	}
 }

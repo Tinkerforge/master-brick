@@ -24,17 +24,13 @@
 
 #include "bricklib/logging/logging.h"
 
-typedef struct {
-	uint32_t key;
-	char secret[64];
-} __attribute__((__packed__)) EthernetAuthenticationSecret;
-
 #define ETHERNET_KEY (42 | (23 << 8) | (17 << 16) | (8 << 24))
 #define ETHERNET_KEY_POS 4
 #define ETHERNET_CONFIGURATION_POS 8
 #define ETHERNET_HOSTNAME_POS (ETHERNET_CONFIGURATION_POS + sizeof(SetEthernetConfiguration) - sizeof(MessageHeader))
 #define ETHERNET_WEBSOCKET_CONFIGURATION_POS (ETHERNET_HOSTNAME_POS + sizeof(SetEthernetHostname) - sizeof(MessageHeader))
-#define ETHERNET_AUTHENTICATION_SECRET_POS (ETHERNET_WEBSOCKET_CONFIGURATION_POS + sizeof(SetEthernetWebsocketConfiguration) - sizeof(MessageHeader))
+#define ETHERNET_AUTHENTICATION_SECRET_KEY_POS (ETHERNET_WEBSOCKET_CONFIGURATION_POS + sizeof(SetEthernetWebsocketConfiguration) - sizeof(MessageHeader))
+#define ETHERNET_AUTHENTICATION_SECRET_POS (4 + ETHERNET_AUTHENTICATION_SECRET_KEY_POS)
 #define ETHERNET_MAC_POS (32*4)
 
 #define ETHERNET_HOSTNAME_LENGTH 32

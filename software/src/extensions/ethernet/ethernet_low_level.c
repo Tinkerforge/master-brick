@@ -71,12 +71,12 @@ void ethernet_low_level_init(void) {
 
 	EthernetConfiguration ec = ETHERNET_CONFIGURATION_DEFAULT;
 
-	if(ethernet_read_config((char*)ethernet_status.mac_address, ETHERNET_MAC_SIZE, ETHERNET_MAC_POS)) {
+	if(ethernet_read_config((char*)ethernet_status.mac_address, ETHERNET_MAC_SIZE, ETHERNET_MAC_POS, ETHERNET_KEY_POS)) {
 		ethernet_low_level_get_default_hostname(ec.hostname);
-		ethernet_read_config((char*)&ec, sizeof(ec), ETHERNET_CONFIGURATION_POS);
+		ethernet_read_config((char*)&ec, sizeof(ec), ETHERNET_CONFIGURATION_POS, ETHERNET_KEY_POS);
 	} else {
 		ethernet_low_level_get_default_hostname(ec.hostname);
-		ethernet_write_config((char*)&ec, sizeof(ec), ETHERNET_CONFIGURATION_POS);
+		ethernet_write_config((char*)&ec, sizeof(ec), ETHERNET_CONFIGURATION_POS, ETHERNET_KEY_POS);
 	}
 
 	memcpy(ethernet_status.hostname, ec.hostname, ETHERNET_HOSTNAME_LENGTH);

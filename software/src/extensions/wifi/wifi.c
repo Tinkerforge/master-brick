@@ -140,7 +140,7 @@ bool wifi_init(void) {
 	char secret[AUTHENTICATION_SECRET_LENGTH] = {'\0'};
 	wifi_read_config(secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 
-	logwifii("First secret char: %x\n\r", was.secret[0]);
+	logwifii("First secret char: %x\n\r", secret[0]);
 	if(secret[0] == '\0') {
 		brickd_disable_authentication();
 	} else {

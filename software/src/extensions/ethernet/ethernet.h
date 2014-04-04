@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ETHERNET_CONFIGURATION_DEFAULT {0, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 4223, "Tinkerforge", 3, 4225}
+#define ETHERNET_CONFIGURATION_DEFAULT {0, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 4223, "Tinkerforge", 3, 4280}
 #define ETHERNET_STATUS_DEFAULT        {{0x40, 0xD8, 0x55, 0x02, 0xA0, 0x00}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 0, 0, "TBD"}
 
 typedef struct {
@@ -59,9 +59,9 @@ void ethernet_message_loop(void *parameters);
 void ethernet_message_loop_return(const char *data, const uint16_t length);
 void ethernet_tick(const uint8_t tick_type);
 
-uint32_t ethernet_read_key(void);
-void ethernet_write_key(void);
-bool ethernet_read_config(char *data, const uint8_t length, const uint16_t position);
-void ethernet_write_config(const char *data, const uint8_t length, const uint16_t position);
+uint32_t ethernet_read_key(uint16_t key_pos);
+void ethernet_write_key(uint16_t key_pos);
+bool ethernet_read_config(char *data, const uint8_t length, const uint16_t position, uint16_t key_pos);
+void ethernet_write_config(const char *data, const uint8_t length, const uint16_t position, uint16_t key_pos);
 
 #endif
