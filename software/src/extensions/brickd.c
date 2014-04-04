@@ -255,11 +255,7 @@ void brickd_authenticate(const ComType com, const Authenticate *data) {
 			memcpy(secret, eas.secret, AUTHENTICATION_SECRET_LENGTH);
 		}
 	} else if(com == COM_WIFI) {
-		WIFIAuthenticationSecret was = {0, "\0"};
-		wifi_read_config((char*)&was, sizeof(WIFIAuthenticationSecret), WIFI_AUTHENTICATION_SECRET_POS);
-		if(was.key == WIFI_KEY) {
-			memcpy(secret, was.secret, AUTHENTICATION_SECRET_LENGTH);
-		}
+		wifi_read_config(secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 	} else {
 		brickd_authentication_state[cid] = BRICKD_AUTHENTICATION_STATE_ENABLED;
 		return;

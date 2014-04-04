@@ -137,11 +137,11 @@ bool wifi_init(void) {
 	led_off(LED_EXT_BLUE_3);
 
 	// Enable authentication if key is set
-	WIFIAuthenticationSecret was = {0, "\0"};
-	wifi_read_config((char*)&was, 5, WIFI_AUTHENTICATION_SECRET_POS);
+	char secret[AUTHENTICATION_SECRET_LENGTH] = {'\0'};
+	wifi_read_config(secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 
 	logwifii("First secret char: %x\n\r", was.secret[0]);
-	if(was.key != WIFI_KEY || was.secret[0] == '\0') {
+	if(secret[0] == '\0') {
 		brickd_disable_authentication();
 	} else {
 		brickd_enable_authentication();
@@ -151,7 +151,7 @@ bool wifi_init(void) {
 	wifi_low_level_deselect();
 
 	if(!wifi_task_created) {
-		wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS);
+		wifi_read_config((char *)&wifi_configuration, sizeof(WifiConfiguration), WIFI_CONFIGURATION_POS, WIFI_KEY_POS);
 	}
 
 	uint32_t mode = US_MR_USART_MODE_SPI_MASTER |
@@ -527,7 +527,7 @@ void wifi_message_loop_return(const char *data, const uint16_t length) {
 	com_route_message_from_pc(data, length, COM_WIFI);
 }
 
-uint32_t wifi_read_key(void) {
+uint32_t wifi_read_key(uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
@@ -540,13 +540,13 @@ uint32_t wifi_read_key(void) {
 
 	uint32_t key = 0;
 	extension_i2c_read(extension,
-					   WIFI_KEY_POS,
+	                   key_pos,
 					   (char*)&key,
 					   4);
 	return key;
 }
 
-void wifi_write_key(void) {
+void wifi_write_key(uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
@@ -559,12 +559,12 @@ void wifi_write_key(void) {
 
 	uint32_t key = WIFI_KEY;
 	extension_i2c_write(extension,
-					    WIFI_KEY_POS,
+	                    key_pos,
 					    (char*)&key,
 					    4);
 }
 
-void wifi_read_config(char *data, const uint8_t length, const uint16_t position) {
+void wifi_read_config(char *data, const uint8_t length, const uint16_t position, uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
@@ -575,10 +575,12 @@ void wifi_read_config(char *data, const uint8_t length, const uint16_t position)
 		return;
 	}
 
-	if(wifi_read_key() != WIFI_KEY) {
-		logwifiw("Key mismatch\n\r");
-		wifi_write_config(data, length, position);
-		return;
+	if(key_pos != 0) {
+		if(wifi_read_key(key_pos) != WIFI_KEY) {
+			logwifiw("Key mismatch\n\r");
+			wifi_write_config(data, length, position, key_pos);
+			return;
+		}
 	}
 
 	uint8_t i;
@@ -598,7 +600,7 @@ void wifi_read_config(char *data, const uint8_t length, const uint16_t position)
 	}
 }
 
-void wifi_write_config(const char *data, const uint8_t length, const uint16_t position) {
+void wifi_write_config(const char *data, const uint8_t length, const uint16_t position, uint16_t key_pos) {
 	uint8_t extension;
 	if(com_info.ext[0] == COM_WIFI) {
 		extension = 0;
@@ -636,7 +638,9 @@ void wifi_write_config(const char *data, const uint8_t length, const uint16_t po
 						    last);
 	}
 
-	wifi_write_key();
+	if(key_pos != 0) {
+		wifi_write_key(key_pos);
+	}
 }
 
 void wifi_tick(const uint8_t tick_type) {

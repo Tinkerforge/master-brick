@@ -156,7 +156,7 @@ void wifi_command_send_at_wwpa(void) {
 		}
 		wifi_data_send(wifi_configuration.key, length);
 	} else {
-		wifi_read_config(key, sizeof(key), WIFI_LONG_KEY_POS);
+		wifi_read_config(key, sizeof(key), WIFI_LONG_KEY_POS, 0);
 		for(length = 0; length < sizeof(key); length++) {
 			if(key[length] == '\0') {
 				break;
@@ -312,11 +312,11 @@ void wifi_command_send_at_weapconf(void) {
 
 	uint8_t printed = sprintf(str, "%d,%d,", outer, inner);
 
-	wifi_read_config(&str[printed], 32, WIFI_USERNAME_POS);
+	wifi_read_config(&str[printed], 32, WIFI_USERNAME_POS, 0);
 	printed = strlen(str);
 	str[printed] = ',';
 
-	wifi_read_config(&str[printed+1], 32, WIFI_PASSWORD_POS);
+	wifi_read_config(&str[printed+1], 32, WIFI_PASSWORD_POS, 0);
 
 	wifi_data_send(str, strlen(str));
 	logwohd("%s", str);
@@ -370,7 +370,7 @@ void wifi_command_send_at_wregdomain(void) {
 
 void wifi_command_send_at_ndhcp(void) {
 	WIFIHostname wifi_hostname;
-	wifi_read_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS);
+	wifi_read_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS, 0);
 	if(wifi_hostname.key == WIFI_KEY) {
 		uint8_t length;
 		for(length = 0; length < 16; length++) {
@@ -480,7 +480,7 @@ void wifi_write_eap(void) {
 	uint16_t i;
 	str[32] = '\0';
 	for(i = 0; i < length; i+=32) {
-		wifi_read_config(str, 32, offset + i);
+		wifi_read_config(str, 32, offset + i, 0);
 		if(i + 32 < length) {
 			wifi_data_send(str, 32);
 		} else {

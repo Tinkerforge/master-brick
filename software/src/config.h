@@ -57,7 +57,7 @@
 //#define PROFILING_TIME 100 // After how many seconds profiling is printed
 
 #define DISABLE_JTAG_ON_STARTUP
-#define LOGGING_SERIAL
+//#define LOGGING_SERIAL
 //#define LOGGING_LEVEL LOGGING_DEBUG
 #define LOGGING_LEVEL LOGGING_NONE
 

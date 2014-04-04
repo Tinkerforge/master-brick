@@ -529,7 +529,7 @@ void is_wifi_present(const ComType com, const IsWifiPresent *data) {
 void set_wifi_configuration(const ComType com, const SetWifiConfiguration *data) {
 	wifi_write_config(((char*)data) + sizeof(MessageHeader),
 	                  sizeof(SetWifiConfiguration) - sizeof(MessageHeader),
-	                  WIFI_CONFIGURATION_POS);
+	                  WIFI_CONFIGURATION_POS, WIFI_KEY_POS);
 
 	logwifii("set_wifi_configuration: %d, %d.%d.%d.%d:%d\n\r", data->connection,
 	                                                           data->ip[3],
@@ -548,7 +548,7 @@ void get_wifi_configuration(const ComType com, const GetWifiConfiguration *data)
 	gwcr.header.length = sizeof(GetWifiConfigurationReturn);
 	wifi_read_config(((char*)&gwcr) + sizeof(MessageHeader),
 	                 sizeof(GetWifiConfigurationReturn) - sizeof(MessageHeader),
-	                 WIFI_CONFIGURATION_POS);
+	                 WIFI_CONFIGURATION_POS, WIFI_KEY_POS);
 
 	send_blocking_with_timeout(&gwcr, sizeof(GetWifiConfigurationReturn), com);
 
@@ -563,7 +563,7 @@ void get_wifi_configuration(const ComType com, const GetWifiConfiguration *data)
 void set_wifi_encryption(const ComType com, const SetWifiEncryption *data) {
 	wifi_write_config(((char*)data) + sizeof(MessageHeader),
 	                  sizeof(SetWifiEncryption) - sizeof(MessageHeader),
-	                  WIFI_ENCRYPTION_POS);
+	                  WIFI_ENCRYPTION_POS, WIFI_KEY_POS);
 
 	logwifii("set_wifi_encryption: %d\n\r", data->encryption);
 
@@ -577,7 +577,7 @@ void get_wifi_encryption(const ComType com, const GetWifiEncryption *data) {
 	gwer.header.length = sizeof(GetWifiEncryptionReturn);
 	wifi_read_config(((char*)&gwer) + sizeof(MessageHeader),
 	                 sizeof(GetWifiEncryptionReturn) - sizeof(MessageHeader),
-	                 WIFI_ENCRYPTION_POS);
+	                 WIFI_ENCRYPTION_POS, WIFI_KEY_POS);
 
 	send_blocking_with_timeout(&gwer, sizeof(GetWifiEncryptionReturn), com);
 
@@ -613,26 +613,29 @@ void set_wifi_certificate(const ComType com, const SetWifiCertificate *data) {
 		char data_tmp[32];
 		memcpy(data_tmp, data->data, data->data_length);
 		memset(data_tmp + data->data_length, 0, 32 - data->data_length);
-		wifi_write_config(data_tmp, 32, WIFI_USERNAME_POS);
+		wifi_write_config(data_tmp, 32, WIFI_USERNAME_POS, 0);
 	} else if(data->index == 0xFFFE) {
 		char data_tmp[32];
 		memcpy(data_tmp, data->data, data->data_length);
 		memset(data_tmp + data->data_length, 0, 32 - data->data_length);
-		wifi_write_config(data_tmp, 32, WIFI_PASSWORD_POS);
+		wifi_write_config(data_tmp, 32, WIFI_PASSWORD_POS, 0);
 	} else if(data->index < WIFI_CA_CERTIFICATE_MAX_LENGTH/32) {
 		wifi_write_config(data->data,
 		                  32,
-		                  WIFI_CA_CERTIFICATE_POS + data->index*32);
+		                  WIFI_CA_CERTIFICATE_POS + data->index*32,
+		                  0);
 	} else if(data->index < 10000 + WIFI_CLIENT_CERTIFICATE_MAX_LENGTH/32) {
 		uint16_t index = data->index - 10000;
 		wifi_write_config(data->data,
 		                  32,
-		                  WIFI_CLIENT_CERTIFICATE_POS + index*32);
+		                  WIFI_CLIENT_CERTIFICATE_POS + index*32,
+		                  0);
 	} else if(data->index < 20000 + WIFI_PRIVATE_KEY_MAX_LENGTH/32) {
 		uint16_t index = data->index - 20000;
 		wifi_write_config(data->data,
 		                  32,
-		                  WIFI_PRIVATE_KEY_POS + index*32);
+		                  WIFI_PRIVATE_KEY_POS + index*32,
+		                  0);
 	}
 
 	logwifii("set_wifi_certificate: %d %d\n\r", data->index, data->data_length);
@@ -650,7 +653,8 @@ void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
 	if(data->index == 0xFFFF) {
 		wifi_read_config(gwcr.data,
 		                 32,
-		                 WIFI_USERNAME_POS);
+		                 WIFI_USERNAME_POS,
+		                 0);
 
 		for(int8_t i = 31; i >= 0; i--) {
 			if(gwcr.data[i] != 0) {
@@ -661,7 +665,8 @@ void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
 	} else if(data->index == 0xFFFE) {
 		wifi_read_config(gwcr.data,
 		                 32,
-		                 WIFI_PASSWORD_POS);
+		                 WIFI_PASSWORD_POS,
+		                 0);
 
 		for(int8_t i = 31; i >= 0; i--) {
 			if(gwcr.data[i] != 0) {
@@ -672,7 +677,8 @@ void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
 	} else if(data->index < WIFI_CA_CERTIFICATE_MAX_LENGTH/32) {
 		wifi_read_config(gwcr.data,
 		                 32,
-		                 WIFI_CA_CERTIFICATE_POS + data->index*32);
+		                 WIFI_CA_CERTIFICATE_POS + data->index*32,
+		                 0);
 		if(data->index == ((wifi_configuration.ca_certificate_length+31)/32 - 1)) {
 			gwcr.data_length = wifi_configuration.ca_certificate_length % 32;
 		} else {
@@ -682,7 +688,8 @@ void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
 		uint16_t index = data->index - 10000;
 		wifi_read_config(gwcr.data,
 		                 32,
-		                 WIFI_CLIENT_CERTIFICATE_POS + index*32);
+		                 WIFI_CLIENT_CERTIFICATE_POS + index*32,
+		                 0);
 		if(index == ((wifi_configuration.client_certificate_length+31)/32 - 1)) {
 			gwcr.data_length = wifi_configuration.client_certificate_length % 32;
 		} else {
@@ -692,7 +699,8 @@ void get_wifi_certificate(const ComType com, const GetWifiCertificate *data) {
 		uint16_t index = data->index - 20000;
 		wifi_read_config(gwcr.data,
 		                 32,
-		                 WIFI_PRIVATE_KEY_POS + index*32);
+		                 WIFI_PRIVATE_KEY_POS + index*32,
+		                 0);
 		if(index == ((wifi_configuration.private_key_length+31)/32 - 1)) {
 			gwcr.data_length = wifi_configuration.private_key_length % 32;
 		} else {
@@ -744,7 +752,7 @@ void get_wifi_buffer_info(const ComType com, const GetWifiBufferInfo *data) {
 
 void set_wifi_regulatory_domain(const ComType com, const SetWifiRegulatoryDomain *data) {
 	if(data->domain < 4) {
-		wifi_write_config((char*)&data->domain, 1, WIFI_REGULATORY_DOMAIN_POS);
+		wifi_write_config((char*)&data->domain, 1, WIFI_REGULATORY_DOMAIN_POS, WIFI_KEY_POS);
 		wifi_configuration.regulatory_domain = data->domain;
 		logwifii("wifi_set_regulatory_domain: %d\n\r", data->domain);
 
@@ -759,7 +767,7 @@ void get_wifi_regulatory_domain(const ComType com, const GetWifiRegulatoryDomain
 
 	gwrdr.header        = data->header;
 	gwrdr.header.length = sizeof(GetWifiRegulatoryDomainReturn);
-	wifi_read_config((char*)&gwrdr.domain, 1, WIFI_REGULATORY_DOMAIN_POS);
+	wifi_read_config((char*)&gwrdr.domain, 1, WIFI_REGULATORY_DOMAIN_POS, WIFI_KEY_POS);
 
 	send_blocking_with_timeout(&gwrdr, sizeof(GetWifiRegulatoryDomainReturn), com);
 	logwifii("get_wifi_regulatory_domain: %d\n\r", gwrdr.domain);
@@ -777,7 +785,7 @@ void get_usb_voltage(const ComType com, const GetUSBVoltage *data) {
 }
 
 void set_long_wifi_key(const ComType com, const SetLongWifiKey *data) {
-	wifi_write_config(data->key, 64, WIFI_LONG_KEY_POS);
+	wifi_write_config(data->key, 64, WIFI_LONG_KEY_POS, 0);
 	com_return_setter(com, data);
 }
 
@@ -786,7 +794,7 @@ void get_long_wifi_key(const ComType com, const GetLongWifiKey *data) {
 
 	glwkr.header        = data->header;
 	glwkr.header.length = sizeof(GetLongWifiKeyReturn);
-	wifi_read_config(glwkr.key, 64, WIFI_LONG_KEY_POS);
+	wifi_read_config(glwkr.key, 64, WIFI_LONG_KEY_POS, 0);
 
 	send_blocking_with_timeout(&glwkr, sizeof(GetLongWifiKeyReturn), com);
 }
@@ -801,7 +809,7 @@ void set_wifi_hostname(const ComType com, const SetWifiHostname *data) {
 		wifi_hostname.hostname[i] = data->hostname[i];
 	}
 
-	wifi_write_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS);
+	wifi_write_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS, 0);
 	com_return_setter(com, data);
 }
 
@@ -812,7 +820,7 @@ void get_wifi_hostname(const ComType com, const GetWifiHostname *data) {
 	gwhr.header        = data->header;
 	gwhr.header.length = sizeof(GetWifiHostnameReturn);
 
-	wifi_read_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS);
+	wifi_read_config((char*)&wifi_hostname, sizeof(WIFIHostname), WIFI_HOSTNAME_POS, 0);
 	if(wifi_hostname.key == WIFI_KEY) {
 		memcpy(gwhr.hostname, wifi_hostname.hostname, 16);
 	} else {
@@ -1147,16 +1155,16 @@ void get_ethernet_authentication_secret(const ComType com, const GetEthernetAuth
 }
 
 void set_wifi_authentication_secret(const ComType com, const SetWifiAuthenticationSecret *data) {
-	WIFIAuthenticationSecret was = {WIFI_KEY, "\0"};
+	char secret[AUTHENTICATION_SECRET_LENGTH] = {'\0'};
 
 	for(uint8_t i = 0; i < AUTHENTICATION_SECRET_LENGTH; i++) {
 		if(data->secret[i] == '\0') {
 			break;
 		}
-		was.secret[i] = data->secret[i];
+		secret[i] = data->secret[i];
 	}
 
-	wifi_write_config((char*)&was, sizeof(WIFIAuthenticationSecret), WIFI_AUTHENTICATION_SECRET_POS);
+	wifi_write_config(secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 	com_return_setter(com, data);
 }
 
@@ -1165,14 +1173,8 @@ void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticati
 
 	geasr.header        = data->header;
 	geasr.header.length = sizeof(GetWifiAuthenticationSecretReturn);
-	WIFIAuthenticationSecret was = {0, "\0"};
-
-	wifi_read_config((char*)&was, sizeof(WIFIAuthenticationSecret), WIFI_AUTHENTICATION_SECRET_POS);
-	if(was.key != WIFI_KEY) {
-		memset(geasr.secret, 0, AUTHENTICATION_SECRET_LENGTH);
-	} else {
-		memcpy(geasr.secret, was.secret, AUTHENTICATION_SECRET_LENGTH);
-	}
+	memset(geasr.secret, 0, AUTHENTICATION_SECRET_LENGTH);
+	wifi_read_config(geasr.secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 
 	send_blocking_with_timeout(&geasr, sizeof(GetWifiAuthenticationSecretReturn), com);
 }
