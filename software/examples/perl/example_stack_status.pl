@@ -14,9 +14,12 @@ $ipcon->connect(&HOST, &PORT); # Connect to brickd
 # Don't use device before ipcon is connected
 
 # Get voltage and current from stack (in mV/mA)
-print "\nStack Voltage: ".$master->get_stack_voltage()/1000.0." V\n";
-print "\nStack Current: ".$master->get_stack_voltage()/1000.0." A\n";
+my $voltage = $master->get_stack_voltage()/1000.0;
+print "Stack Voltage: $voltage V\n";
 
-print "\nPress any key to exit...\n";
+my $current = $master->get_stack_current()/1000.0;
+print "Stack Current: $current A\n";
+
+print "Press any key to exit...\n";
 <STDIN>;
 $ipcon->disconnect();
