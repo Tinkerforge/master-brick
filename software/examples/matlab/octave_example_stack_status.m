@@ -14,10 +14,9 @@ function octave_example_stack_status
     % Get voltage and current from stack (in mV/mA)
     voltage = master.getStackVoltage();
     current = master.getStackCurrent();
-
-    fprintf("Stack Voltage: %g V\n", voltage/1000);
+    fprintf("Stack Voltage: %g V\n", voltage/1000.0);
     fprintf("Stack Current: %g A\n", current/1000.0);
 
-    input("\nPress any key to exit...\n", "s");
+    input("Press any key to exit...\n", "s");
     ipcon.disconnect();
 end
