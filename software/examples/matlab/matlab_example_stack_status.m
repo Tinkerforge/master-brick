@@ -1,4 +1,4 @@
-function matlab_example_stack_status
+function matlab_example_stack_status()
     import com.tinkerforge.IPConnection;
     import com.tinkerforge.BrickMaster;
 

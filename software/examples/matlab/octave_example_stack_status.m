@@ -1,4 +1,4 @@
-function octave_example_stack_status
+function octave_example_stack_status()
     more off;
     
     HOST = "localhost";
