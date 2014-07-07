@@ -87,3 +87,4 @@
  - Increase USB hotplug detect threshold
  - SPI stack slave gives up immediately if message length too long
 2.2.1: Remove "Suspend to Disk fix", seems to make problems on some windows versions (through bricklib)
+2.2.2: Remove USB hotplug support (through bricklib)
