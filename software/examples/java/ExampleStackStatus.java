@@ -22,7 +22,7 @@ public class ExampleStackStatus {
 		System.out.println("Stack Voltage: " + voltage/1000.0 + " V");
 		System.out.println("Stack Current: " + current/1000.0 + " A");
 
-		System.console().readLine("Press key to exit\n");
+		System.out.println("Press key to exit"); System.in.read();
 		ipcon.disconnect();
 	}
 }
