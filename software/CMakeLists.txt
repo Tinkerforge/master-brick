@@ -16,7 +16,7 @@ SET(DEBUG "")
 SET(TRACE_LEVEL 0)
 SET(CMAKE_BUILD_TYPE None)
 
-#SET(USE_SPI_DMA 1)
+SET(USE_SPI_DMA 0)
 
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/"
@@ -83,8 +83,6 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/usb/usb.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/com_common.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_clear_bus.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_master.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_select.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/bricklet/bricklet_communication.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/bricklet/bricklet_init.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/extension_init.c"
@@ -111,18 +109,23 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet.c"
 	"${PROJECT_SOURCE_DIR}/src/main.c"
 	"${PROJECT_SOURCE_DIR}/src/master.c"
-	"${PROJECT_SOURCE_DIR}/src/routing.c"
 )
 
 IF(USE_SPI_DMA)
 LIST(APPEND SOURCES
+	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_select_dma.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_common_dma.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_slave_dma.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_master_dma.c"
+	"${PROJECT_SOURCE_DIR}/src/routing_dma.c"
 )
 ELSE()
 LIST(APPEND SOURCES
+	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_select.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_common.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_slave.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib/com/spi/spi_stack/spi_stack_master.c"
+	"${PROJECT_SOURCE_DIR}/src/routing.c"
 )
 ENDIF()
 
@@ -153,4 +156,4 @@ ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}.elf POST_BUILD COMMAND
                    ${OBJECT} ${PROJECT_NAME}.elf)
 
 # add preprocessor defines
-ADD_DEFINITIONS(-D${CHIP} -DTRACE_LEVEL=${TRACE_LEVEL} -Dflash -Dprintf=iprintf) 
+ADD_DEFINITIONS(-D${CHIP} -DTRACE_LEVEL=${TRACE_LEVEL} -DUSE_SPI_DMA=${USE_SPI_DMA} -Dflash -Dprintf=iprintf) 

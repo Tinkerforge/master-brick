@@ -174,12 +174,14 @@ int main() {
     	}
 
     	if(com_info.last_stack_address > 0) {
+#if !USE_SPI_DMA
 			xTaskCreate(spi_stack_master_state_machine_loop,
 						(signed char *)"spi_sm",
 						500,
 						NULL,
 						1,
 						(xTaskHandle *)NULL);
+#endif
 
 			xTaskCreate(spi_stack_master_message_loop,
 						(signed char *)"spi_ml",
