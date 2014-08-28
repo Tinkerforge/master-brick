@@ -49,7 +49,6 @@ uint8_t routing_table_stack_enumerate(uint8_t stack_address) {
 
 	uint8_t tries;
 	for(tries = 0; tries < 10; tries++) {
-		printf("ts before: %d\n\r", transceive_state);
 		SPIStackMasterTransceiveInfo ti;
 		if(!transceive_ok) {
 			ti = spi_stack_master_start_transceive((uint8_t *)&se, sizeof(StackEnumerate), stack_address);
@@ -59,13 +58,9 @@ uint8_t routing_table_stack_enumerate(uint8_t stack_address) {
 		}
 		SLEEP_MS(50);
 
-		printf("rtse: %d %d\n\r", ti, transceive_state);
-
 		switch(ti) {
 			case TRANSCEIVE_INFO_SEND_OK:
-				//if(transceive_state == TRANSCEIVE_STATE_MESSAGE_EMPTY) {
-					return tries;
-				//}
+				return tries;
 
 				break;
 
@@ -84,24 +79,12 @@ uint8_t routing_table_stack_enumerate(uint8_t stack_address) {
 uint8_t routing_table_stack_enumerate_return(uint8_t stack_address, StackEnumerateReturn *ser) {
 	uint8_t tries;
 	for(tries = 0; tries < 10; tries++) {
-		printf("recv: %d\n\r", spi_stack_buffer_size_recv);
 		if(spi_stack_buffer_size_recv > 0) {
 			spi_stack_buffer_size_recv = 0;
 			for(uint8_t i = 0; i < sizeof(StackEnumerateReturn); i++) {
 				((uint8_t*)ser)[i] = spi_stack_buffer_recv[i];
 			}
 
-			printf("data: %d %d %d %d %d %d %d %d\n\r",
-					spi_stack_buffer_recv[0],
-					spi_stack_buffer_recv[1],
-					spi_stack_buffer_recv[2],
-					spi_stack_buffer_recv[3],
-					spi_stack_buffer_recv[4],
-					spi_stack_buffer_recv[5],
-					spi_stack_buffer_recv[6],
-					spi_stack_buffer_recv[7]);
-
-			printf("l: %x %x \n\r", ser->header.length, sizeof(StackEnumerateReturn));
 			// Do a sanity check to find out if it can be the right message
 			if(ser->header.length == sizeof(StackEnumerateReturn)) {
 				return tries;
@@ -128,7 +111,6 @@ void routing_table_create_stack(void) {
 			break;
 		}
 
-		printf("send done -> now recv\n\r");
 		StackEnumerateReturn ser;
 		tries = routing_table_stack_enumerate_return(stack_address+1, &ser);
 
