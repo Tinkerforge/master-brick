@@ -320,13 +320,13 @@ uint8_t ethernet_low_level_write_data_tcp(const uint8_t socket, const uint8_t *b
 		ethernet_write_buffer(addr, buffer, size_max);
 	}
 
-	ethernet_low_level_set_transmit_pointer(socket, offset_address + length);
+	ethernet_low_level_set_transmit_pointer(socket, offset_address + size_max);
 
 	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket), ETH_VAL_SN_CR_SEND);
 	while(ethernet_read_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(socket)) != 0);
 
-	ethernet_status.tx_count += length;
-	return length;
+	ethernet_status.tx_count += size_max;
+	return size_max;
 }
 
 uint16_t ethernet_low_level_read_data_udp(const uint8_t socket, uint8_t *buffer, const uint16_t length, uint8_t ip[4], uint16_t *port) {
