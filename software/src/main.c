@@ -97,21 +97,31 @@ int main() {
     PIO_Configure(&pin_detect, 1);
     PIO_Configure(&pin_master_detect, 1);
 
-    Pin pins_extension[] = {PINS_EXT};
-    PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
-
     if(master_get_hardware_version() == 10) {
     	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_10;
     	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_10;
     	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_10;
-    } else {
-    	// Set dummy calibration, to make sure that calibration is not read
+        Pin pins_extension[] = {PINS_EXT_10};
+        PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+    } else if(master_get_hardware_version() == 20) {
+        // Set dummy calibration, to make sure that calibration is not read
     	// from flash in Master Brick HW Version 2.0
     	adc_set_calibration(0, 1, 1);
     	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_20;
     	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_20;
     	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_20;
-    }
+        Pin pins_extension[] = {PINS_EXT_10};
+        PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+    } else {
+    	// Set dummy calibration, to make sure that calibration is not read
+    	// from flash in Master Brick HW Version 2.1
+    	adc_set_calibration(0, 1, 1);
+    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_21;
+    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_21;
+    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_21;
+        Pin pins_extension[] = {PINS_EXT_21};
+        PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+    }    
 
 	brick_init();
 	wdt_restart();
@@ -138,6 +148,7 @@ int main() {
     wdt_restart();
     Pin pin_3v3_enable = PIN_3V3_ENABLE;
     if(PIO_Get(&pin_master_detect)) {
+        
     	pin_3v3_enable.type = PIO_OUTPUT_1;
     	PIO_Configure(&pin_3v3_enable, 1);
 		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));
@@ -209,6 +220,8 @@ int main() {
     			    1,
     			    (xTaskHandle *)NULL);
     }
+
+
 
 	brick_init_start_tick_task();
 	wdt_restart();

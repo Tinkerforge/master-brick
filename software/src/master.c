@@ -156,13 +156,16 @@ void master_init(void) {
 }
 
 uint8_t master_get_hardware_version(void) {
-	Pin detect = PIN_MASTER20_DETECT;
-	PIO_Configure(&detect, 1);
-	if(PIO_Get(&detect)) {
+	Pin detect[] = {PIN_MASTER20_DETECT, PIN_MASTER21_DETECT};
+	PIO_Configure(detect, PIO_LISTSIZE(detect));
+
+	if(PIO_Get(&detect[0])) {
 		return 10;
-	} else {
+	} else if(PIO_Get(&detect[1])) {
 		return 20;
-	}
+    } else {
+		return 21;
+    }
 }
 
 void master_handle_callbacks(const uint8_t tick_type) {
