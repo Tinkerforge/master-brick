@@ -42,6 +42,7 @@
 #include "extensions/ethernet/ethernet.h"
 
 #include <stdio.h>
+#include <string.h>
 
 extern ComInfo com_info;
 
@@ -51,7 +52,7 @@ extern uint8_t rs485_slave_address[];
 extern uint8_t rs485_type;*/
 
 Pin extension_pins[] = {PIN_EXT_0_SELECT,
-		                PIN_EXT_0_GP_0,
+		                PIN_EXT_0_GP_0_10,
 		                PIN_EXT_0_GP_1,
 		                PIN_EXT_0_GP_2,
 		                PIN_EXT_1_SELECT,
@@ -130,6 +131,12 @@ void extension_set_type(const uint8_t extension, uint32_t type) {
 
 void extension_init(void) {
 	logexti("Start extension initialization\n\r");
+    
+    if(master_get_hardware_version() > 20) {
+        //fix gp0 pin for hw 2.1
+		Pin pin_ext_0_gp_0_21 = PIN_EXT_0_GP_0_21;
+		memcpy(&extension_pins[1], &pin_ext_0_gp_0_21, sizeof(Pin));
+    }
 	PIO_Configure(extension_pins, PIO_LISTSIZE(extension_pins));
 
 	extension_i2c_init();
