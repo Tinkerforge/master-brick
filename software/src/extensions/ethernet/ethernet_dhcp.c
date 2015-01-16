@@ -34,7 +34,7 @@
 #define HOST_NAME "EthernetExtension"
 
 extern EthernetStatus ethernet_status;
-
+extern W5X00Register *ethernet_regs;
 
 static uint8_t dhcp_dns_server_ip[4] = {0, 0, 0, 0};
 static uint8_t dhcp_real_dns_server_ip[4] = {0, 0, 0, 0};
@@ -472,10 +472,10 @@ bool dhcp_create_socket(const uint8_t s) {
 		return false;
 	}
 
-	ethernet_write_register(ETH_REG_SN_MR | ETH_REG_SOCKET_NUM(s), ETH_VAL_SN_MR_PROTO_UDP);
-	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(s)), (DHCP_CLIENT_PORT & 0xFF00) >> 8);
-	ethernet_write_register((ETH_REG_SN_PORT | ETH_REG_SOCKET_NUM(s)) + 1, DHCP_CLIENT_PORT & 0x00FF);
-	ethernet_write_register(ETH_REG_SN_CR | ETH_REG_SOCKET_NUM(s), ETH_VAL_SN_CR_OPEN);
+	ethernet_write_register(ETH_REG_SN_MR(s), ETH_VAL_SN_MR_PROTO_UDP);
+	ethernet_write_register(ETH_REG_SN_PORT(s), (DHCP_CLIENT_PORT & 0xFF00) >> 8);
+	ethernet_write_register(ETH_REG_SN_PORT(s) + (1 << 8), DHCP_CLIENT_PORT & 0x00FF);
+	ethernet_write_register(ETH_REG_SN_CR(s), ETH_VAL_SN_CR_OPEN);
 
 	while(ethernet_low_level_get_status(s) != ETH_VAL_SN_SR_SOCK_UDP);
 	logethd("DHCP Socket %d: initialized\n\r", s);
@@ -609,9 +609,9 @@ void dhcp_check_timeout(void) {
 
 
 void dhcp_set_network(void) {
-	ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_status.gateway, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SUBNET_MASK, ethernet_status.subnet_mask, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_status.ip, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ethernet_regs->ETH_REG_GATEWAY_ADDRESS, ethernet_status.gateway, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ethernet_regs->ETH_REG_SUBNET_MASK, ethernet_status.subnet_mask, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ethernet_regs->ETH_REG_SOURCE_IP_ADDRESS, ethernet_status.ip, ETHERNET_IP_SIZE);
 }
 
 
@@ -653,10 +653,10 @@ uint32_t dhcp_init_socket(const uint8_t s) {
 	memset(ethernet_status.gateway, 0, 4);
 	memset(ethernet_status.ip, 0, 4);
 
-	ethernet_write_buffer(ETH_REG_SOURCE_HW_ADDRESS, ethernet_status.mac_address, ETHERNET_MAC_SIZE);
-	ethernet_write_buffer(ETH_REG_GATEWAY_ADDRESS, ethernet_status.gateway, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SUBNET_MASK, ethernet_status.subnet_mask, ETHERNET_IP_SIZE);
-	ethernet_write_buffer(ETH_REG_SOURCE_IP_ADDRESS, ethernet_status.ip, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ethernet_regs->ETH_REG_SOURCE_HW_ADDRESS, ethernet_status.mac_address, ETHERNET_MAC_SIZE);
+	ethernet_write_buffer(ethernet_regs->ETH_REG_GATEWAY_ADDRESS, ethernet_status.gateway, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ethernet_regs->ETH_REG_SUBNET_MASK, ethernet_status.subnet_mask, ETHERNET_IP_SIZE);
+	ethernet_write_buffer(ethernet_regs->ETH_REG_SOURCE_IP_ADDRESS, ethernet_status.ip, ETHERNET_IP_SIZE);
 
 	dhcp_socket = s;
 	return dhcp_create_socket(s);

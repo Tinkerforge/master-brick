@@ -26,6 +26,25 @@
 
 #include "ethernet_config.h"
 
+typedef struct {
+	uint32_t ETH_REG_MODE;
+	uint32_t ETH_REG_GATEWAY_ADDRESS;
+	uint32_t ETH_REG_SUBNET_MASK;
+	uint32_t ETH_REG_SOURCE_HW_ADDRESS;
+	uint32_t ETH_REG_SOURCE_IP_ADDRESS;
+	uint32_t ETH_REG_RETRY_TIME;
+	uint32_t ETH_REG_RETRY_COUNT;
+	uint32_t ETH_REG_CHIP_VERSION;
+	uint32_t CH_BASE;
+	uint32_t CH_OFFSET_SHIFT;
+} W5X00Register;
+
+#define W5500_BSB_TX(s) ((2 + ((s) << 2)) << 3)
+#define W5500_BSB_RX(s) ((3 + ((s) << 2)) << 3)
+
+// Leave registers here for reference.
+// We only put registers in the struct above if they are used, this saves space.
+#if 0
 #define ETH_REG_MODE                   0x0000
 #define ETH_REG_GATEWAY_ADDRESS        0x0001
 #define ETH_REG_SUBNET_MASK            0x0005
@@ -44,32 +63,31 @@
 #define ETH_REG_SOCKET_INTERRUPT       0x0034
 #define ETH_REG_PHY_STATUS             0x0035
 #define ETH_REG_SOCKET_INTERRUPT_MASK  0x0036
+#endif
 
-#define ETH_REG_SN_MR                  0x4000
-#define ETH_REG_SN_CR                  0x4001
-#define ETH_REG_SN_IR                  0x4002
-#define ETH_REG_SN_SR                  0x4003
-#define ETH_REG_SN_PORT                0x4004
-#define ETH_REG_SN_DHAR                0x4006
-#define ETH_REG_SN_DIPR                0x400C
-#define ETH_REG_SN_DPORT               0x4010
-#define ETH_REG_SN_MSSR                0x4012
-#define ETH_REG_SN_PROTO               0x4014
-#define ETH_REG_SN_TOS                 0x4015
-#define ETH_REG_SN_TTL                 0x4016
-#define ETH_REG_SN_RXMEM_SIZE          0x401E
-#define ETH_REG_SN_TXMEM_SIZE          0x401F
-#define ETH_REG_SN_TX_FSR              0x4020
-#define ETH_REG_SN_TX_RD               0x4022
-#define ETH_REG_SN_TX_WR               0x4024
-#define ETH_REG_SN_RX_RSR              0x4026
-#define ETH_REG_SN_RX_RD               0x4028
-#define ETH_REG_SN_RX_WR               0x402A
-#define ETH_REG_SN_IMR                 0x402C
-#define ETH_REG_SN_FRAG                0x402D
-
-#define ETH_REG_SOCKET_NUM(n)          (0x0100*(n))
-
+#define ETH_REG_OFFSET(s)               ((ethernet_regs->CH_BASE) + ((s) << (ethernet_regs->CH_OFFSET_SHIFT)))
+#define ETH_REG_SN_MR(s)                (ETH_REG_OFFSET(s) + 0x000000)
+#define ETH_REG_SN_CR(s)                (ETH_REG_OFFSET(s) + 0x000100)
+#define ETH_REG_SN_IR(s)                (ETH_REG_OFFSET(s) + 0x000200)
+#define ETH_REG_SN_SR(s)                (ETH_REG_OFFSET(s) + 0x000300)
+#define ETH_REG_SN_PORT(s)              (ETH_REG_OFFSET(s) + 0x000400)
+#define ETH_REG_SN_DHAR(s)              (ETH_REG_OFFSET(s) + 0x000600)
+#define ETH_REG_SN_DIPR(s)              (ETH_REG_OFFSET(s) + 0x000C00)
+#define ETH_REG_SN_DPORT(s)             (ETH_REG_OFFSET(s) + 0x001000)
+#define ETH_REG_SN_MSSR(s)              (ETH_REG_OFFSET(s) + 0x001200)
+#define ETH_REG_SN_PROTO(s)             (ETH_REG_OFFSET(s) + 0x001400)
+#define ETH_REG_SN_TOS(s)               (ETH_REG_OFFSET(s) + 0x001500)
+#define ETH_REG_SN_TTL(s)               (ETH_REG_OFFSET(s) + 0x001600)
+#define ETH_REG_SN_RXMEM_SIZE(s)        (ETH_REG_OFFSET(s) + 0x001E00)
+#define ETH_REG_SN_TXMEM_SIZE(s)        (ETH_REG_OFFSET(s) + 0x001F00)
+#define ETH_REG_SN_TX_FSR(s)            (ETH_REG_OFFSET(s) + 0x002000)
+#define ETH_REG_SN_TX_RD(s)             (ETH_REG_OFFSET(s) + 0x002200)
+#define ETH_REG_SN_TX_WR(s)             (ETH_REG_OFFSET(s) + 0x002400)
+#define ETH_REG_SN_RX_RSR(s)            (ETH_REG_OFFSET(s) + 0x002600)
+#define ETH_REG_SN_RX_RD(s)             (ETH_REG_OFFSET(s) + 0x002800)
+#define ETH_REG_SN_RX_WR(s)             (ETH_REG_OFFSET(s) + 0x002A00)
+#define ETH_REG_SN_IMR(s)               (ETH_REG_OFFSET(s) + 0x002C00)
+#define ETH_REG_SN_FRAG(s)              (ETH_REG_OFFSET(s) + 0x002D00)
 
 #define ETH_VAL_MODE_SW_RESET          (1 << 7)
 #define ETH_VAL_MODE_PB                (1 << 6)
@@ -137,6 +155,7 @@
 void ethernet_low_level_get_default_hostname(char hostname[ETHERNET_HOSTNAME_LENGTH]);
 void ethernet_low_level_reset(void);
 void ethernet_low_level_init(void);
+bool ethernet_low_level_discover_chip_version(void);
 void ethernet_low_level_emergency_disconnect(const uint8_t socket);
 void ethernet_low_level_disconnect(const uint8_t socket);
 uint8_t ethernet_low_level_get_status(const uint8_t socket);
@@ -158,14 +177,9 @@ void ethernet_low_level_set_retry_count(const uint8_t retry_count);
 void ethernet_select(void);
 void ethernet_deselect(void);
 uint8_t ethernet_transceive_byte(const uint8_t value);
-uint8_t ethernet_read_register(const uint16_t address);
-void ethernet_write_register(const uint16_t address, const uint8_t value);
-uint8_t ethernet_read_buffer(const uint16_t address,
-                             uint8_t *buffer,
-                             const uint16_t length);
-
-uint8_t ethernet_write_buffer(const uint16_t address,
-                              const uint8_t *buffer,
-                              const uint16_t length);
+uint8_t ethernet_read_register(const uint32_t address);
+void ethernet_write_register(const uint32_t address, const uint8_t value);
+extern uint8_t (*ethernet_read_buffer)(const uint32_t address, uint8_t *buffer, const uint16_t length);
+extern uint8_t (*ethernet_write_buffer)(const uint32_t address, const uint8_t *buffer, const uint16_t length);
 
 #endif
