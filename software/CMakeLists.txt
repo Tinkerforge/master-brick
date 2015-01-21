@@ -107,6 +107,8 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet_low_level.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet_dhcp.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet.c"
+	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet_w5200.c"
+	"${PROJECT_SOURCE_DIR}/src/extensions/ethernet/ethernet_w5500.c"
 	"${PROJECT_SOURCE_DIR}/src/main.c"
 	"${PROJECT_SOURCE_DIR}/src/master.c"
 )
