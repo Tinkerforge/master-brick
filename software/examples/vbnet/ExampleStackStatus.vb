@@ -20,7 +20,7 @@ Module ExampleStackStatus
         System.Console.WriteLine("Stack Current: " + (current/1000.0).ToString() + " A")
 
         System.Console.WriteLine("Press key to exit")
-        System.Console.ReadKey()
+        System.Console.ReadLine()
         ipcon.Disconnect()
     End Sub
 End Module
