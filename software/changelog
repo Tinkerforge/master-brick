@@ -90,3 +90,5 @@
 2.2.2: Remove USB hotplug support (through bricklib)
 2.3.0: Add support for new SPI protocol
  - Add support for Master Brick 2.1
+2.3.1: Add support for Ethernet Extension 1.1
+ - Remove USB hotplug support for Master Brick 2.1 again
