@@ -146,14 +146,16 @@ int main() {
     led_off(LED_EXT_BLUE_3);
 
     wdt_restart();
+
     Pin pin_3v3_enable = PIN_3V3_ENABLE;
     if(PIO_Get(&pin_master_detect)) {
-        
     	pin_3v3_enable.type = PIO_OUTPUT_1;
     	PIO_Configure(&pin_3v3_enable, 1);
 		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));
 
     	master_mode |= MASTER_MODE_MASTER;
+
+    	usb_init();
 
     	// If we are a Master in the Stack, we have to wait again, so
     	// other Bricks can enumerate there Bricklets
@@ -170,20 +172,14 @@ int main() {
 
         extension_init();
 
-    	if(usb_init()) {
-			xTaskCreate(usb_message_loop,
-						(signed char *)"usb_ml",
-						MESSAGE_LOOP_SIZE,
-						NULL,
-						1,
-						(xTaskHandle *)NULL);
+		xTaskCreate(usb_message_loop,
+					(signed char *)"usb_ml",
+					MESSAGE_LOOP_SIZE,
+					NULL,
+					1,
+					(xTaskHandle *)NULL);
 
-			logsi("USB initialized\n\r");
-    	} else {
-    		usb_first_connection = false;
-    		logsi("No USB connection\n\r");
-    	}
-
+		logsi("USB initialized\n\r");
     	if(com_info.last_stack_address > 0) {
 #if !USE_SPI_DMA
 			xTaskCreate(spi_stack_master_state_machine_loop,
