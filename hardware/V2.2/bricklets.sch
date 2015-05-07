@@ -30,7 +30,6 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:tinkerforge
-LIBS:master-cache
 EELAYER 25 0
 EELAYER END
 $Descr A3 16535 11693
@@ -54,7 +53,7 @@ F 1 "ESD3V3D3B-TP" H 5900 1750 40  0000 C CNN
 F 2 "SOD-323" H 5900 1850 60  0001 C CNN
 F 3 "" H 5900 1850 60  0001 C CNN
 	1    5900 1850
-	0    1    1    0   
+	0    -1   -1   0   
 $EndComp
 NoConn ~ 2350 5050
 NoConn ~ 2250 5050
@@ -633,7 +632,7 @@ F 1 "ESD5V0D3B-TP" H 5900 1000 40  0000 C CNN
 F 2 "SOD-323" H 5900 1100 60  0001 C CNN
 F 3 "" H 5900 1100 60  0001 C CNN
 	1    5900 1100
-	0    1    1    0   
+	0    -1   -1   0   
 $EndComp
 Connection ~ 5600 850 
 Wire Wire Line
