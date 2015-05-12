@@ -132,8 +132,10 @@ uint16_t ethernet_send(const void *data, const uint16_t length, uint32_t *option
 		for(uint8_t socket_i = 0; socket_i < ETHERNET_MAX_SOCKETS; socket_i++) {
 			if(brickd_check_auth(data, socket_i)) {
 				if(socket_i < ethernet_plain_sockets) {
-					ethernet_low_level_write_data_tcp(socket_i, data, length);
+					// Use blocking send, otherwise we can't handle partial send correctly
+					ethernet_low_level_write_data_tcp_blocking(socket_i, data, length);
 				} else {
+					// Websocket send is always blocking
 					ethernet_websocket_write_data_tcp(socket_i, data, length);
 				}
 			}
