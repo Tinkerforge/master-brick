@@ -93,5 +93,6 @@
 2.3.1: Add support for Ethernet Extension 1.1
  - Remove USB hotplug support for Master Brick 2.1 again
 2.3.2: Add magic number for unflashed Bricklet detection (through bricklib)
- - New USB hotplug support (independend of USB detect)
+ - New USB hotplug support (independent of USB detect)
  - Use blocking send for broadcast message
+ - Fix "false-positive-ack" bug in SPI communication (through bricklib)
