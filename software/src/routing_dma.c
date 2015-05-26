@@ -143,6 +143,7 @@ void routing_table_create_stack(void) {
 	}
 
 	// Make sure that there is no valid data and that nothing ought to be send
+	transceive_state = TRANSCEIVE_STATE_MESSAGE_EMPTY;
 	spi_stack_buffer_size_recv = 0;
 	spi_stack_buffer_size_send = 0;
 	spi_stack_buffer_recv[0] = 0;

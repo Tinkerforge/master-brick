@@ -96,3 +96,4 @@
  - New USB hotplug support (independent of USB detect)
  - Use blocking send for broadcast message
  - Fix "false-positive-ack" bug in SPI communication (through bricklib)
+2.3.3: Reinitialize SPI state machine after initial stack enumerate
