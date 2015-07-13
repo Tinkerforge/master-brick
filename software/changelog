@@ -97,3 +97,4 @@
  - Use blocking send for broadcast message
  - Fix "false-positive-ack" bug in SPI communication (through bricklib)
 2.3.3: Reinitialize SPI state machine after initial stack enumerate
+2.3.4: Fix bug with long waiting times for first Ethernet enumeration
