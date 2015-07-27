@@ -5,7 +5,7 @@
 
 #define HOST "localhost"
 #define PORT 4223
-#define UID "aySDPZAhvvd" // Change to your UID
+#define UID "XYZ" // Change to your UID
 
 int main() {
 	// Create IP connection
@@ -13,8 +13,8 @@ int main() {
 	ipcon_create(&ipcon);
 
 	// Create device object
-	Master master;
-	master_create(&master, UID, &ipcon); 
+	Master m;
+	master_create(&m, UID, &ipcon);
 
 	// Connect to brickd
 	if(ipcon_connect(&ipcon, HOST, PORT) < 0) {
@@ -23,14 +23,23 @@ int main() {
 	}
 	// Don't use device before ipcon is connected
 
-	// Get voltage and current from stack (in mV/mA)
-	uint16_t voltage; 
-	master_get_stack_voltage(&master, &voltage);
-	uint16_t current;
-	master_get_stack_current(&master, &current);
+	// Get current stack voltage (unit is mV)
+	uint16_t stack_voltage;
+	if(master_get_stack_voltage(&m, &stack_voltage) < 0) {
+		fprintf(stderr, "Could not get stack voltage, probably timeout\n");
+		exit(1);
+	}
 
-	printf("Stack Voltage: %f V\n", voltage/1000.0);
-	printf("Stack Current: %f A\n", current/1000.0);
+	printf("Stack Voltage: %f V\n", stack_voltage/1000.0);
+
+	// Get current stack current (unit is mA)
+	uint16_t stack_current;
+	if(master_get_stack_current(&m, &stack_current) < 0) {
+		fprintf(stderr, "Could not get stack current, probably timeout\n");
+		exit(1);
+	}
+
+	printf("Stack Current: %f A\n", stack_current/1000.0);
 
 	printf("Press key to exit\n");
 	getchar();

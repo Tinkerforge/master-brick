@@ -8,20 +8,21 @@ include Tinkerforge
 
 HOST = 'localhost'
 PORT = 4223
-UID = 'a4GeP9ZpQFT' # Change to your UID
+UID = 'XYZ' # Change to your UID
 
 ipcon = IPConnection.new # Create IP connection
-master = BrickMaster.new UID, ipcon # Create device object
+m = BrickMaster.new UID, ipcon # Create device object
 
 ipcon.connect HOST, PORT # Connect to brickd
 # Don't use device before ipcon is connected
 
-# Get voltage and current from stack (in mV/mA)
-voltage = master.get_stack_voltage
-current = master.get_stack_current
+# Get current stack voltage (unit is mV)
+stack_voltage = m.get_stack_voltage
+puts "Stack Voltage: #{stack_voltage/1000.0} V"
 
-puts "Stack Voltage: #{voltage/1000.0} V"
-puts "Stack Current: #{current/1000.0} A"
+# Get current stack current (unit is mA)
+stack_current = m.get_stack_current
+puts "Stack Current: #{stack_current/1000.0} A"
 
 puts 'Press key to exit'
 $stdin.gets
