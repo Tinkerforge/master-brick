@@ -13,8 +13,8 @@ int main() {
 	ipcon_create(&ipcon);
 
 	// Create device object
-	Master m;
-	master_create(&m, UID, &ipcon);
+	Master master;
+	master_create(&master, UID, &ipcon);
 
 	// Connect to brickd
 	if(ipcon_connect(&ipcon, HOST, PORT) < 0) {
@@ -25,7 +25,7 @@ int main() {
 
 	// Get current stack voltage (unit is mV)
 	uint16_t stack_voltage;
-	if(master_get_stack_voltage(&m, &stack_voltage) < 0) {
+	if(master_get_stack_voltage(&master, &stack_voltage) < 0) {
 		fprintf(stderr, "Could not get stack voltage, probably timeout\n");
 		exit(1);
 	}
@@ -34,7 +34,7 @@ int main() {
 
 	// Get current stack current (unit is mA)
 	uint16_t stack_current;
-	if(master_get_stack_current(&m, &stack_current) < 0) {
+	if(master_get_stack_current(&master, &stack_current) < 0) {
 		fprintf(stderr, "Could not get stack current, probably timeout\n");
 		exit(1);
 	}

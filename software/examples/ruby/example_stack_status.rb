@@ -11,17 +11,17 @@ PORT = 4223
 UID = 'XYZ' # Change to your UID
 
 ipcon = IPConnection.new # Create IP connection
-m = BrickMaster.new UID, ipcon # Create device object
+master = BrickMaster.new UID, ipcon # Create device object
 
 ipcon.connect HOST, PORT # Connect to brickd
 # Don't use device before ipcon is connected
 
 # Get current stack voltage (unit is mV)
-stack_voltage = m.get_stack_voltage
+stack_voltage = master.get_stack_voltage
 puts "Stack Voltage: #{stack_voltage/1000.0} V"
 
 # Get current stack current (unit is mA)
-stack_current = m.get_stack_current
+stack_current = master.get_stack_current
 puts "Stack Current: #{stack_current/1000.0} A"
 
 puts 'Press key to exit'

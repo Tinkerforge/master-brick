@@ -9,17 +9,17 @@ class Example
 	static void Main()
 	{
 		IPConnection ipcon = new IPConnection(); // Create IP connection
-		BrickMaster m = new BrickMaster(UID, ipcon); // Create device object
+		BrickMaster master = new BrickMaster(UID, ipcon); // Create device object
 
 		ipcon.Connect(HOST, PORT); // Connect to brickd
 		// Don't use device before ipcon is connected
 
 		// Get current stack voltage (unit is mV)
-		int stackVoltage = m.GetStackVoltage();
+		int stackVoltage = master.GetStackVoltage();
 		System.Console.WriteLine("Stack Voltage: " + stackVoltage/1000.0 + " V");
 
 		// Get current stack current (unit is mA)
-		int stackCurrent = m.GetStackCurrent();
+		int stackCurrent = master.GetStackCurrent();
 		System.Console.WriteLine("Stack Current: " + stackCurrent/1000.0 + " A");
 
 		System.Console.WriteLine("Press enter to exit");
