@@ -1,100 +1,199 @@
-1.0.0: Initial version
-1.1.0: Add support for tick types
-1.1.1: Fix bug with timeouts on windows (through bricklib)
-1.1.2: Add USB request detection to allow Chibi slave stack to be powered over USB
-1.1.3: Fix bug with ADC calibration readout (through bricklib)
-1.1.4: Use new heuristic for Chibi slave detection (master address == address)
-1.1.5: Disable IRQs in SPI Master communication, otherwise Stepper Brick doesn't work over Chibi (through bricklib)
-1.1.6: Fix several Chibi bugs:
- - sanity check on Chibi participants discovery
- - if no ack: slave recvs, master sends
- - no rx_aack_on state if Chibi recv buffer not empty
-1.1.7: Fix several Chibi bugs:
- - check sequence number to eliminate duplicates
- - different negotiation of send and recv states (now more messages from master to slave possible should be possible)
-1.2.0: Add RS485 support
-1.2.1: Add get_chip_temperature and reset function
-1.2.2: Add USB hotplug support (through bricklib)
-1.2.3: Use dynamically calculated timeouts for RS485, improve Bricklet readout
-1.2.4: Send empty message if slave has timeout, to allow slave to process buffer
-1.3.0: Add WIFI Extension support
-1.3.1: Remove unnecessary check (more bandwidth for WIFI Extension)
-1.3.2: Add receive ringbuffer (prevent overflow due to callbacks)
-1.3.3: Add support for Ad Hoc and Access Point mode
-1.3.4: Add API for setting of WIFI regulatory domain
-1.3.5: Add GetUSBVoltage API, add autorestart after 3min without answer from GS1011, add support for "," in passphrase
-1.3.6: Use WSEC=1 instead of auth mode = open for no encryption
-1.4.0: Fix reset when multiple masters in a stack are used, add support for Master Brick 2.0
-1.4.1: Fix bug in RS485 code (rs485 recv pin was set by wifi code)
-1.4.2: Add support for usage of two extensions at the same time
-1.4.3: Fix mixup between Ad Hoc DHCP and AP Static IP
-1.4.4: Fix Chibi Extension initialization sequence
-1.4.5: Fix Problem with RS485 + WIFI + Step Down PS combination
-1.4.6: Change Bricklet Context size from 250 to 256 (through bricklib)
-2.0.0: Support for protocol 2.0
-2.0.1: Fix buffer overflow in WIFI Extension code
-2.0.2: Fixes for a more stable WIFI Extension
- - Remove command/data mode, use only one place for receiving/sending
-  - Allows for much better error handling, debugging and logging
- - Only save messages in brickd if return expected
- - Parse all command responses with human readable response
- - Parse <ESC>O, <ESC>F, <ESC>A options more thoroughly
- - Remove messages from brickd if socket disconnected
- - Make WIFI initialization asynchronous
-  - Allows to communicate with Master Brick while WIFI is connecting
- - Use 5 minute timeout before we assume a hang up (instead of 3)
- - Evaluate received data while sending command
- - Use different ATS configuration
- - Parse startup/reset message
- - Refactor data state machine
-2.0.3: Use smaller USB timeout on startup enumeration, to allow faster enumeration
- - Dont reread the config after the first WIFI association fails
-2.0.4: Reset WIFI Module after disassociate from AP
- - Fix problem with changing of slave addresses of Chibi and RS485 Extension
- - Externalize WIFI ringbuffer and feed bytes in state machine byte by byte (will allow the use of DMA controller later on)
-2.0.5: Reissue Low-Power-Mode after disassociate and add API for:
- - SetWifiHostname
- - GetWifiHostname
- - SetCurrentCallbackPeriod
- - GetCurrentCallbackPeriod
- - SetVoltageCallbackPeriod
- - GetVoltageCallbackPeriod
- - SetUSBVoltageCallbackPeriod
- - GetUSBVoltageCallbackPeriod
- - SetCurrentCallbackThreshold
- - GetCurrentCallbackThreshold
- - SetVoltageCallbackThreshold
- - GetVoltageCallbackThreshold
- - SetUSBVoltageCallbackThreshold
- - GetUSBVoltageCallbackThreshold
- - SetDebouncePeriod
- - GetDebouncePeriod
- - Current (Callback)
- - Voltage (Callback)
- - USBVoltage (Callback)
- - CurrentReached (Callback)
- - VoltageReached (Callback)
- - USBVoltageReached (Callback)
-2.0.6: Add forced ACK after 10ms without answer
- - Handle WIFI xon/xoff commands of GS1011MEES
- - Add watchdog timer (restart after 16s of "deadlock")
-2.1.0: Add support for Ethernet Extension
-2.1.1: Increase ethernet reset holding time from 2us to 10us to ensure proper bootup
-2.1.2: Call ethernet reset function 2 times to make sure it works always
-2.2.0: Add support for Websockets for Ethernet Extension
- - Add support for authentication of Ethernet/WIFI Extension
- - Reset on USB Resume, to get a clean state
- - Increase USB hotplug detect threshold
- - SPI stack slave gives up immediately if message length too long
-2.2.1: Remove "Suspend to Disk fix", seems to make problems on some windows versions (through bricklib)
-2.2.2: Remove USB hotplug support (through bricklib)
-2.3.0: Add support for new SPI protocol
- - Add support for Master Brick 2.1
-2.3.1: Add support for Ethernet Extension 1.1
- - Remove USB hotplug support for Master Brick 2.1 again
-2.3.2: Add magic number for unflashed Bricklet detection (through bricklib)
- - New USB hotplug support (independent of USB detect)
- - Use blocking send for broadcast message
- - Fix "false-positive-ack" bug in SPI communication (through bricklib)
-2.3.3: Reinitialize SPI state machine after initial stack enumerate
-2.3.4: Fix bug with long waiting times for first Ethernet enumeration
+1.0.0:
+- Initial version
+
+1.1.0:
+- Add support for tick types
+
+1.1.1:
+- Fix bug with timeouts on Windows (through bricklib)
+
+1.1.2:
+- Add USB request detection to allow Chibi slave stack to be powered over USB
+
+1.1.3:
+- Fix bug with ADC calibration readout (through bricklib)
+
+1.1.4:
+- Use new heuristic for Chibi slave detection (master address == address)
+
+1.1.5:
+- Disable IRQs in SPI master communication, otherwise Stepper Brick doesn't
+  work over Chibi (through bricklib)
+
+1.1.6:
+- Fix several Chibi bugs:
+  - Sanity check on Chibi participants discovery
+  - If no ACK: slave recvs, master sends
+  - No rx_aack_on state if Chibi recv buffer not empty
+
+1.1.7:
+- Fix several Chibi bugs:
+  - Check sequence number to eliminate duplicates
+  - Different negotiation of send and recv states (now more messages from
+    master to slave possible should be possible)
+
+1.2.0:
+- Add RS485 support
+
+1.2.1:
+- Add get_chip_temperature and reset function
+
+1.2.2:
+- Add USB hotplug support (through bricklib)
+
+1.2.3:
+- Use dynamically calculated timeouts for RS485, improve Bricklet readout
+
+1.2.4:
+- Send empty message if slave has timeout, to allow slave to process buffer
+
+1.3.0:
+- Add WIFI Extension support
+
+1.3.1:
+- Remove unnecessary check (more bandwidth for WIFI Extension)
+
+1.3.2:
+- Add receive ringbuffer (prevent overflow due to callbacks)
+
+1.3.3:
+- Add support for ad-hoc and access point mode
+
+1.3.4:
+- Add API for setting of WIFI regulatory domain
+
+1.3.5:
+- Add GetUSBVoltage API
+- Add autorestart after 3min without answer from GS1011
+- add support for "," in WIFI passphrase
+
+1.3.6:
+- Use WSEC=1 instead of auth mode = open for no encryption
+
+1.4.0:
+- Fix reset when multiple masters in a stack are used
+- Add support for Master Brick 2.0
+
+1.4.1:
+- Fix bug in RS485 code (RS485 recv pin was set by WIFI code)
+
+1.4.2:
+- Add support for usage of two extensions at the same time
+
+1.4.3:
+- Fix mixup between ad-hoc DHCP and access point static IP
+
+1.4.4:
+- Fix Chibi Extension initialization sequence
+
+1.4.5:
+- Fix Problem with RS485 + WIFI + Step Down PS combination
+
+1.4.6:
+- Change Bricklet Context size from 250 to 256 (through bricklib)
+
+2.0.0:
+- Support for Protocol 2.0
+
+2.0.1:
+- Fix buffer overflow in WIFI Extension code
+
+2.0.2:
+- Fixes for a more stable WIFI Extension:
+  - Remove command/data mode, use only one place for receiving/sending: allows
+    for much better error handling, debugging and logging
+  - Only save messages in brickd if return expected
+  - Parse all command responses with human readable response
+  - Parse <ESC>O, <ESC>F, <ESC>A options more thoroughly
+  - Remove messages from brickd if socket disconnected
+  - Make WIFI initialization asynchronous: allows to communicate with Master
+    Brick while WIFI is connecting
+  - Use 5 minute timeout before we assume a hang up (instead of 3)
+  - Evaluate received data while sending command
+  - Use different ATS configuration
+  - Parse startup/reset message
+  - Refactor data state machine
+
+2.0.3:
+- Use smaller USB timeout on startup enumeration to allow faster enumeration
+- Dont reread the config after the first WIFI association fails
+
+2.0.4:
+- Reset WIFI module after disassociate from access point
+- Fix problem with changing of slave addresses of Chibi and RS485 Extension
+- Externalize WIFI ringbuffer and feed bytes in state machine byte by byte
+  (will allow the use of DMA controller later on)
+
+2.0.5:
+- Reissue Low-Power-Mode after disassociate
+- Add API for:
+  - SetWifiHostname
+  - GetWifiHostname
+  - SetCurrentCallbackPeriod
+  - GetCurrentCallbackPeriod
+  - SetVoltageCallbackPeriod
+  - GetVoltageCallbackPeriod
+  - SetUSBVoltageCallbackPeriod
+  - GetUSBVoltageCallbackPeriod
+  - SetCurrentCallbackThreshold
+  - GetCurrentCallbackThreshold
+  - SetVoltageCallbackThreshold
+  - GetVoltageCallbackThreshold
+  - SetUSBVoltageCallbackThreshold
+  - GetUSBVoltageCallbackThreshold
+  - SetDebouncePeriod
+  - GetDebouncePeriod
+  - Current (Callback)
+  - Voltage (Callback)
+  - USBVoltage (Callback)
+  - CurrentReached (Callback)
+  - VoltageReached (Callback)
+  - USBVoltageReached (Callback)
+
+2.0.6:
+- Add forced ACK after 10ms without answer
+- Handle WIFI xon/xoff commands of GS1011MEES
+- Add watchdog timer (restart after 16s of "deadlock")
+
+2.1.0:
+- Add support for Ethernet Extension
+
+2.1.1:
+- Increase Ethernet reset holding time from 2µs to 10µs to ensure proper bootup
+
+2.1.2:
+- Call ethernet reset function 2 times to make sure it works always
+
+2.2.0:
+- Add support for Websockets for Ethernet Extension
+- Add support for authentication of Ethernet/WIFI Extension
+- Reset on USB resume to get a clean state
+- Increase USB hotplug detect threshold
+- SPI stack slave gives up immediately if message length too long
+
+2.2.1:
+- Remove "Suspend to Disk fix", seems to make problems on some windows versions
+  (through bricklib)
+
+2.2.2:
+- Remove USB hotplug support (through bricklib)
+
+2.3.0:
+- Add support for new SPI protocol
+- Add support for Master Brick 2.1
+
+2.3.1:
+- Add support for Ethernet Extension 1.1
+- Remove USB hotplug support for Master Brick 2.1 again
+
+2.3.2:
+- Add magic number for unflashed Bricklet detection (through bricklib)
+- New USB hotplug support (independent of USB detect)
+- Use blocking send for broadcast message
+- Fix "false-positive-ACK" bug in SPI communication (through bricklib)
+
+2.3.3:
+- Reinitialize SPI state machine after initial stack enumerate
+
+2.3.4:
+- Fix bug with long waiting times for first Ethernet enumeration
