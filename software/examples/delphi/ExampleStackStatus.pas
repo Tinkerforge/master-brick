@@ -18,13 +18,13 @@ type
 const
   HOST = 'localhost';
   PORT = 4223;
-  UID = 'ap8MjSchCcU'; { Change to your UID }
+  UID = 'XYZ'; { Change to your UID }
 
 var
   e: TExample;
 
 procedure TExample.Execute;
-var voltage, current: word;
+var stackVoltage: word; stackCurrent: word;
 begin
   { Create IP connection }
   ipcon := TIPConnection.Create;
@@ -36,12 +36,13 @@ begin
   ipcon.Connect(HOST, PORT);
   { Don't use device before ipcon is connected }
 
-  { Get voltage and current from stack (in mV/mA) }
-  voltage := master.GetStackVoltage;
-  current := master.GetStackCurrent;
+  { Get current stack voltage (unit is mV) }
+  stackVoltage := master.GetStackVoltage;
+  WriteLn(Format('Stack Voltage: %f V', [stackVoltage/1000.0]));
 
-  WriteLn(Format('Stack Voltage: %f V', [voltage/1000.0]));
-  WriteLn(Format('Stack Current: %f A', [current/1000.0]));
+  { Get current stack current (unit is mA) }
+  stackCurrent := master.GetStackCurrent;
+  WriteLn(Format('Stack Current: %f A', [stackCurrent/1000.0]));
 
   WriteLn('Press key to exit');
   ReadLn;
