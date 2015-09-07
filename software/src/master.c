@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2015 Olaf Lüke <olaf@tinkerforge.com>
  *
  * master.c: Master specific functions
  *
@@ -46,6 +46,7 @@
 #include "extensions/rs485/rs485_low_level.h"
 #include "extensions/wifi/wifi.h"
 #include "extensions/ethernet/ethernet.h"
+#include "extensions/wifi2/wifi2.h"
 
 #include "config.h"
 
@@ -355,5 +356,9 @@ void tick_task(const uint8_t tick_type) {
 	}
 	if(com_info.ext[0] == COM_ETHERNET || com_info.ext[1] == COM_ETHERNET) {
 		ethernet_tick(tick_type);
+	}
+
+	if(com_info.ext[0] == COM_WIFI2 || com_info.ext[1] == COM_WIFI2) {
+		wifi2_tick(tick_type);
 	}
 }

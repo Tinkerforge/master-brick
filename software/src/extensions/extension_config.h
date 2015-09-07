@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011-2012 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2015 Olaf Lüke <olaf@tinkerforge.com>
  *
  * extension_config.h: Configuration for extensions
  *
@@ -26,15 +26,17 @@
 	{COM_CHIBI, chibi_init, chibi_send, chibi_recv}, \
 	{COM_RS485, rs485_init, rs485_send, rs485_recv}, \
 	{COM_WIFI,  wifi_init,  wifi_send,  wifi_recv}, \
-	{COM_ETHERNET,  ethernet_init,  ethernet_send,  ethernet_recv},
+	{COM_ETHERNET,  ethernet_init,  ethernet_send,  ethernet_recv}, \
+	{COM_WIFI2,  wifi2_init,  wifi2_send,  wifi2_recv},
 
 #define EXTENSION_TYPE_NONE 0
 #define EXTENSION_TYPE_CHIBI 1
 #define EXTENSION_TYPE_RS485 2
 #define EXTENSION_TYPE_WIFI 3
 #define EXTENSION_TYPE_ETHERNET 4
+#define EXTENSION_TYPE_WIFI2 5
 
-#define EXTENSION_TYPE_MAX 4
+#define EXTENSION_TYPE_MAX 5
 #define EXTENSION_NUM_MAX 2
 
 #define EXTENSION_POS_TYPE 0

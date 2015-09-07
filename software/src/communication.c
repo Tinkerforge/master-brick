@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2014 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2015 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.c: Implementation of Master-Brick specific messages
  *
@@ -39,6 +39,7 @@
 #include "extensions/ethernet/ethernet_config.h"
 #include "extensions/ethernet/ethernet.h"
 #include "extensions/ethernet/ethernet_low_level.h"
+#include "extensions/wifi2/wifi2_bootloader.h"
 
 extern ComInfo com_info;
 extern uint8_t chibi_receiver_input_power;
@@ -1172,3 +1173,34 @@ void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticati
 
 	send_blocking_with_timeout(&gwasr, sizeof(GetWifiAuthenticationSecretReturn), com);
 }
+
+void start_wifi2_bootloader(const ComType com, const StartWifi2Bootloader *data) {
+	StartWifi2BootloaderReturn sw2br;
+
+	sw2br.header        = data->header;
+	sw2br.header.length = sizeof(StartWifi2BootloaderReturn);
+	sw2br.result        = wifi2_bootloader_start();
+
+	send_blocking_with_timeout(&sw2br, sizeof(StartWifi2BootloaderReturn), com);
+}
+
+void write_wifi2_flash(const ComType com, const WriteWifi2Flash *data) {
+	WriteWifi2FlashReturn ww2fr;
+
+	ww2fr.header        = data->header;
+	ww2fr.header.length = sizeof(WriteWifi2FlashReturn);
+	ww2fr.result        = wifi2_bootloader_write(data->data, data->length);
+
+	send_blocking_with_timeout(&ww2fr, sizeof(WriteWifi2FlashReturn), com);
+}
+
+void read_wifi2_flash(const ComType com, const ReadWifi2Flash *data) {
+	ReadWifi2FlashReturn rw2fr;
+
+	rw2fr.header        = data->header;
+	rw2fr.header.length = sizeof(ReadWifi2FlashReturn);
+	rw2fr.length_out    = wifi2_bootloader_read(rw2fr.data, data->length_in);
+
+	send_blocking_with_timeout(&rw2fr, sizeof(ReadWifi2FlashReturn), com);
+}
+

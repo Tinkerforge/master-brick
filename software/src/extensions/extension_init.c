@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2011-2013 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2011-2015 Olaf Lüke <olaf@tinkerforge.com>
  *
  * extension_init: Implementation of Extension initialization
  *
@@ -39,6 +39,7 @@
 #include "extensions/rs485/rs485_slave.h"
 
 #include "extensions/wifi/wifi.h"
+#include "extensions/wifi2/wifi2.h"
 #include "extensions/ethernet/ethernet.h"
 
 #include <stdio.h>
@@ -173,6 +174,14 @@ void extension_init(void) {
 					com_info.ext_type[i] = COM_TYPE_NONE;
 					com_info.ext[i] = COM_ETHERNET;
 					ethernet_init_extension(i);
+
+					break;
+				}
+
+				case EXTENSION_TYPE_WIFI2: {
+					com_info.ext_type[i] = COM_TYPE_NONE;
+					com_info.ext[i] = COM_WIFI2;
+					wifi2_init_extension(i);
 
 					break;
 				}

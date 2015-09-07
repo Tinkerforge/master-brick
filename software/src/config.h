@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2014 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2015 Olaf Lüke <olaf@tinkerforge.com>
  *
  * config.h: Master-Brick specific configuration
  *
@@ -29,11 +29,12 @@
 #include "extensions/rs485/rs485.h"
 #include "extensions/wifi/wifi.h"
 #include "extensions/ethernet/ethernet.h"
+#include "extensions/wifi2/wifi2.h"
 #include "extensions/extension_config.h"
 
 #define BRICK_FIRMWARE_VERSION_MAJOR 2
-#define BRICK_FIRMWARE_VERSION_MINOR 3
-#define BRICK_FIRMWARE_VERSION_REVISION 4
+#define BRICK_FIRMWARE_VERSION_MINOR 4
+#define BRICK_FIRMWARE_VERSION_REVISION 0
 
 #define BRICK_HARDWARE_VERSION_MAJOR_21 2
 #define BRICK_HARDWARE_VERSION_MINOR_21 1

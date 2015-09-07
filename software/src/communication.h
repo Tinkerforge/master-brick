@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2014 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2015 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.h: Implementation of Master-Brick specific messages
  *
@@ -106,6 +106,9 @@
 #define FID_GET_ETHERNET_AUTHENTICATION_SECRET 74
 #define FID_SET_WIFI_AUTHENTICATION_SECRET 75
 #define FID_GET_WIFI_AUTHENTICATION_SECRET 76
+#define FID_START_WIFI2_BOOTLOADER 77
+#define FID_WRITE_WIFI2_FLASH 78
+#define FID_READ_WIFI2_FLASH 79
 
 
 #define COM_MESSAGES_USER \
@@ -184,7 +187,10 @@
 	{FID_SET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)set_ethernet_authentication_secret}, \
 	{FID_GET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)get_ethernet_authentication_secret}, \
 	{FID_SET_WIFI_AUTHENTICATION_SECRET, (message_handler_func_t)set_wifi_authentication_secret}, \
-	{FID_GET_WIFI_AUTHENTICATION_SECRET, (message_handler_func_t)get_wifi_authentication_secret},
+	{FID_GET_WIFI_AUTHENTICATION_SECRET, (message_handler_func_t)get_wifi_authentication_secret}, \
+	{FID_START_WIFI2_BOOTLOADER, (message_handler_func_t)start_wifi2_bootloader}, \
+	{FID_WRITE_WIFI2_FLASH, (message_handler_func_t)write_wifi2_flash}, \
+	{FID_READ_WIFI2_FLASH, (message_handler_func_t)read_wifi2_flash}, \
 
 typedef struct {
 	MessageHeader header;
@@ -803,6 +809,38 @@ typedef struct {
 	char secret[AUTHENTICATION_SECRET_LENGTH];
 } __attribute__((__packed__)) GetWifiAuthenticationSecretReturn;
 
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) StartWifi2Bootloader;
+
+typedef struct {
+	MessageHeader header;
+	int8_t result;
+} __attribute__((__packed__)) StartWifi2BootloaderReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t data[60];
+	uint8_t length;
+} __attribute__((__packed__)) WriteWifi2Flash;
+
+typedef struct {
+	MessageHeader header;
+	int8_t result;
+} __attribute__((__packed__)) WriteWifi2FlashReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t length_in;
+} __attribute__((__packed__)) ReadWifi2Flash;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t data[60];
+	uint8_t length_out;
+} __attribute__((__packed__)) ReadWifi2FlashReturn;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -873,5 +911,8 @@ void set_ethernet_authentication_secret(const ComType com, const SetEthernetAuth
 void get_ethernet_authentication_secret(const ComType com, const GetEthernetAuthenticationSecret *data);
 void set_wifi_authentication_secret(const ComType com, const SetWifiAuthenticationSecret *data);
 void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticationSecret *data);
+void start_wifi2_bootloader(const ComType com, const StartWifi2Bootloader *data);
+void write_wifi2_flash(const ComType com, const WriteWifi2Flash *data);
+void read_wifi2_flash(const ComType com, const ReadWifi2Flash *data);
 
 #endif

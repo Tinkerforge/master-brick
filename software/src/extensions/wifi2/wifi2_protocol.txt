@@ -1,0 +1,16 @@
+Ack Packet:
+Byte 0: Length: 3
+Byte 1: Sequence Number: 0 | (last_sequence_number_seen << 4)
+Byte 2: Checksum
+
+Data Packet:
+Byte 0: Length
+Byte 1: Sequence Numbers: current_sequence_number | (last_sequence_number_seen << 4)
+Bytes 2-(n-1): Data
+Byte n: Checksum
+
+
+Protocol:
+* Only send if ACK was received
+* Send timeout 25ms (re-send if no ACK is received after 25ms)
+* Increase sequence number if ACK was received
