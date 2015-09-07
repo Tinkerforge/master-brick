@@ -49,13 +49,13 @@ void brickd_init(void) {
 		brickd_routing_table[i].uid = 0;
 		brickd_routing_table[i].counter = 0;
 		brickd_routing_table[i].func_id = 0;
-		brickd_routing_table[i].seqence_number = 0;
+		brickd_routing_table[i].sequence_number = 0;
 		brickd_routing_table[i].cid = -1;
 	}
 }
 
 uint32_t brickd_counter_diff(const uint32_t new, const uint32_t old) {
-	if(new > old) {
+	if(new >= old) {
 		return new - old;
 	}
 
@@ -72,18 +72,18 @@ void brickd_route_from(const void *data, const uint8_t cid) {
 
 	BrickdRouting *smallest = &brickd_routing_table[0];
 	brickd_counter++;
-	uint32_t diff = 0;
+	uint32_t diff = brickd_counter_diff(brickd_counter, smallest->counter);;
 
 	for(uint8_t i = 0; i < BRICKD_ROUTING_TABLE_SIZE; i++) {
 		if(brickd_routing_table[i].cid == -1) {
 			brickd_routing_table[i].uid = data_header->uid;
 			brickd_routing_table[i].func_id = data_header->fid;
-			brickd_routing_table[i].seqence_number = data_header->sequence_num;
+			brickd_routing_table[i].sequence_number = data_header->sequence_num;
 			brickd_routing_table[i].cid = cid;
 			brickd_routing_table[i].counter = brickd_counter;
 			return;
 		} else {
-			uint32_t new_diff = brickd_counter_diff((*smallest).counter, brickd_routing_table[i].counter);
+			uint32_t new_diff = brickd_counter_diff(brickd_counter, brickd_routing_table[i].counter);
 			if(new_diff > diff) {
 				smallest = &brickd_routing_table[i];
 				diff = new_diff;
@@ -93,6 +93,7 @@ void brickd_route_from(const void *data, const uint8_t cid) {
 
 	smallest->uid = data_header->uid;
 	smallest->func_id = data_header->fid;
+	smallest->sequence_number = data_header->sequence_num;
 	smallest->cid = cid;
 	smallest->counter = brickd_counter;
 }
@@ -111,11 +112,16 @@ int8_t brickd_route_to(const void *data) {
 	for(uint8_t i = 0; i < BRICKD_ROUTING_TABLE_SIZE; i++) {
 		if(brickd_routing_table[i].uid == data_header->uid &&
 		   brickd_routing_table[i].func_id == data_header->fid &&
-		   brickd_routing_table[i].seqence_number == data_header->sequence_num) {
-			uint32_t new_diff = brickd_counter_diff(current_match->counter, brickd_counter);
-			if(new_diff > current_diff) {
-				new_diff = current_diff;
+		   brickd_routing_table[i].sequence_number == data_header->sequence_num) {
+			if(current_match == NULL) {
 				current_match = &brickd_routing_table[i];
+				current_diff = brickd_counter_diff(brickd_counter, current_match->counter);
+			} else {
+				uint32_t new_diff = brickd_counter_diff(brickd_counter, brickd_routing_table[i].counter);
+				if(new_diff > current_diff) {
+					current_match = &brickd_routing_table[i];
+					current_diff = new_diff;
+				}
 			}
 		}
 	}
@@ -124,7 +130,7 @@ int8_t brickd_route_to(const void *data) {
 		int8_t cid = current_match->cid;
 		current_match->uid = 0;
 		current_match->func_id = 0;
-		current_match->seqence_number = 0;
+		current_match->sequence_number = 0;
 		current_match->cid = -1;
 
 		return cid;
@@ -135,12 +141,12 @@ int8_t brickd_route_to(const void *data) {
 
 void brickd_disconnect(const uint8_t cid) {
 	if(cid > 0 && cid < 16) {
-		for(uint8_t i = 1; i < BRICKD_ROUTING_TABLE_SIZE; i++) {
+		for(uint8_t i = 0; i < BRICKD_ROUTING_TABLE_SIZE; i++) {
 			if(brickd_routing_table[i].cid == cid) {
 				brickd_routing_table[i].cid = -1;
 				brickd_routing_table[i].func_id = 0;
 				brickd_routing_table[i].uid = 0;
-				brickd_routing_table[i].seqence_number = 0;
+				brickd_routing_table[i].sequence_number = 0;
 			}
 		}
 	}

@@ -41,7 +41,7 @@ struct BrickdRouting {
 	uint32_t uid;
 	uint32_t counter;
 	uint8_t func_id;
-	uint8_t seqence_number;
+	uint8_t sequence_number;
 	int8_t cid;
 };
 
