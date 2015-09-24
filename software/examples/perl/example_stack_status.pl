@@ -5,7 +5,7 @@ use Tinkerforge::BrickMaster;
 
 use constant HOST => 'localhost';
 use constant PORT => 4223;
-use constant UID => 'XYZ'; # Change to your UID
+use constant UID => 'XXYYZZ'; # Change to your UID
 
 my $ipcon = Tinkerforge::IPConnection->new(); # Create IP connection
 my $master = Tinkerforge::BrickMaster->new(&UID, $ipcon); # Create device object
@@ -21,6 +21,6 @@ print "Stack Voltage: " . $stack_voltage/1000.0 . " V\n";
 my $stack_current = $master->get_stack_current();
 print "Stack Current: " . $stack_current/1000.0 . " A\n";
 
-print "Press any key to exit...\n";
+print "Press key to exit\n";
 <STDIN>;
 $ipcon->disconnect();

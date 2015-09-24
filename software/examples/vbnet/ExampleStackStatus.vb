@@ -1,9 +1,10 @@
+Imports System
 Imports Tinkerforge
 
 Module ExampleStackStatus
     Const HOST As String = "localhost"
     Const PORT As Integer = 4223
-    Const UID As String = "XYZ" ' Change to your UID
+    Const UID As String = "XXYYZZ" ' Change to your UID
 
     Sub Main()
         Dim ipcon As New IPConnection() ' Create IP connection
@@ -14,14 +15,14 @@ Module ExampleStackStatus
 
         ' Get current stack voltage (unit is mV)
         Dim stackVoltage As Integer = master.GetStackVoltage()
-        System.Console.WriteLine("Stack Voltage: " + (stackVoltage/1000.0).ToString() + " V")
+        Console.WriteLine("Stack Voltage: " + (stackVoltage/1000.0).ToString() + " V")
 
         ' Get current stack current (unit is mA)
         Dim stackCurrent As Integer = master.GetStackCurrent()
-        System.Console.WriteLine("Stack Current: " + (stackCurrent/1000.0).ToString() + " A")
+        Console.WriteLine("Stack Current: " + (stackCurrent/1000.0).ToString() + " A")
 
-        System.Console.WriteLine("Press key to exit")
-        System.Console.ReadLine()
+        Console.WriteLine("Press key to exit")
+        Console.ReadLine()
         ipcon.Disconnect()
     End Sub
 End Module

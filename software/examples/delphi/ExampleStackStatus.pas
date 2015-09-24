@@ -18,13 +18,13 @@ type
 const
   HOST = 'localhost';
   PORT = 4223;
-  UID = 'XYZ'; { Change to your UID }
+  UID = 'XXYYZZ'; { Change to your UID }
 
 var
   e: TExample;
 
 procedure TExample.Execute;
-var stackVoltage: word; stackCurrent: word;
+var stackVoltage, stackCurrent: word;
 begin
   { Create IP connection }
   ipcon := TIPConnection.Create;

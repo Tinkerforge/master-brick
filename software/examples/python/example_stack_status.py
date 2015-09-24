@@ -3,7 +3,7 @@
 
 HOST = "localhost"
 PORT = 4223
-UID = "XYZ" # Change to your UID
+UID = "XXYYZZ" # Change to your UID
 
 from tinkerforge.ip_connection import IPConnection
 from tinkerforge.brick_master import BrickMaster
@@ -17,11 +17,11 @@ if __name__ == "__main__":
 
     # Get current stack voltage (unit is mV)
     stack_voltage = master.get_stack_voltage()
-    print('Stack Voltage: ' + str(stack_voltage/1000.0) + ' V')
+    print("Stack Voltage: " + str(stack_voltage/1000.0) + " V")
 
     # Get current stack current (unit is mA)
     stack_current = master.get_stack_current()
-    print('Stack Current: ' + str(stack_current/1000.0) + ' A')
+    print("Stack Current: " + str(stack_current/1000.0) + " A")
 
-    raw_input('Press key to exit\n') # Use input() in Python 3
+    raw_input("Press key to exit\n") # Use input() in Python 3
     ipcon.disconnect()

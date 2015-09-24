@@ -5,7 +5,7 @@
 
 #define HOST "localhost"
 #define PORT 4223
-#define UID "XYZ" // Change to your UID
+#define UID "XXYYZZ" // Change to your UID
 
 int main(void) {
 	// Create IP connection

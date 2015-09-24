@@ -34,28 +34,30 @@
                 var master = new Tinkerforge.BrickMaster(UID, ipcon); // Create device object
                 ipcon.connect(HOST, PORT,
                     function(error) {
-                        textArea.value += 'Error: '+error+'\n';
+                        textArea.value += 'Error: ' + error + '\n';
                     }
                 ); // Connect to brickd
                 // Don't use device before ipcon is connected
 
                 ipcon.on(Tinkerforge.IPConnection.CALLBACK_CONNECTED,
-                    function(connectReason) {
-                        // Get voltage and current from stack (in mV/mA)
+                    function (connectReason) {
+                        // Get current stack voltage (unit is mV)
                         master.getStackVoltage(
-                            function(voltage) {
-                                textArea.value += 'Stack Voltage: '+voltage/1000+' V\n';
+                            function (stackVoltage) {
+                                textArea.value += 'Stack Voltage: ' + stackVoltage/1000.0 + ' V\n';
                             },
-                            function(error) {
-                                textArea.value += 'Error: '+error+'\n';
+                            function (error) {
+                                textArea.value += 'Error: ' + error + '\n';
                             }
                         );
+
+                        // Get current stack current (unit is mA)
                         master.getStackCurrent(
-                            function(current) {
-                                textArea.value += 'Stack Current: '+current/1000+' A\n';
+                            function (stackCurrent) {
+                                textArea.value += 'Stack Current: ' + stackCurrent/1000.0 + ' A\n';
                             },
-                            function(error) {
-                                textArea.value += 'Error: '+error+'\n';
+                            function (error) {
+                                textArea.value += 'Error: ' + error + '\n';
                             }
                         );
                     }

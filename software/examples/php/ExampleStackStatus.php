@@ -8,7 +8,7 @@ use Tinkerforge\BrickMaster;
 
 const HOST = 'localhost';
 const PORT = 4223;
-const UID = 'a4GeP9ZpQFT'; // Change to your UID
+const UID = 'XXYYZZ'; // Change to your UID
 
 $ipcon = new IPConnection(); // Create IP connection
 $master = new BrickMaster(UID, $ipcon); // Create device object
@@ -16,12 +16,13 @@ $master = new BrickMaster(UID, $ipcon); // Create device object
 $ipcon->connect(HOST, PORT); // Connect to brickd
 // Don't use device before ipcon is connected
 
-// Get voltage and current from stack (in mV/mA)
-$voltage = $master->getStackVoltage();
-$current = $master->getStackCurrent();
+// Get current stack voltage (unit is mV)
+$stack_voltage = $master->getStackVoltage();
+echo "Stack Voltage: " . $stack_voltage/1000.0 . " V\n";
 
-echo "Stack Voltage: " . $voltage / 1000.0 . " V\n";
-echo "Stack Current: " . $current / 1000.0 . " A\n";
+// Get current stack current (unit is mA)
+$stack_current = $master->getStackCurrent();
+echo "Stack Current: " . $stack_current/1000.0 . " A\n";
 
 echo "Press key to exit\n";
 fgetc(fopen('php://stdin', 'r'));
