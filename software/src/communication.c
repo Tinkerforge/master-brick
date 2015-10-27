@@ -40,6 +40,7 @@
 #include "extensions/ethernet/ethernet.h"
 #include "extensions/ethernet/ethernet_low_level.h"
 #include "extensions/wifi2/wifi2_bootloader.h"
+#include "extensions/wifi2/wifi2_config.h"
 
 extern ComInfo com_info;
 extern uint8_t chibi_receiver_input_power;
@@ -1172,6 +1173,28 @@ void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticati
 	wifi_read_config(gwasr.secret, AUTHENTICATION_SECRET_LENGTH, WIFI_AUTHENTICATION_SECRET_POS, WIFI_AUTHENTICATION_SECRET_KEY_POS);
 
 	send_blocking_with_timeout(&gwasr, sizeof(GetWifiAuthenticationSecretReturn), com);
+}
+
+void get_connection_type(const ComType com, const GetConnectionType *data) {
+	GetConnectionTypeReturn gctr;
+
+	gctr.header          = data->header;
+	gctr.header.length   = sizeof(GetConnectionTypeReturn);
+	gctr.connection_type = com;
+
+	send_blocking_with_timeout(&gctr, sizeof(GetConnectionTypeReturn), com);
+}
+
+void is_wifi2_present(const ComType com, const IsWifi2Present *data) {
+	IsWifi2PresentReturn iw2pr;
+
+	iw2pr.header        = data->header;
+	iw2pr.header.length = sizeof(IsWifi2PresentReturn);
+	iw2pr.present       = com_info.ext[0] == COM_WIFI2 || com_info.ext[1] == COM_WIFI2;
+
+	send_blocking_with_timeout(&iw2pr, sizeof(IsWifi2PresentReturn), com);
+
+	logwifi2d("is_wifi2_present: %d\n\r", iw2pr.present);
 }
 
 void start_wifi2_bootloader(const ComType com, const StartWifi2Bootloader *data) {

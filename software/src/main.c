@@ -121,7 +121,7 @@ int main() {
     	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_21;
         Pin pins_extension[] = {PINS_EXT_21};
         PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
-    }    
+    }
 
 	brick_init();
 	wdt_restart();

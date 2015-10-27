@@ -306,7 +306,6 @@ void wifi2_uart_send(void) {
 	}
 
 	if(w2->ack_wait) {
-		// printf("re-send message\n\r");
 		// There was no ACK for the last message.
 		// Something must have gone wrong, lets re-send it!
 		USART_WIFI2->US_TPR  = (uint32_t)w2->send_dma_buffer;
@@ -397,11 +396,6 @@ void wifi2_uart_init(const uint8_t extension) {
 		w2->flashc = WIFI2_FLASHC_1;
 	}
 
-	// For bootup we have to pull pio15 low, which is multiplexed with uart RX
-	Pin pio15 = PIN_WIFI2_RXD;
-	pio15.type = PIO_OUTPUT_0;
-	PIO_Configure(&pio15, 1);
-
 	SLEEP_MS(200); // TODO: Find minimum sleep time
 
 	// Enable ESP8266 and restart it.
@@ -414,8 +408,6 @@ void wifi2_uart_init(const uint8_t extension) {
 	PIO_Configure(&extension_pins[w2->nreset], 1);
 	PIO_Configure(&extension_pins[w2->enable], 1);
 	PIO_Configure(&extension_pins[w2->flashc], 1);
-
-
 
 	SLEEP_MS(200); // TODO: Find minimum sleep time
 

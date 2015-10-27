@@ -106,10 +106,27 @@
 #define FID_GET_ETHERNET_AUTHENTICATION_SECRET 74
 #define FID_SET_WIFI_AUTHENTICATION_SECRET 75
 #define FID_GET_WIFI_AUTHENTICATION_SECRET 76
-#define FID_START_WIFI2_BOOTLOADER 77
-#define FID_WRITE_WIFI2_FLASH 78
-#define FID_READ_WIFI2_FLASH 79
-
+#define FID_IS_WIFI2_PRESENT 77
+#define FID_GET_CONNECTION_TYPE 78
+#define FID_START_WIFI2_BOOTLOADER 79
+#define FID_WRITE_WIFI2_FLASH 80
+#define FID_READ_WIFI2_FLASH 81
+#define FID_SET_WIFI2_AUTHENTICATION_SECRET 82
+#define FID_GET_WIFI2_AUTHENTICATION_SECRET 83
+#define FID_SET_WIFI2_CONFIGURATION 84
+#define FID_GET_WIFI2_CONFIGURATION 85
+#define FID_GET_WIFI2_STATUS 86
+#define FID_SET_WIFI2_CLIENT_CONFIGURATION 87
+#define FID_GET_WIFI2_CLIENT_CONFIGURATION 88
+#define FID_SET_WIFI2_CLIENT_HOSTNAME 89
+#define FID_GET_WIFI2_CLIENT_HOSTNAME 90
+#define FID_SET_WIFI2_CLIENT_PASSWORD 91
+#define FID_GET_WIFI2_CLIENT_PASSWORD 92
+#define FID_SET_WIFI2_AP_CONFIGURATION 93
+#define FID_GET_WIFI2_AP_CONFIGURATION 94
+#define FID_SET_WIFI2_AP_PASSWORD 95
+#define FID_GET_WIFI2_AP_PASSWORD 96
+#define FID_SAVE_WIFI2_CONFIGURATION 97
 
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -188,9 +205,27 @@
 	{FID_GET_ETHERNET_AUTHENTICATION_SECRET, (message_handler_func_t)get_ethernet_authentication_secret}, \
 	{FID_SET_WIFI_AUTHENTICATION_SECRET, (message_handler_func_t)set_wifi_authentication_secret}, \
 	{FID_GET_WIFI_AUTHENTICATION_SECRET, (message_handler_func_t)get_wifi_authentication_secret}, \
+	{FID_GET_CONNECTION_TYPE, (message_handler_func_t)get_connection_type}, \
+	{FID_IS_WIFI2_PRESENT, (message_handler_func_t)is_wifi2_present}, \
 	{FID_START_WIFI2_BOOTLOADER, (message_handler_func_t)start_wifi2_bootloader}, \
 	{FID_WRITE_WIFI2_FLASH, (message_handler_func_t)write_wifi2_flash}, \
 	{FID_READ_WIFI2_FLASH, (message_handler_func_t)read_wifi2_flash}, \
+	{FID_SET_WIFI2_AUTHENTICATION_SECRET, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_AUTHENTICATION_SECRET, (message_handler_func_t)com_forward_message}, \
+	{FID_SET_WIFI2_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_STATUS, (message_handler_func_t)com_forward_message}, \
+	{FID_SET_WIFI2_CLIENT_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_CLIENT_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
+	{FID_SET_WIFI2_CLIENT_HOSTNAME, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_CLIENT_HOSTNAME, (message_handler_func_t)com_forward_message}, \
+	{FID_SET_WIFI2_CLIENT_PASSWORD, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_CLIENT_PASSWORD, (message_handler_func_t)com_forward_message}, \
+	{FID_SET_WIFI2_AP_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_AP_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
+	{FID_SET_WIFI2_AP_PASSWORD, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_AP_PASSWORD, (message_handler_func_t)com_forward_message}, \
+	{FID_SAVE_WIFI2_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
 
 typedef struct {
 	MessageHeader header;
@@ -809,6 +844,23 @@ typedef struct {
 	char secret[AUTHENTICATION_SECRET_LENGTH];
 } __attribute__((__packed__)) GetWifiAuthenticationSecretReturn;
 
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetConnectionType;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t connection_type;
+} __attribute__((__packed__)) GetConnectionTypeReturn;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) IsWifi2Present;
+
+typedef struct {
+	MessageHeader header;
+	bool present;
+} __attribute__((__packed__)) IsWifi2PresentReturn;
 
 typedef struct {
 	MessageHeader header;
@@ -911,6 +963,8 @@ void set_ethernet_authentication_secret(const ComType com, const SetEthernetAuth
 void get_ethernet_authentication_secret(const ComType com, const GetEthernetAuthenticationSecret *data);
 void set_wifi_authentication_secret(const ComType com, const SetWifiAuthenticationSecret *data);
 void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticationSecret *data);
+void get_connection_type(const ComType com, const GetConnectionType *data);
+void is_wifi2_present(const ComType com, const IsWifi2Present *data);
 void start_wifi2_bootloader(const ComType com, const StartWifi2Bootloader *data);
 void write_wifi2_flash(const ComType com, const WriteWifi2Flash *data);
 void read_wifi2_flash(const ComType com, const ReadWifi2Flash *data);

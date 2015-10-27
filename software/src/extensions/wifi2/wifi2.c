@@ -44,9 +44,6 @@ extern Pin extension_pins[];
 extern Wifi2 *w2;
 
 bool wifi2_init(void) {
-	logwifi2d("WIFI2 init\n\r");
-    w2->bootloader_mode = true;
-
     const uint32_t mode = US_MR_USCLKS_MCK       |
                           US_MR_CHRL_8_BIT       |
                           US_MR_CHMODE_NORMAL    |
@@ -78,7 +75,7 @@ bool wifi2_init(void) {
 	w2->recv_dma_last_rcr = WIFI2_UART_BUFFER_SIZE;
 	w2->recv_dma_index = 0;
 
-	printf("WIFI2 initialized\n\r");
+	logwifi2d("WIFI2 initialized\n\r");
 
 	return true;
 }

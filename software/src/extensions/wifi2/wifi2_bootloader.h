@@ -26,7 +26,7 @@
 #include <stdbool.h>
 
 int8_t wifi2_bootloader_start(void);
-int8_t wifi2_bootloader_write(uint8_t *data, uint8_t length);
-uint8_t wifi2_bootloader_read(uint8_t *data, uint8_t length);
+int8_t wifi2_bootloader_write(const uint8_t *data, const uint8_t length);
+uint8_t wifi2_bootloader_read(uint8_t *data, const uint8_t length);
 
 #endif
