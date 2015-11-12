@@ -7,7 +7,7 @@ function matlab_example_stack_status()
     UID = 'XXYYZZ'; % Change to your UID
 
     ipcon = IPConnection(); % Create IP connection
-    master = BrickMaster(UID, ipcon); % Create device object
+    master = handle(BrickMaster(UID, ipcon), 'CallbackProperties'); % Create device object
 
     ipcon.connect(HOST, PORT); % Connect to brickd
     % Don't use device before ipcon is connected
