@@ -226,7 +226,7 @@ uint8_t ethernet_websocket_read_data_tcp(const uint8_t socket, uint8_t *buffer, 
 		}
 
 		default: {
-			logethe("Invalid Ethernet Websocket state: %d\n\r", ethernet_websocket_state);
+			logethe("Invalid Ethernet Websocket state: %d\n\r", (int)ethernet_websocket_state);
 			break;
 		}
 	}
