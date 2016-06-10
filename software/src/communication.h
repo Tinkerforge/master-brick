@@ -127,6 +127,7 @@
 #define FID_SET_WIFI2_AP_PASSWORD 95
 #define FID_GET_WIFI2_AP_PASSWORD 96
 #define FID_SAVE_WIFI2_CONFIGURATION 97
+#define FID_GET_WIFI2_FIRMWARE_VERSION 97
 
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -226,6 +227,7 @@
 	{FID_SET_WIFI2_AP_PASSWORD, (message_handler_func_t)com_forward_message}, \
 	{FID_GET_WIFI2_AP_PASSWORD, (message_handler_func_t)com_forward_message}, \
 	{FID_SAVE_WIFI2_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_FIRMWARE_VERSION, (message_handler_func_t)com_forward_message}, \
 
 typedef struct {
 	MessageHeader header;
