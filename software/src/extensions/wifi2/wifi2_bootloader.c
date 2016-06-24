@@ -32,6 +32,7 @@
 
 extern Pin extension_pins[];
 extern Wifi2 *w2;
+extern bool wifi2_init_extension_done[];
 
 void wifi2_bootloader_flush_rx(void) {
 	uint8_t dummy;
@@ -42,6 +43,13 @@ void wifi2_bootloader_flush_rx(void) {
 
 int8_t wifi2_bootloader_start(void) {
 	logwifi2d("WIFI2 bootloader start...\n\r");
+
+	if (!wifi2_init_extension_done[0] && !wifi2_init_extension_done[1]) {
+		// no extension init'ed yet. this means we're trying to flashing an
+		// extension for the first time. assume it's in position 0 and initalize
+		// it now to make the UART interface work
+		wifi2_init_extension(0);
+	}
 
 	w2->bootloader_mode =  true;
 

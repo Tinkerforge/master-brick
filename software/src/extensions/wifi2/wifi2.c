@@ -43,6 +43,8 @@ extern ComInfo com_info;
 extern Pin extension_pins[];
 extern Wifi2 *w2;
 
+bool wifi2_init_extension_done[2] = { false, false };
+
 bool wifi2_init(void) {
     const uint32_t mode = US_MR_USCLKS_MCK       |
                           US_MR_CHRL_8_BIT       |
@@ -85,6 +87,8 @@ void wifi2_init_extension(const uint8_t extension) {
 
 	wifi2_uart_init(extension);
 	wifi2_init();
+
+	wifi2_init_extension_done[extension] = true;
 }
 
 
