@@ -1222,7 +1222,7 @@ void read_wifi2_flash(const ComType com, const ReadWifi2Flash *data) {
 
 	rw2fr.header        = data->header;
 	rw2fr.header.length = sizeof(ReadWifi2FlashReturn);
-	rw2fr.length_out    = wifi2_bootloader_read(rw2fr.data, data->length_in);
+	rw2fr.result        = wifi2_bootloader_read(rw2fr.data, data->length);
 
 	send_blocking_with_timeout(&rw2fr, sizeof(ReadWifi2FlashReturn), com);
 }

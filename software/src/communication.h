@@ -892,13 +892,13 @@ typedef struct {
 
 typedef struct {
 	MessageHeader header;
-	uint8_t length_in;
+	uint8_t length;
 } __attribute__((__packed__)) ReadWifi2Flash;
 
 typedef struct {
 	MessageHeader header;
 	uint8_t data[60];
-	uint8_t length_out;
+	uint8_t result;
 } __attribute__((__packed__)) ReadWifi2FlashReturn;
 
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
