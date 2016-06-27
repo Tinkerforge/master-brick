@@ -109,8 +109,8 @@
 #define FID_IS_WIFI2_PRESENT 77
 #define FID_GET_CONNECTION_TYPE 78
 #define FID_START_WIFI2_BOOTLOADER 79
-#define FID_WRITE_WIFI2_FLASH 80
-#define FID_READ_WIFI2_FLASH 81
+#define FID_WRITE_WIFI2_SERIAL_PORT 80
+#define FID_READ_WIFI2_SERIAL_PORT 81
 #define FID_SET_WIFI2_AUTHENTICATION_SECRET 82
 #define FID_GET_WIFI2_AUTHENTICATION_SECRET 83
 #define FID_SET_WIFI2_CONFIGURATION 84
@@ -212,8 +212,8 @@
 	{FID_GET_CONNECTION_TYPE, (message_handler_func_t)get_connection_type}, \
 	{FID_IS_WIFI2_PRESENT, (message_handler_func_t)is_wifi2_present}, \
 	{FID_START_WIFI2_BOOTLOADER, (message_handler_func_t)start_wifi2_bootloader}, \
-	{FID_WRITE_WIFI2_FLASH, (message_handler_func_t)write_wifi2_flash}, \
-	{FID_READ_WIFI2_FLASH, (message_handler_func_t)read_wifi2_flash}, \
+	{FID_WRITE_WIFI2_SERIAL_PORT, (message_handler_func_t)write_wifi2_serial_port}, \
+	{FID_READ_WIFI2_SERIAL_PORT, (message_handler_func_t)read_wifi2_serial_port}, \
 	{FID_SET_WIFI2_AUTHENTICATION_SECRET, (message_handler_func_t)com_forward_message}, \
 	{FID_GET_WIFI2_AUTHENTICATION_SECRET, (message_handler_func_t)com_forward_message}, \
 	{FID_SET_WIFI2_CONFIGURATION, (message_handler_func_t)com_forward_message}, \
@@ -883,23 +883,23 @@ typedef struct {
 	MessageHeader header;
 	uint8_t data[60];
 	uint8_t length;
-} __attribute__((__packed__)) WriteWifi2Flash;
+} __attribute__((__packed__)) WriteWifi2SerialPort;
 
 typedef struct {
 	MessageHeader header;
 	int8_t result;
-} __attribute__((__packed__)) WriteWifi2FlashReturn;
+} __attribute__((__packed__)) WriteWifi2SerialPortReturn;
 
 typedef struct {
 	MessageHeader header;
 	uint8_t length;
-} __attribute__((__packed__)) ReadWifi2Flash;
+} __attribute__((__packed__)) ReadWifi2SerialPort;
 
 typedef struct {
 	MessageHeader header;
 	uint8_t data[60];
 	uint8_t result;
-} __attribute__((__packed__)) ReadWifi2FlashReturn;
+} __attribute__((__packed__)) ReadWifi2SerialPortReturn;
 
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
@@ -974,7 +974,7 @@ void get_wifi_authentication_secret(const ComType com, const GetWifiAuthenticati
 void get_connection_type(const ComType com, const GetConnectionType *data);
 void is_wifi2_present(const ComType com, const IsWifi2Present *data);
 void start_wifi2_bootloader(const ComType com, const StartWifi2Bootloader *data);
-void write_wifi2_flash(const ComType com, const WriteWifi2Flash *data);
-void read_wifi2_flash(const ComType com, const ReadWifi2Flash *data);
+void write_wifi2_serial_port(const ComType com, const WriteWifi2SerialPort *data);
+void read_wifi2_serial_port(const ComType com, const ReadWifi2SerialPort *data);
 
 #endif

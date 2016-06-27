@@ -1207,23 +1207,22 @@ void start_wifi2_bootloader(const ComType com, const StartWifi2Bootloader *data)
 	send_blocking_with_timeout(&sw2br, sizeof(StartWifi2BootloaderReturn), com);
 }
 
-void write_wifi2_flash(const ComType com, const WriteWifi2Flash *data) {
-	WriteWifi2FlashReturn ww2fr;
+void write_wifi2_serial_port(const ComType com, const WriteWifi2SerialPort *data) {
+	WriteWifi2SerialPortReturn ww2spr;
 
-	ww2fr.header        = data->header;
-	ww2fr.header.length = sizeof(WriteWifi2FlashReturn);
-	ww2fr.result        = wifi2_bootloader_write(data->data, data->length);
+	ww2spr.header        = data->header;
+	ww2spr.header.length = sizeof(WriteWifi2SerialPortReturn);
+	ww2spr.result        = wifi2_bootloader_write(data->data, data->length);
 
-	send_blocking_with_timeout(&ww2fr, sizeof(WriteWifi2FlashReturn), com);
+	send_blocking_with_timeout(&ww2spr, sizeof(WriteWifi2SerialPortReturn), com);
 }
 
-void read_wifi2_flash(const ComType com, const ReadWifi2Flash *data) {
-	ReadWifi2FlashReturn rw2fr;
+void read_wifi2_serial_port(const ComType com, const ReadWifi2SerialPort *data) {
+	ReadWifi2SerialPortReturn rw2spr;
 
-	rw2fr.header        = data->header;
-	rw2fr.header.length = sizeof(ReadWifi2FlashReturn);
-	rw2fr.result        = wifi2_bootloader_read(rw2fr.data, data->length);
+	rw2spr.header        = data->header;
+	rw2spr.header.length = sizeof(ReadWifi2SerialPortReturn);
+	rw2spr.result        = wifi2_bootloader_read(rw2spr.data, data->length);
 
-	send_blocking_with_timeout(&rw2fr, sizeof(ReadWifi2FlashReturn), com);
+	send_blocking_with_timeout(&rw2spr, sizeof(ReadWifi2SerialPortReturn), com);
 }
-
