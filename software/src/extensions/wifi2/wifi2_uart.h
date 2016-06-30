@@ -67,6 +67,8 @@ typedef struct {
 	bool bootloader_mode;
 } Wifi2;
 
+void ack_last_message(void);
+
 bool wifi2_uart_rx(uint8_t *data);
 void wifi2_uart_init(const uint8_t extension);
 void wifi2_uart_tick(const uint8_t tick_type);
