@@ -198,8 +198,6 @@
 2015-07-28: 2.3.4 (3ff60f1)
 - Fix bug with long waiting times for first Ethernet enumeration
 
-2016-03-02: 2.3.5
-- Fix error in adc calibration
-
-2016-06-30: 2.4.0
+2016-06-30: 2.4.0 (21bb23c)
+- Fix error in ADC calibration
 - Add support for WIFI Extension 2.0
