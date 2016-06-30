@@ -200,3 +200,6 @@
 
 2016-03-02: 2.3.5
 - Fix error in adc calibration
+
+2016-06-30: 2.4.0
+- Add support for WIFI Extension 2.0
