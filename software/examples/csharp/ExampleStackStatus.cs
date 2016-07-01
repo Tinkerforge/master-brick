@@ -5,7 +5,7 @@ class Example
 {
 	private static string HOST = "localhost";
 	private static int PORT = 4223;
-	private static string UID = "XXYYZZ"; // Change to your UID
+	private static string UID = "XXYYZZ"; // Change XXYYZZ to the UID of your Master Brick
 
 	static void Main()
 	{

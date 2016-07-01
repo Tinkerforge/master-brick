@@ -4,7 +4,7 @@ Imports Tinkerforge
 Module ExampleStackStatus
     Const HOST As String = "localhost"
     Const PORT As Integer = 4223
-    Const UID As String = "XXYYZZ" ' Change to your UID
+    Const UID As String = "XXYYZZ" ' Change XXYYZZ to the UID of your Master Brick
 
     Sub Main()
         Dim ipcon As New IPConnection() ' Create IP connection

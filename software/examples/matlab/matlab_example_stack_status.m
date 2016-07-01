@@ -4,7 +4,7 @@ function matlab_example_stack_status()
 
     HOST = 'localhost';
     PORT = 4223;
-    UID = 'XXYYZZ'; % Change to your UID
+    UID = 'XXYYZZ'; % Change XXYYZZ to the UID of your Master Brick
 
     ipcon = IPConnection(); % Create IP connection
     master = handle(BrickMaster(UID, ipcon), 'CallbackProperties'); % Create device object

@@ -5,7 +5,7 @@
 
 #define HOST "localhost"
 #define PORT 4223
-#define UID "XXYYZZ" // Change to your UID
+#define UID "XXYYZZ" // Change XXYYZZ to the UID of your Master Brick
 
 int main(void) {
 	// Create IP connection

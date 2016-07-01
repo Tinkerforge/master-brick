@@ -4,7 +4,9 @@ import com.tinkerforge.BrickMaster;
 public class ExampleStackStatus {
 	private static final String HOST = "localhost";
 	private static final int PORT = 4223;
-	private static final String UID = "XXYYZZ"; // Change to your UID
+
+	// Change XXYYZZ to the UID of your Master Brick
+	private static final String UID = "XXYYZZ";
 
 	// Note: To make the example code cleaner we do not handle exceptions. Exceptions
 	//       you might normally want to catch are described in the documentation

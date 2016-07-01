@@ -8,7 +8,7 @@ use Tinkerforge\BrickMaster;
 
 const HOST = 'localhost';
 const PORT = 4223;
-const UID = 'XXYYZZ'; // Change to your UID
+const UID = 'XXYYZZ'; // Change XXYYZZ to the UID of your Master Brick
 
 $ipcon = new IPConnection(); // Create IP connection
 $master = new BrickMaster(UID, $ipcon); // Create device object

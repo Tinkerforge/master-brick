@@ -2,7 +2,7 @@ var Tinkerforge = require('tinkerforge');
 
 var HOST = 'localhost';
 var PORT = 4223;
-var UID = 'XXYYZZ'; // Change to your UID
+var UID = 'XXYYZZ'; // Change XXYYZZ to the UID of your Master Brick
 
 var ipcon = new Tinkerforge.IPConnection(); // Create IP connection
 var master = new Tinkerforge.BrickMaster(UID, ipcon); // Create device object

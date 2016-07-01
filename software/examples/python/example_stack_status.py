@@ -3,7 +3,7 @@
 
 HOST = "localhost"
 PORT = 4223
-UID = "XXYYZZ" # Change to your UID
+UID = "XXYYZZ" # Change XXYYZZ to the UID of your Master Brick
 
 from tinkerforge.ip_connection import IPConnection
 from tinkerforge.brick_master import BrickMaster
