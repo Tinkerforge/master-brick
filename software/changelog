@@ -201,3 +201,6 @@
 2016-06-30: 2.4.0 (21bb23c)
 - Fix error in ADC calibration
 - Add support for WIFI Extension 2.0
+
+2016-29-08: 2.4.1 (?)
+- Make sure to use all chunks when writing firmware
