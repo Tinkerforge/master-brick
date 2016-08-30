@@ -203,4 +203,4 @@
 - Add support for WIFI Extension 2.0
 
 2016-08-29: 2.4.1 (1353a54)
-- Make sure to use all chunks when writing firmware
+- Make sure to use all chunks when writing Bricklet plugin (through bricklib)
