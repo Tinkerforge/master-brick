@@ -346,7 +346,7 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 			}
 
 			// The master always sends an ack without data, otherwise
-			// other rs485 participants might not have there turn
+			// other rs485 participants might not have their turn
 			RS485_WAIT_BEFORE_SEND();
 			rs485_low_level_send(rs485_address, sequence_number, true);
 		} else {
