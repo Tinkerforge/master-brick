@@ -137,6 +137,9 @@
 #define FID_GET_WIFI2_MESH_ROUTER_SSID 105
 #define FID_SET_WIFI2_MESH_ROUTER_PASSWORD 106
 #define FID_GET_WIFI2_MESH_ROUTER_PASSWORD 107
+#define FID_GET_WIFI2_MESH_COMMON_STATUS 108
+#define FID_GET_WIFI2_MESH_STATION_STATUS 109
+#define FID_GET_WIFI2_MESH_AP_STATUS 110
 
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -246,6 +249,9 @@
 	{FID_GET_WIFI2_MESH_ROUTER_SSID, (message_handler_func_t)com_forward_message}, \
 	{FID_SET_WIFI2_MESH_ROUTER_PASSWORD, (message_handler_func_t)com_forward_message}, \
 	{FID_GET_WIFI2_MESH_ROUTER_PASSWORD, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_MESH_COMMON_STATUS, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_MESH_STATION_STATUS, (message_handler_func_t)com_forward_message}, \
+	{FID_GET_WIFI2_MESH_AP_STATUS, (message_handler_func_t)com_forward_message}, \
 
 typedef struct {
 	MessageHeader header;
