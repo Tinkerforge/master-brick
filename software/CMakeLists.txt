@@ -73,6 +73,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib/utility/sha_1.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/utility/base64_encode.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/utility/ringbuffer.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib/utility/system_timer.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/com_messages.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_eeprom/i2c_eeprom_common.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_eeprom/i2c_eeprom_slave.c"
