@@ -141,6 +141,8 @@
 #define FID_GET_WIFI2_MESH_STATION_STATUS 109
 #define FID_GET_WIFI2_MESH_AP_STATUS 110
 
+#define COM_MESSAGE_USER_LAST_FID 110
+
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
 	{FID_GET_STACK_CURRENT, (message_handler_func_t)get_stack_current}, \
