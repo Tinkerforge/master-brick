@@ -60,7 +60,7 @@ void websocket_parse_handshake_line(char *line, uint8_t length, websocket_answer
 			char hash[20] = {0};
 			SHA1((unsigned char*)concatkey, strlen(concatkey), (unsigned char*)hash);
 
-			// Caluclate base64 from hash
+			// Calculate base64 from hash
 			memset(concatkey, 0, WEBSOCKET_CONCATKEY_LEN);
 			int32_t base64_length = base64_encode_string(hash, 20, concatkey, WEBSOCKET_CONCATKEY_LEN);
 
