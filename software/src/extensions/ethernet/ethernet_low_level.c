@@ -200,7 +200,7 @@ void ethernet_low_level_emergency_disconnect(const uint8_t socket) {
 	logethe("Emergency disconnect on socket %d\n\r", socket);
 	ethernet_write_register(ETH_REG_SN_CR(socket), ETH_VAL_SN_CR_DISCON);
 
-	// Read buffer until emtpy
+	// Read buffer until empty
 	uint8_t tmp_buffer[10];
 	while(ethernet_low_level_read_data_tcp(socket, tmp_buffer, 10) == 10);
 }
