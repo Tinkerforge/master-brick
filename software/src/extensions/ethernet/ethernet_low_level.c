@@ -248,7 +248,14 @@ void ethernet_low_level_socket_listen(const uint8_t socket) {
 	}
 
 	ethernet_write_register(ETH_REG_SN_CR(socket), ETH_VAL_SN_CR_LISTEN);
-	while(ethernet_low_level_get_status(socket) != ETH_VAL_SN_SR_SOCK_LISTEN);
+
+	uint8_t status = 0;
+	// There is a small race condition here, a new socket might already be
+	// established before we can read back the SOCK_LISTEN status.
+	// So we accept the SOCK_ESTABLISHED status too.
+	while(status != ETH_VAL_SN_SR_SOCK_LISTEN && status != ETH_VAL_SN_SR_SOCK_ESTABLISHED) {
+		status = ethernet_low_level_get_status(socket);
+	}
 	logethd("Socket %d: listening\n\r", socket);
 }
 
