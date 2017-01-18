@@ -213,6 +213,11 @@ void routing_master_from_pc(const char *data, const uint16_t length, const ComTy
 					brickd_authenticate(com, (Authenticate*)data);
 					break;
 				}
+
+				default: {
+					com_return_error(data, sizeof(MessageHeader), MESSAGE_ERROR_CODE_NOT_SUPPORTED, com);
+					break;
+				}
 			}
 		}
 	// Discover Route
