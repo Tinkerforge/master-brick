@@ -253,7 +253,7 @@ void wifi2_uart_recv(void) {
 					w2->uart_last_sequence_number_seen = seq;
 
 					// If the recv buffer for the TFP data is empty we can write to it.
-					// Oterwise we set the wait flag and the data is copied after the
+					// Otherwise we set the wait flag and the data is copied after the
 					// recv buffer is read out (see top of this function)
 					if(w2->recv_buffer_tfp_length == 0) {
 						memcpy(w2->recv_buffer_tfp, &w2->recv_buffer[2], w2->recv_buffer_expected_length-3);
