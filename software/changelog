@@ -208,3 +208,8 @@
 2017-01-23: 2.4.2 (b71c151)
 - Fix socket listen/establish race condition (Ethernet Extension)
 - Add support for WIFI2 mesh networking functions
+
+<unknown>: 2.4.3 (<unknown>)
+- Increase general WIFI send timeout (through bricklib)
+- Fix bug in double buffer rx peak
+- Increase reaction time by decreasing ACK timeout
