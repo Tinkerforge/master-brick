@@ -209,7 +209,7 @@
 - Fix socket listen/establish race condition (Ethernet Extension)
 - Add support for WIFI2 mesh networking functions
 
-<unknown>: 2.4.3 (<unknown>)
+2017-02-24 2.4.3 (e9886be)
 - Fix bug in double buffer rx peak
 - Increase reaction time by decreasing ACK timeout
 - Increase general WIFI send timeout (through bricklib)
