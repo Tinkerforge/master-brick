@@ -61,13 +61,15 @@ static bool wifi2_uart_rx_peak(uint8_t *data, uint8_t length) {
 	// Copy current receive counter and index, so we can work on a temporary copy.
 	uint8_t last_rcr_tmp = w2->recv_dma_last_rcr;
 	uint8_t index = w2->recv_dma_index;
+	uint8_t start_index = index;
 
 	// Go through length many bytes.
 	for(uint8_t i = 0; i < length; i++) {
 		// If more data is available
-		if(last_rcr_tmp > USART_WIFI2->US_RCR || USART_WIFI2->US_RNCR == 0) {
+		if(((index == start_index) && (last_rcr_tmp > USART_WIFI2->US_RCR || USART_WIFI2->US_RNCR == 0)) ||
+		   ((index != start_index) && (last_rcr_tmp > USART_WIFI2->US_RNCR))) {
 			// Save data at appropriate position
-			data[i] = w2->recv_dma_buffer[w2->recv_dma_index][WIFI2_UART_BUFFER_SIZE-last_rcr_tmp];
+			data[i] = w2->recv_dma_buffer[index][WIFI2_UART_BUFFER_SIZE-last_rcr_tmp];
 			// Change buffer if receive counter goes to 0.
 			last_rcr_tmp--;
 			if(last_rcr_tmp == 0) {
