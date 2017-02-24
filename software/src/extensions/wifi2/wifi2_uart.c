@@ -176,6 +176,40 @@ void wifi2_uart_peak_for_ack(void) {
 			wifi2_uart_rx(&dummy);
 			wifi2_uart_rx(&dummy);
 			wifi2_uart_rx(&dummy);
+		} else if((data[UART_CON_INDEX_LENGTH] < WIFI2_UART_BUFFER_SIZE) && (data[UART_CON_INDEX_LENGTH] > 11)) {
+			// If the current data is a packet we also check if the sequence number fits
+			uint8_t packet[WIFI2_UART_BUFFER_SIZE] = {0};
+			if(wifi2_uart_rx_peak(packet, data[UART_CON_INDEX_LENGTH])) {
+				const uint8_t checksum_calculated = wifi2_uart_checksum(packet, packet[UART_CON_INDEX_LENGTH]-1);
+				const uint8_t checksum_uart = packet[packet[UART_CON_INDEX_LENGTH]-1];
+				if(checksum_calculated != checksum_uart) {
+					logwifi2w("Peak checksum error: %d (calc) != %d (uart)\n\r", checksum_calculated, checksum_uart);
+					logwifi2d("Uart data (len, seq): %d, %d\n\r", packet[0], packet[1]);
+					com_debug_message((const MessageHeader *)&packet[UART_CON_INDEX_TFP_START]);
+					wifi2_clear_dma_recv_buffer();
+				} else {
+					const uint8_t seq_seen_by_extension = packet[UART_CON_INDEX_SEQUENCE] >> 4;
+					if(w2->ack_wait) {
+						if(seq_seen_by_extension == w2->uart_sequence_number) {
+							// If we do find an ACK message and the sequence number fits,
+							// We reset timeout and increase sequence number.
+							w2->send_timeout = 0;
+							w2->ack_wait = false;
+							w2->uart_sequence_number++;
+							if(w2->uart_sequence_number >= 0x10) {
+								w2->uart_sequence_number = 1;
+							}
+
+							// Set buffer length to 0, so wifi_send can write to it again
+							w2->send_buffer_message_length = 0;
+						}
+					}
+					uint8_t dummy;
+					for(uint8_t i = 0; i < packet[UART_CON_INDEX_LENGTH]; i++) {
+						wifi2_uart_rx(&dummy);
+					}
+				}
+			}
 		} else {
 			// In theory we only peak for an ACK if one should be available.
 			// However, if there is a bit error or similar
