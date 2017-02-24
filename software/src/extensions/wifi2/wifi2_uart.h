@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define WIFI2_ACK_TIMEOUT_MS 250
+#define WIFI2_ACK_TIMEOUT_MS 50
 #define WIFI2_UART_HEADER_SIZE 3
 #define WIFI2_UART_BUFFER_SIZE (80+WIFI2_UART_HEADER_SIZE)
 
