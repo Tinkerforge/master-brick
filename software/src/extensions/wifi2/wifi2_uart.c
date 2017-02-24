@@ -308,12 +308,14 @@ void wifi2_uart_send(void) {
 	if(w2->ack_wait) {
 		// There was no ACK for the last message.
 		// Something must have gone wrong, lets re-send it!
-		USART_WIFI2->US_TPR  = (uint32_t)w2->send_dma_buffer;
-		USART_WIFI2->US_TCR  = w2->send_dma_buffer_length;
-		USART_WIFI2->US_PTCR = US_PTCR_TXTEN;
-		w2->send_timeout = WIFI2_ACK_TIMEOUT_MS;
+		if(USART_WIFI2->US_CSR & US_CSR_TXBUFE) {
+			USART_WIFI2->US_TPR  = (uint32_t)w2->send_dma_buffer;
+			USART_WIFI2->US_TCR  = w2->send_dma_buffer_length;
+			USART_WIFI2->US_PTCR = US_PTCR_TXTEN;
+			w2->send_timeout = WIFI2_ACK_TIMEOUT_MS;
 
-		w2->ack_wait = true;
+			w2->ack_wait = true;
+		}
 		return;
 	}
 
