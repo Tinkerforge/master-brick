@@ -1,9 +1,9 @@
-(kicad_pcb (version 4) (host pcbnew "(2015-03-18 BZR 5525)-product")
+(kicad_pcb (version 4) (host pcbnew 4.0.2+dfsg1-stable)
 
   (general
     (links 460)
     (no_connects 0)
-    (area 126.279797 74.070139 283.972 165.94328)
+    (area 127.275589 74.875389 167.374571 114.974371)
     (thickness 1.6002)
     (drawings 70)
     (tracks 2692)
@@ -78,7 +78,7 @@
     (pad_to_mask_clearance 0)
     (aux_axis_origin 127.325 74.925)
     (grid_origin 127.325 74.925)
-    (visible_elements FFFFBFFF)
+    (visible_elements FFFEBFFF)
     (pcbplotparams
       (layerselection 0x010fc_80000007)
       (usegerberextensions true)
@@ -416,6 +416,136 @@
     (add_net VPP)
     (add_net VSTACK)
     (add_net VUSB)
+  )
+
+  (module 0603 (layer Vorderseite) (tedit 55756C7D) (tstamp 54B924F8)
+    (at 158.5 92.7 90)
+    (path /4D22D320/4D232246)
+    (attr smd)
+    (fp_text reference C404 (at -0.025 -0.275 90) (layer F.SilkS)
+      (effects (font (size 0.29972 0.29972) (thickness 0.0762)))
+    )
+    (fp_text value 4.7µF (at -0.025 0.225 90) (layer F.SilkS)
+      (effects (font (size 0.29972 0.29972) (thickness 0.0762)))
+    )
+    (fp_line (start -1.45034 -0.65024) (end 1.45034 -0.65024) (layer F.SilkS) (width 0.1524))
+    (fp_line (start 1.45034 -0.65024) (end 1.45034 0.65024) (layer F.SilkS) (width 0.1524))
+    (fp_line (start 1.45034 0.65024) (end -1.45034 0.65024) (layer F.SilkS) (width 0.1524))
+    (fp_line (start -1.45034 0.65024) (end -1.45034 -0.65024) (layer F.SilkS) (width 0.1524))
+    (pad 1 smd rect (at -0.8001 0 90) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
+      (net 1 3V3))
+    (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
+      (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
+  )
+
+  (module BTB08-ACS-TOP (layer Vorderseite) (tedit 53F7094A) (tstamp 54B922A3)
+    (at 131.025 94.925 90)
+    (path /4D22D34D/4C46D315)
+    (attr smd)
+    (fp_text reference J303 (at 0.025 0.475 90) (layer F.SilkS)
+      (effects (font (size 0.3 0.3) (thickness 0.075)))
+    )
+    (fp_text value STACK-UP-LOW (at -0.075 -0.325 90) (layer F.SilkS)
+      (effects (font (size 0.3 0.3) (thickness 0.075)))
+    )
+    (fp_line (start -5.79882 -0.39878) (end -5.79882 0.8001) (layer F.SilkS) (width 0.001))
+    (fp_line (start -5.79882 0.8001) (end 5.79882 0.8001) (layer F.SilkS) (width 0.001))
+    (fp_line (start 5.79882 0.8001) (end 5.79882 -0.39878) (layer F.SilkS) (width 0.001))
+    (fp_line (start 5.79882 -0.39878) (end 5.40004 -0.39878) (layer F.SilkS) (width 0.001))
+    (fp_line (start 5.40004 -0.39878) (end 5.40004 -0.8001) (layer F.SilkS) (width 0.001))
+    (fp_line (start 5.40004 -0.8001) (end -5.40004 -0.8001) (layer F.SilkS) (width 0.001))
+    (fp_line (start -5.40004 -0.8001) (end -5.40004 -0.39878) (layer F.SilkS) (width 0.001))
+    (fp_line (start -5.40004 -0.39878) (end -5.79882 -0.39878) (layer F.SilkS) (width 0.001))
+    (fp_line (start 5.19938 1.80086) (end 5.59816 1.19888) (layer F.SilkS) (width 0.001))
+    (fp_line (start 5.59816 1.19888) (end 5.99948 1.80086) (layer F.SilkS) (width 0.001))
+    (fp_line (start -6.4008 1.80086) (end 6.4008 1.80086) (layer F.SilkS) (width 0.001))
+    (fp_line (start 6.4008 1.80086) (end 6.4008 -1.80086) (layer F.SilkS) (width 0.001))
+    (fp_line (start 6.4008 -1.80086) (end -6.4008 -1.80086) (layer F.SilkS) (width 0.001))
+    (fp_line (start -6.4008 -1.80086) (end -6.4008 1.80086) (layer F.SilkS) (width 0.001))
+    (pad 29 smd rect (at -5.59816 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 89 "Net-(J303-Pad29)"))
+    (pad 27 smd rect (at -4.79806 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 48 "Net-(FB301-Pad1)"))
+    (pad 25 smd rect (at -3.99796 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 48 "Net-(FB301-Pad1)"))
+    (pad 23 smd rect (at -3.19786 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 48 "Net-(FB301-Pad1)"))
+    (pad 21 smd rect (at -2.39776 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 48 "Net-(FB301-Pad1)"))
+    (pad 19 smd rect (at -1.59766 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 17 smd rect (at -0.79756 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 15 smd rect (at 0 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 13 smd rect (at 0.79756 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 11 smd rect (at 1.59766 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 9 smd rect (at 2.39776 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 7 smd rect (at 3.19786 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 5 smd rect (at 3.99796 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 3 smd rect (at 4.79806 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 1 smd rect (at 5.59816 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 87 "Net-(J303-Pad1)"))
+    (pad 2 smd rect (at 5.59816 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 4 smd rect (at 4.79806 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 6 smd rect (at 3.99796 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 8 smd rect (at 3.19786 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 10 smd rect (at 2.39776 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 12 smd rect (at 1.59766 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 14 smd rect (at 0.79756 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 16 smd rect (at 0 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 18 smd rect (at -0.79756 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 20 smd rect (at -1.59766 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 88 "Net-(J303-Pad10)"))
+    (pad 22 smd rect (at -2.39776 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 35 "Net-(C302-Pad1)"))
+    (pad 24 smd rect (at -3.19786 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 35 "Net-(C302-Pad1)"))
+    (pad 26 smd rect (at -3.99796 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 35 "Net-(C302-Pad1)"))
+    (pad 28 smd rect (at -4.79806 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 36 "Net-(C303-Pad1)"))
+    (pad 30 smd rect (at -5.59816 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
+      (net 90 "Net-(J303-Pad30)"))
+    (pad EP smd rect (at 7.69874 -2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
+      (net 25 GND))
+    (pad EP smd rect (at 7.69874 2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
+      (net 25 GND))
+    (pad EP smd rect (at -7.69874 2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
+      (net 25 GND))
+    (pad EP smd rect (at -7.69874 -2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
+      (net 25 GND))
+    (pad EP smd rect (at 7.69874 0 90) (size 1.80086 1.99898) (layers Vorderseite F.Paste F.Mask)
+      (net 25 GND))
+    (pad EP smd rect (at -7.69874 0 90) (size 1.80086 1.99898) (layers Vorderseite F.Paste F.Mask)
+      (net 25 GND))
+    (pad "" thru_hole circle (at 7.59968 1.69926 90) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS))
+    (pad "" thru_hole circle (at -7.59968 1.69926 90) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS))
+    (model btb_top.wrl
+      (at (xyz 0.04 0.095 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 90))
+    )
   )
 
   (module kicad-libraries:WEEE_7mm_back (layer Rückseite) (tedit 557575A0) (tstamp 55197BBD)
@@ -885,6 +1015,11 @@
       (net 25 GND))
     (pad EP smd rect (at 5.79882 0.89916 180) (size 1.19888 1.80086) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model BrickletConn_old.wrl
+      (at (xyz 0 0.16 -0.014))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module BTB08-ACS-BTM (layer Rückseite) (tedit 53F70A92) (tstamp 54B922DB)
@@ -985,6 +1120,11 @@
       (net 25 GND))
     (pad "" thru_hole circle (at 7.59968 -1.69926 270) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask B.SilkS))
     (pad "" thru_hole circle (at -7.59968 -1.69926 270) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask B.SilkS))
+    (model btb_btm.wrl
+      (at (xyz -0.32125 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module WE-CNSW-0603 (layer Rückseite) (tedit 53F70841) (tstamp 54B91EB3)
@@ -1009,6 +1149,11 @@
       (net 93 "Net-(L101-Pad3)"))
     (pad 4 smd rect (at -0.725 -0.25 270) (size 0.85 0.25) (layers Rückseite B.Paste B.Mask)
       (net 94 "Net-(L101-Pad4)"))
+    (model WE-CNSW-0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 180 0))
+    )
   )
 
   (module USB-MINI-B-SMD (layer Vorderseite) (tedit 53F7077F) (tstamp 54B91EC6)
@@ -1045,6 +1190,11 @@
       (net 85 "Net-(J101-Pad2)") (clearance 0.14986))
     (pad 1 smd rect (at 1.6002 7.85114) (size 0.50038 2.30124) (layers Vorderseite F.Paste F.Mask)
       (net 46 "Net-(F101-Pad1)") (clearance 0.14986))
+    (model MiniUSB_ausgerichtet.wrl
+      (at (xyz 0 -0.15 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 0))
+    )
   )
 
   (module TSSOP20 (layer Rückseite) (tedit 557574BD) (tstamp 54B91EE3)
@@ -1102,6 +1252,11 @@
       (net 102 "Net-(RP201-Pad8)"))
     (pad 20 smd rect (at -2.92354 2.84988 270) (size 0.39878 1.09982) (layers Rückseite B.Paste B.Mask)
       (net 1 3V3))
+    (model Housing_SSOP/TSSOP-20.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module TACT-SWITCH (layer Vorderseite) (tedit 53F707A5) (tstamp 54B91EF2)
@@ -1129,6 +1284,11 @@
       (clearance 0.14986))
     (pad "" thru_hole circle (at 0 -0.89916) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS)
       (clearance 0.14986))
+    (model brick_taster.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -90 0 0))
+    )
   )
 
   (module TACT-SWITCH (layer Vorderseite) (tedit 53F707A5) (tstamp 54B91F01)
@@ -1156,6 +1316,11 @@
       (clearance 0.14986))
     (pad "" thru_hole circle (at 0 -0.89916) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS)
       (clearance 0.14986))
+    (model brick_taster.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -90 0 0))
+    )
   )
 
   (module SOT563-SPEC (layer Rückseite) (tedit 53FC8641) (tstamp 54B91F0E)
@@ -1183,6 +1348,11 @@
       (net 46 "Net-(F101-Pad1)") (clearance 0.14986))
     (pad 6 smd rect (at -0.49784 0.6731) (size 0.29972 0.55118) (layers Rückseite B.Paste B.Mask)
       (net 91 "Net-(L101-Pad1)") (clearance 0.14986))
+    (model Housing_SOT_SOD/SOT-563.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 90))
+    )
   )
 
   (module SOT23-5 (layer Rückseite) (tedit 53F70AEF) (tstamp 54B91F1B)
@@ -1209,6 +1379,11 @@
       (net 141 VPP) (clearance 0.14986))
     (pad 4 smd rect (at 0.94996 1.19888 90) (size 0.50038 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 2 3V3-EN) (clearance 0.14986))
+    (model Housing_SOT_SOD/SOT-23-5.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module SOT-223 (layer Vorderseite) (tedit 53FB0916) (tstamp 54B91F27)
@@ -1233,6 +1408,11 @@
       (net 142 VSTACK))
     (pad 2 smd rect (at 0 -3.0988 270) (size 3.59918 2.19964) (layers Vorderseite F.Paste F.Mask)
       (net 1 3V3))
+    (model Housing_SOT_SOD/SOT-223.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 270))
+    )
   )
 
   (module SOD-323 (layer Rückseite) (tedit 55757542) (tstamp 54B91F36)
@@ -1258,6 +1438,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 1.3208 0 180) (size 0.762 0.6858) (layers Rückseite B.Paste B.Mask)
       (net 34 "Net-(C206-Pad2)"))
+    (model Housing_SOT_SOD/SOD323F.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module SOD-323 (layer Vorderseite) (tedit 55756CA1) (tstamp 54B982C1)
@@ -1283,6 +1468,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 1.3208 0 180) (size 0.762 0.6858) (layers Vorderseite F.Paste F.Mask)
       (net 33 "Net-(C205-Pad2)"))
+    (model Housing_SOT_SOD/SOD323F.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -90 0 0))
+    )
   )
 
   (module SOD-323 (layer Vorderseite) (tedit 55756CAC) (tstamp 54B91FAE)
@@ -1308,31 +1498,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 1.3208 0 180) (size 0.762 0.6858) (layers Vorderseite F.Paste F.Mask)
       (net 35 "Net-(C302-Pad1)"))
-  )
-
-  (module SOD-323 (layer Rückseite) (tedit 55757519) (tstamp 54B91FBD)
-    (at 129.325 104.325 180)
-    (path /4D22D34D/54B91488)
-    (attr smd)
-    (fp_text reference D304 (at -0.2 0.3 180) (layer B.SilkS)
-      (effects (font (size 0.29972 0.29972) (thickness 0.0762)) (justify mirror))
+    (model Housing_SOT_SOD/SOD323F.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -90 0 0))
     )
-    (fp_text value "TVS 3V3" (at -0.6 -0.4 180) (layer B.SilkS)
-      (effects (font (size 0.29972 0.29972) (thickness 0.0762)) (justify mirror))
-    )
-    (fp_line (start 0.8509 0.70104) (end 0.8509 -0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start 0.7493 -0.70104) (end 0.7493 0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start 0.65024 0.70104) (end 0.65024 -0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start 0.55118 -0.70104) (end 0.55118 0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start 0.44958 0.70104) (end 0.44958 -0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start -0.89916 0.70104) (end 0.89916 0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start 0.89916 0.70104) (end 0.89916 -0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start 0.89916 -0.70104) (end -0.89916 -0.70104) (layer B.SilkS) (width 0.001))
-    (fp_line (start -0.89916 -0.70104) (end -0.89916 0.70104) (layer B.SilkS) (width 0.001))
-    (pad 1 smd rect (at -1.3208 0 180) (size 0.762 0.6858) (layers Rückseite B.Paste B.Mask)
-      (net 25 GND))
-    (pad 2 smd rect (at 1.3208 0 180) (size 0.762 0.6858) (layers Rückseite B.Paste B.Mask)
-      (net 36 "Net-(C303-Pad1)"))
   )
 
   (module SOD-323 (layer Rückseite) (tedit 5575750C) (tstamp 54B91FCC)
@@ -1358,6 +1528,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 1.3208 0) (size 0.762 0.6858) (layers Rückseite B.Paste B.Mask)
       (net 106 STACK-CURRENT))
+    (model Housing_SOT_SOD/SOD323F.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module SOD-323 (layer Rückseite) (tedit 557574ED) (tstamp 54B91FDB)
@@ -1383,6 +1558,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 1.3208 0 270) (size 0.762 0.6858) (layers Rückseite B.Paste B.Mask)
       (net 139 STACK-VOLTAGE))
+    (model Housing_SOT_SOD/SOD323F.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module SOD-128 (layer Rückseite) (tedit 53F7081B) (tstamp 54B91FEA)
@@ -1408,6 +1588,11 @@
       (net 142 VSTACK))
     (pad 1 smd rect (at 2.19964 0 180) (size 1.39954 2.19964) (layers Rückseite B.Paste B.Mask)
       (net 143 VUSB))
+    (model Housing_SOT_SOD/SOD-128.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module SOD-123 (layer Vorderseite) (tedit 53F70AD4) (tstamp 54B91FFF)
@@ -1439,6 +1624,11 @@
       (net 1 3V3) (clearance 0.14986))
     (pad 2 smd rect (at 1.84912 0) (size 1.19888 0.70104) (layers Vorderseite F.Paste F.Mask)
       (net 141 VPP) (clearance 0.14986))
+    (model Housing_SOT_SOD/SOD-123.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -90 0 180))
+    )
   )
 
   (module MiniMelf (layer Rückseite) (tedit 55757471) (tstamp 54B9200B)
@@ -1461,6 +1651,11 @@
       (net 142 VSTACK))
     (pad 1 smd rect (at 1.69926 0) (size 1.19888 1.6002) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Housing_special/MiniMelf.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module MiniMelf (layer Rückseite) (tedit 55757482) (tstamp 54B92017)
@@ -1483,6 +1678,11 @@
       (net 1 3V3))
     (pad 1 smd rect (at 1.69926 0 270) (size 1.19888 1.6002) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Housing_special/MiniMelf.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module LQFP100 (layer Vorderseite) (tedit 53FB0936) (tstamp 54B92085)
@@ -1694,6 +1894,11 @@
       (net 18 BRICKLET-IO3_1/DA1))
     (pad 100 smd rect (at -7.99846 5.99948) (size 0.3175 1.59766) (layers Vorderseite F.Paste F.Mask)
       (net 39 "Net-(C423-Pad1)"))
+    (model Housings_QFP/LQFP-100_14x14mm_Pitch0.5mm.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 -90))
+    )
   )
 
   (module DRILL_NP (layer Vorderseite) (tedit 54C5F1DE) (tstamp 54B92093)
@@ -1831,6 +2036,11 @@
       (net 60 "Net-(FILTER202-Pad16)"))
     (pad EXP smd rect (at 0 0 180) (size 2.8 0.4) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Resistors_SMD.3dshapes/R_Array_Convex_8x0602.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 90))
+    )
   )
 
   (module DFN16-33x135 (layer Vorderseite) (tedit 54AE5E41) (tstamp 54B92159)
@@ -1880,6 +2090,11 @@
       (net 69 "Net-(FILTER203-Pad16)"))
     (pad EXP smd rect (at 0 0 180) (size 2.8 0.4) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Resistors_SMD.3dshapes/R_Array_Convex_8x0602.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 90))
+    )
   )
 
   (module DFN16-33x135 (layer Rückseite) (tedit 54AE5E41) (tstamp 54B92173)
@@ -2000,6 +2215,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 43 "Net-(D104-Pad2)"))
+    (model LED_SMD/D_0603_blue.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 0))
+    )
   )
 
   (module D0603 (layer Vorderseite) (tedit 53F70761) (tstamp 54B921A5)
@@ -2022,6 +2242,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 45 "Net-(D106-Pad2)"))
+    (model LED_SMD/D_0603_blue.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 0))
+    )
   )
 
   (module D0603 (layer Vorderseite) (tedit 53F70761) (tstamp 54B921B1)
@@ -2044,6 +2269,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 44 "Net-(D105-Pad2)"))
+    (model LED_SMD/D_0603_blue.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 0))
+    )
   )
 
   (module D0603 (layer Vorderseite) (tedit 53F70761) (tstamp 54B921BD)
@@ -2066,6 +2296,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 42 "Net-(D103-Pad2)"))
+    (model LED_SMD/D_0603_blue.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 0))
+    )
   )
 
   (module D0603 (layer Vorderseite) (tedit 53F70761) (tstamp 54B921C9)
@@ -2088,6 +2323,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 40 "Net-(D101-Pad2)"))
+    (model LED_SMD/D_0603_blue.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 0))
+    )
   )
 
   (module D0603 (layer Vorderseite) (tedit 53F70761) (tstamp 54B921D5)
@@ -2110,6 +2350,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 41 "Net-(D102-Pad2)"))
+    (model LED_SMD/D_0603_red.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 0))
+    )
   )
 
   (module CRYSTAL_3225 (layer Rückseite) (tedit 53F70B12) (tstamp 54B921E3)
@@ -2136,6 +2381,11 @@
       (net 145 XOUT))
     (pad 3 smd rect (at 1.09982 -0.8001 180) (size 1.39954 1.15062) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Oscillators_SMD/3225.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 180))
+    )
   )
 
   (module CON-SENSOR (layer Vorderseite) (tedit 55756C98) (tstamp 54B921F7)
@@ -2176,6 +2426,11 @@
       (net 25 GND))
     (pad EP smd rect (at 5.79882 -0.89916) (size 1.19888 1.80086) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model BrickletConn_old.wrl
+      (at (xyz 0 0.16 -0.014))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module CON-SENSOR (layer Rückseite) (tedit 5575753B) (tstamp 54B9221F)
@@ -2216,6 +2471,11 @@
       (net 25 GND))
     (pad EP smd rect (at 5.79882 0.89916 180) (size 1.19888 1.80086) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model BrickletConn_old.wrl
+      (at (xyz 0 0.16 -0.014))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module CON-SENSOR (layer Vorderseite) (tedit 55101975) (tstamp 54B92233)
@@ -2256,6 +2516,11 @@
       (net 25 GND))
     (pad EP smd rect (at 5.79882 -0.89916) (size 1.19888 1.80086) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model BrickletConn_old.wrl
+      (at (xyz 0 0.16 -0.014))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module BTB08-ACS-TOP (layer Vorderseite) (tedit 53F7094A) (tstamp 54B9226B)
@@ -2356,106 +2621,11 @@
       (net 25 GND))
     (pad "" thru_hole circle (at 7.59968 1.69926 90) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS))
     (pad "" thru_hole circle (at -7.59968 1.69926 90) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS))
-  )
-
-  (module BTB08-ACS-TOP (layer Vorderseite) (tedit 53F7094A) (tstamp 54B922A3)
-    (at 131.025 94.925 90)
-    (path /4D22D34D/4C46D315)
-    (attr smd)
-    (fp_text reference J303 (at 0.025 0.475 90) (layer F.SilkS)
-      (effects (font (size 0.3 0.3) (thickness 0.075)))
+    (model btb_top.wrl
+      (at (xyz 0.04 0.095 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 90))
     )
-    (fp_text value STACK-UP-LOW (at -0.075 -0.325 90) (layer F.SilkS)
-      (effects (font (size 0.3 0.3) (thickness 0.075)))
-    )
-    (fp_line (start -5.79882 -0.39878) (end -5.79882 0.8001) (layer F.SilkS) (width 0.001))
-    (fp_line (start -5.79882 0.8001) (end 5.79882 0.8001) (layer F.SilkS) (width 0.001))
-    (fp_line (start 5.79882 0.8001) (end 5.79882 -0.39878) (layer F.SilkS) (width 0.001))
-    (fp_line (start 5.79882 -0.39878) (end 5.40004 -0.39878) (layer F.SilkS) (width 0.001))
-    (fp_line (start 5.40004 -0.39878) (end 5.40004 -0.8001) (layer F.SilkS) (width 0.001))
-    (fp_line (start 5.40004 -0.8001) (end -5.40004 -0.8001) (layer F.SilkS) (width 0.001))
-    (fp_line (start -5.40004 -0.8001) (end -5.40004 -0.39878) (layer F.SilkS) (width 0.001))
-    (fp_line (start -5.40004 -0.39878) (end -5.79882 -0.39878) (layer F.SilkS) (width 0.001))
-    (fp_line (start 5.19938 1.80086) (end 5.59816 1.19888) (layer F.SilkS) (width 0.001))
-    (fp_line (start 5.59816 1.19888) (end 5.99948 1.80086) (layer F.SilkS) (width 0.001))
-    (fp_line (start -6.4008 1.80086) (end 6.4008 1.80086) (layer F.SilkS) (width 0.001))
-    (fp_line (start 6.4008 1.80086) (end 6.4008 -1.80086) (layer F.SilkS) (width 0.001))
-    (fp_line (start 6.4008 -1.80086) (end -6.4008 -1.80086) (layer F.SilkS) (width 0.001))
-    (fp_line (start -6.4008 -1.80086) (end -6.4008 1.80086) (layer F.SilkS) (width 0.001))
-    (pad 29 smd rect (at -5.59816 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 89 "Net-(J303-Pad29)"))
-    (pad 27 smd rect (at -4.79806 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 48 "Net-(FB301-Pad1)"))
-    (pad 25 smd rect (at -3.99796 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 48 "Net-(FB301-Pad1)"))
-    (pad 23 smd rect (at -3.19786 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 48 "Net-(FB301-Pad1)"))
-    (pad 21 smd rect (at -2.39776 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 48 "Net-(FB301-Pad1)"))
-    (pad 19 smd rect (at -1.59766 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 17 smd rect (at -0.79756 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 15 smd rect (at 0 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 13 smd rect (at 0.79756 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 11 smd rect (at 1.59766 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 9 smd rect (at 2.39776 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 7 smd rect (at 3.19786 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 5 smd rect (at 3.99796 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 3 smd rect (at 4.79806 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 1 smd rect (at 5.59816 2.89814 270) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 87 "Net-(J303-Pad1)"))
-    (pad 2 smd rect (at 5.59816 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 4 smd rect (at 4.79806 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 6 smd rect (at 3.99796 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 8 smd rect (at 3.19786 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 10 smd rect (at 2.39776 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 12 smd rect (at 1.59766 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 14 smd rect (at 0.79756 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 16 smd rect (at 0 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 18 smd rect (at -0.79756 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 20 smd rect (at -1.59766 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 88 "Net-(J303-Pad10)"))
-    (pad 22 smd rect (at -2.39776 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 35 "Net-(C302-Pad1)"))
-    (pad 24 smd rect (at -3.19786 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 35 "Net-(C302-Pad1)"))
-    (pad 26 smd rect (at -3.99796 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 35 "Net-(C302-Pad1)"))
-    (pad 28 smd rect (at -4.79806 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 36 "Net-(C303-Pad1)"))
-    (pad 30 smd rect (at -5.59816 -2.89814 90) (size 0.49784 1.4986) (layers Vorderseite F.Paste F.Mask)
-      (net 90 "Net-(J303-Pad30)"))
-    (pad EP smd rect (at 7.69874 -2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
-      (net 25 GND))
-    (pad EP smd rect (at 7.69874 2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
-      (net 25 GND))
-    (pad EP smd rect (at -7.69874 2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
-      (net 25 GND))
-    (pad EP smd rect (at -7.69874 -2.90068 90) (size 1.80086 1.50114) (layers Vorderseite F.Paste F.Mask)
-      (net 25 GND))
-    (pad EP smd rect (at 7.69874 0 90) (size 1.80086 1.99898) (layers Vorderseite F.Paste F.Mask)
-      (net 25 GND))
-    (pad EP smd rect (at -7.69874 0 90) (size 1.80086 1.99898) (layers Vorderseite F.Paste F.Mask)
-      (net 25 GND))
-    (pad "" thru_hole circle (at 7.59968 1.69926 90) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS))
-    (pad "" thru_hole circle (at -7.59968 1.69926 90) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask F.SilkS))
   )
 
   (module BTB08-ACS-BTM (layer Rückseite) (tedit 53F70A92) (tstamp 54B92313)
@@ -2556,6 +2726,11 @@
       (net 25 GND))
     (pad "" thru_hole circle (at 7.59968 -1.69926 270) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask B.SilkS))
     (pad "" thru_hole circle (at -7.59968 -1.69926 270) (size 0.8001 0.8001) (drill 0.8001) (layers *.Cu *.Mask B.SilkS))
+    (model btb_btm.wrl
+      (at (xyz -0.32125 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (module 3528-21 (layer Vorderseite) (tedit 55756C75) (tstamp 54B92320)
@@ -2579,6 +2754,11 @@
       (net 142 VSTACK) (clearance 0.14986))
     (pad 2 smd rect (at 1.30048 0 270) (size 1.39954 2.79908) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND) (clearance 0.14986))
+    (model Capacitors_Tantalum_SMD/Tantalum_Case-B_EIA-3528-21.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 1206 (layer Rückseite) (tedit 51A472BD) (tstamp 54B9232A)
@@ -2599,6 +2779,11 @@
       (net 46 "Net-(F101-Pad1)"))
     (pad 2 smd rect (at 1.50114 0 180) (size 1.00076 1.6002) (layers Rückseite B.Paste B.Mask)
       (net 30 "Net-(C101-Pad1)"))
+    (model Capacitors_SMD/C_1206.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0805 (layer Rückseite) (tedit 55757490) (tstamp 54B92334)
@@ -2619,6 +2804,11 @@
       (net 1 3V3) (clearance 0.14986))
     (pad 2 smd rect (at 1.00076 0 270) (size 1.00076 1.24968) (layers Rückseite B.Paste B.Mask)
       (net 25 GND) (clearance 0.14986))
+    (model Capacitors_SMD/C_0805.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0805 (layer Vorderseite) (tedit 55756CBC) (tstamp 54B9233E)
@@ -2639,6 +2829,11 @@
       (net 1 3V3) (clearance 0.14986))
     (pad 2 smd rect (at 1.00076 0 270) (size 1.00076 1.24968) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND) (clearance 0.14986))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0805 (layer Rückseite) (tedit 55757531) (tstamp 54B92348)
@@ -2659,6 +2854,11 @@
       (net 141 VPP) (clearance 0.14986))
     (pad 2 smd rect (at 1.00076 0 180) (size 1.00076 1.24968) (layers Rückseite B.Paste B.Mask)
       (net 25 GND) (clearance 0.14986))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0805 (layer Vorderseite) (tedit 55756C6D) (tstamp 54B92352)
@@ -2679,6 +2879,11 @@
       (net 142 VSTACK) (clearance 0.14986))
     (pad 2 smd rect (at 1.00076 0 90) (size 1.00076 1.24968) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND) (clearance 0.14986))
+    (model Capacitors_SMD/C_0805.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0805 (layer Vorderseite) (tedit 55756C50) (tstamp 54B9235C)
@@ -2699,6 +2904,11 @@
       (net 37 "Net-(C413-Pad1)") (clearance 0.14986))
     (pad 2 smd rect (at 1.00076 0) (size 1.00076 1.24968) (layers Vorderseite F.Paste F.Mask)
       (net 39 "Net-(C423-Pad1)") (clearance 0.14986))
+    (model Capacitors_SMD/C_0805.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0805 (layer Rückseite) (tedit 557574FA) (tstamp 54B92366)
@@ -2719,6 +2929,11 @@
       (net 48 "Net-(FB301-Pad1)") (clearance 0.14986))
     (pad 2 smd rect (at 1.00076 0 90) (size 1.00076 1.24968) (layers Rückseite B.Paste B.Mask)
       (net 25 GND) (clearance 0.14986))
+    (model Capacitors_SMD/C_0805.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0805 (layer Vorderseite) (tedit 54B93A54) (tstamp 54B92370)
@@ -2739,6 +2954,11 @@
       (net 1 3V3) (clearance 0.14986))
     (pad 2 smd rect (at 1.00076 0 180) (size 1.00076 1.24968) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND) (clearance 0.14986))
+    (model Capacitors_SMD/C_0805.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603X4 (layer Rückseite) (tedit 53FB08F5) (tstamp 54B92380)
@@ -2771,6 +2991,11 @@
       (net 77 "Net-(FILTER204-Pad15)"))
     (pad 8 smd rect (at 1.19888 -0.8509 270) (size 0.44958 0.89916) (layers Rückseite B.Paste B.Mask)
       (net 78 "Net-(FILTER204-Pad16)"))
+    (model Resistors_SMD/R_4x0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603X4 (layer Vorderseite) (tedit 53FB08F5) (tstamp 54B92390)
@@ -2803,6 +3028,11 @@
       (net 43 "Net-(D104-Pad2)"))
     (pad 8 smd rect (at 1.19888 0.8509 270) (size 0.44958 0.89916) (layers Vorderseite F.Paste F.Mask)
       (net 42 "Net-(D103-Pad2)"))
+    (model Resistors_SMD/R_4x0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603X4 (layer Vorderseite) (tedit 53FB08F5) (tstamp 54B923A0)
@@ -2831,6 +3061,11 @@
     (pad 7 smd rect (at 0.39878 0.8509) (size 0.44958 0.89916) (layers Vorderseite F.Paste F.Mask))
     (pad 8 smd rect (at 1.19888 0.8509) (size 0.44958 0.89916) (layers Vorderseite F.Paste F.Mask)
       (net 98 "Net-(RP101-Pad8)"))
+    (model Resistors_SMD/R_4x0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603X4 (layer Rückseite) (tedit 53FB08F5) (tstamp 54B923B0)
@@ -2859,6 +3094,11 @@
     (pad 7 smd rect (at 0.39878 -0.8509) (size 0.44958 0.89916) (layers Rückseite B.Paste B.Mask))
     (pad 8 smd rect (at 1.19888 -0.8509) (size 0.44958 0.89916) (layers Rückseite B.Paste B.Mask)
       (net 115 STACK-I2C-SDA/JTAG-TDI))
+    (model Resistors_SMD/R_4x0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603X4 (layer Rückseite) (tedit 557574A1) (tstamp 54B923C0)
@@ -2891,6 +3131,11 @@
       (net 50 "Net-(FILTER201-Pad15)"))
     (pad 8 smd rect (at 1.19888 -0.8509 90) (size 0.44958 0.89916) (layers Rückseite B.Paste B.Mask)
       (net 51 "Net-(FILTER201-Pad16)"))
+    (model Resistors_SMD/R_4x0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603X4 (layer Rückseite) (tedit 53FB08F5) (tstamp 54B923D0)
@@ -2923,6 +3168,11 @@
       (net 101 "Net-(RP201-Pad7)"))
     (pad 8 smd rect (at 1.19888 -0.8509 180) (size 0.44958 0.89916) (layers Rückseite B.Paste B.Mask)
       (net 102 "Net-(RP201-Pad8)"))
+    (model Resistors_SMD/R_4x0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603X4 (layer Rückseite) (tedit 53FB08F5) (tstamp 54B923E0)
@@ -2953,6 +3203,11 @@
     (pad 7 smd rect (at 0.39878 -0.8509 270) (size 0.44958 0.89916) (layers Rückseite B.Paste B.Mask))
     (pad 8 smd rect (at 1.19888 -0.8509 270) (size 0.44958 0.89916) (layers Rückseite B.Paste B.Mask)
       (net 3 BRICKLET-I2C-SCL))
+    (model Resistors_SMD/R_4x0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 557573F7) (tstamp 54B923EA)
@@ -2973,6 +3228,11 @@
       (net 32 "Net-(C104-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 1 3V3))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 557574E4) (tstamp 54B923F4)
@@ -2993,6 +3253,11 @@
       (net 31 "Net-(C102-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 1 3V3))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 5575742E) (tstamp 54B923FE)
@@ -3013,6 +3278,11 @@
       (net 38 "Net-(C422-Pad1)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757506) (tstamp 54B92408)
@@ -3033,6 +3303,11 @@
       (net 89 "Net-(J303-Pad29)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 106 STACK-CURRENT))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757500) (tstamp 54B92412)
@@ -3053,6 +3328,11 @@
       (net 90 "Net-(J303-Pad30)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 139 STACK-VOLTAGE))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 557574E0) (tstamp 54B9241C)
@@ -3073,6 +3353,11 @@
       (net 31 "Net-(C102-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757412) (tstamp 54B92426)
@@ -3093,6 +3378,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 557573EB) (tstamp 54B92430)
@@ -3113,6 +3403,11 @@
       (net 32 "Net-(C104-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 5575743D) (tstamp 54B9243A)
@@ -3133,6 +3428,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757495) (tstamp 54B92444)
@@ -3153,6 +3453,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757409) (tstamp 54B9244E)
@@ -3173,6 +3478,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757406) (tstamp 54B92458)
@@ -3193,6 +3503,11 @@
       (net 37 "Net-(C413-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757401) (tstamp 54B92462)
@@ -3213,6 +3528,11 @@
       (net 37 "Net-(C413-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 557573F5) (tstamp 54B9246C)
@@ -3233,6 +3553,11 @@
       (net 37 "Net-(C413-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55756C6B) (tstamp 54B92476)
@@ -3253,6 +3578,11 @@
       (net 142 VSTACK))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757439) (tstamp 54B92480)
@@ -3273,6 +3603,11 @@
       (net 37 "Net-(C413-Pad1)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757423) (tstamp 54B9248A)
@@ -3293,6 +3628,11 @@
       (net 39 "Net-(C423-Pad1)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757431) (tstamp 54B92494)
@@ -3313,6 +3653,11 @@
       (net 38 "Net-(C422-Pad1)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 39 "Net-(C423-Pad1)"))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 557573C1) (tstamp 54B9249E)
@@ -3333,6 +3678,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 557573E2) (tstamp 54B924A8)
@@ -3353,6 +3703,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 32 "Net-(C104-Pad1)"))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55756C80) (tstamp 54B924B2)
@@ -3373,6 +3728,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 557574F7) (tstamp 54B924BC)
@@ -3393,6 +3753,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 90 "Net-(J303-Pad30)"))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 557573C7) (tstamp 54B924C6)
@@ -3413,6 +3778,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 4F1753B8) (tstamp 54B924D0)
@@ -3433,6 +3803,11 @@
       (net 37 "Net-(C413-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 5575741B) (tstamp 54B924DA)
@@ -3453,6 +3828,11 @@
       (net 37 "Net-(C413-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 5575741E) (tstamp 54B924E4)
@@ -3473,6 +3853,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757429) (tstamp 54B924EE)
@@ -3493,26 +3878,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
-  )
-
-  (module 0603 (layer Vorderseite) (tedit 55756C7D) (tstamp 54B924F8)
-    (at 158.5 92.7 90)
-    (path /4D22D320/4D232246)
-    (attr smd)
-    (fp_text reference C404 (at -0.025 -0.275 90) (layer F.SilkS)
-      (effects (font (size 0.29972 0.29972) (thickness 0.0762)))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
     )
-    (fp_text value 4.7µF (at -0.025 0.225 90) (layer F.SilkS)
-      (effects (font (size 0.29972 0.29972) (thickness 0.0762)))
-    )
-    (fp_line (start -1.45034 -0.65024) (end 1.45034 -0.65024) (layer F.SilkS) (width 0.1524))
-    (fp_line (start 1.45034 -0.65024) (end 1.45034 0.65024) (layer F.SilkS) (width 0.1524))
-    (fp_line (start 1.45034 0.65024) (end -1.45034 0.65024) (layer F.SilkS) (width 0.1524))
-    (fp_line (start -1.45034 0.65024) (end -1.45034 -0.65024) (layer F.SilkS) (width 0.1524))
-    (pad 1 smd rect (at -0.8001 0 90) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
-      (net 1 3V3))
-    (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
-      (net 25 GND))
   )
 
   (module 0603 (layer Rückseite) (tedit 55757511) (tstamp 54B92502)
@@ -3533,6 +3903,11 @@
       (net 2 3V3-EN))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757448) (tstamp 54B92520)
@@ -3553,6 +3928,11 @@
       (net 142 VSTACK))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 33 "Net-(C205-Pad2)"))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 5575754B) (tstamp 54B9252A)
@@ -3573,6 +3953,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 1 3V3))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 5575754E) (tstamp 54B9253E)
@@ -3593,6 +3978,11 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 34 "Net-(C206-Pad2)"))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55757443) (tstamp 54B9257A)
@@ -3613,6 +4003,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 142 VSTACK))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 557574CB) (tstamp 54B92584)
@@ -3633,6 +4028,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 1 3V3))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 4F1753B8) (tstamp 54B9258E)
@@ -3653,6 +4053,11 @@
       (net 144 XIN))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 4F1753B8) (tstamp 54B92598)
@@ -3673,6 +4078,11 @@
       (net 145 XOUT))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757575) (tstamp 54B925A2)
@@ -3693,6 +4103,11 @@
       (net 143 VUSB))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 5575756D) (tstamp 54B925AC)
@@ -3713,6 +4128,11 @@
       (net 30 "Net-(C101-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757586) (tstamp 54B925B6)
@@ -3733,6 +4153,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 143 VUSB))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 4F1753B8) (tstamp 54B925C0)
@@ -3753,6 +4178,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0 180) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 47 "Net-(FB101-Pad2)"))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757584) (tstamp 54B925CA)
@@ -3773,6 +4203,11 @@
       (net 143 VUSB))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 140 USB-DETECT))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 4F1753B8) (tstamp 54B925D4)
@@ -3793,6 +4228,11 @@
       (net 92 "Net-(L101-Pad2)"))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 96 "Net-(R102-Pad2)"))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757577) (tstamp 54B925DE)
@@ -3813,6 +4253,11 @@
       (net 30 "Net-(C101-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 143 VUSB))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 5575751E) (tstamp 54B925F2)
@@ -3833,6 +4278,11 @@
       (net 36 "Net-(C303-Pad1)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 5575752B) (tstamp 54B925FC)
@@ -3853,6 +4303,11 @@
       (net 36 "Net-(C303-Pad1)"))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 141 VPP))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55756CB1) (tstamp 54B92606)
@@ -3873,6 +4328,11 @@
       (net 35 "Net-(C302-Pad1)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55756CB8) (tstamp 54B92610)
@@ -3893,6 +4353,11 @@
       (net 142 VSTACK))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 55756CC2) (tstamp 54B9261A)
@@ -3913,6 +4378,11 @@
       (net 142 VSTACK))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 35 "Net-(C302-Pad1)"))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 5575749B) (tstamp 54B92624)
@@ -3933,6 +4403,11 @@
       (net 146 "Net-(J301-Pad7)"))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 117 STACK-RESET))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 4F1753B8) (tstamp 54B9262E)
@@ -3953,6 +4428,11 @@
       (net 93 "Net-(L101-Pad3)"))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 95 "Net-(R101-Pad2)"))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 557574D8) (tstamp 54B92638)
@@ -3973,6 +4453,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 1 3V3))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Vorderseite) (tedit 5575744C) (tstamp 54B92642)
@@ -3993,6 +4478,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 33 "Net-(C205-Pad2)"))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757523) (tstamp 54B92656)
@@ -4013,6 +4503,11 @@
       (net 141 VPP))
     (pad 2 smd rect (at 0.8001 0) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 25 GND))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 55757552) (tstamp 54B92660)
@@ -4033,6 +4528,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 34 "Net-(C206-Pad2)"))
+    (model Capacitors_SMD/C_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module 0603 (layer Rückseite) (tedit 557574D2) (tstamp 54B9267E)
@@ -4053,6 +4553,11 @@
       (net 25 GND))
     (pad 2 smd rect (at 0.8001 0 90) (size 0.8001 0.8001) (layers Rückseite B.Paste B.Mask)
       (net 31 "Net-(C102-Pad1)"))
+    (model Resistors_SMD/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (module TSTPT (layer Rückseite) (tedit 5437E456) (tstamp 54C7A8BE)
@@ -9736,6 +10241,35 @@
     (fp_circle (center 0 0) (end 1.15062 0) (layer Dwgs.User) (width 0.01016))
     (pad 1 smd circle (at 0 0) (size 1.00076 1.00076) (layers Vorderseite F.Mask)
       (clearance 0.65024))
+  )
+
+  (module kicad-libraries:SOD-323 (layer Rückseite) (tedit 53FB0956) (tstamp 54B91FBD)
+    (at 129.325 104.325 180)
+    (path /4D22D34D/54B91488)
+    (fp_text reference D304 (at 0 1.04902 180) (layer B.SilkS)
+      (effects (font (size 0.29972 0.29972) (thickness 0.0762)) (justify mirror))
+    )
+    (fp_text value "TVS 3V3" (at 0.0508 0.09906 180) (layer B.SilkS)
+      (effects (font (size 0.29972 0.29972) (thickness 0.0762)) (justify mirror))
+    )
+    (fp_line (start 0.8509 0.70104) (end 0.8509 -0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start 0.7493 -0.70104) (end 0.7493 0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start 0.65024 0.70104) (end 0.65024 -0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start 0.55118 -0.70104) (end 0.55118 0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start 0.44958 0.70104) (end 0.44958 -0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start -0.89916 0.70104) (end 0.89916 0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start 0.89916 0.70104) (end 0.89916 -0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start 0.89916 -0.70104) (end -0.89916 -0.70104) (layer B.SilkS) (width 0.001))
+    (fp_line (start -0.89916 -0.70104) (end -0.89916 0.70104) (layer B.SilkS) (width 0.001))
+    (pad 1 smd rect (at -1.3208 0 180) (size 0.762 0.6858) (layers Rückseite B.Paste B.Mask)
+      (net 25 GND))
+    (pad 2 smd rect (at 1.3208 0 180) (size 0.762 0.6858) (layers Rückseite B.Paste B.Mask)
+      (net 36 "Net-(C303-Pad1)"))
+    (model Housing_SOT_SOD/SOD323F.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 90 180 180))
+    )
   )
 
   (gr_text "Master\n2.2" (at 163.125 106.425) (layer F.SilkS)
