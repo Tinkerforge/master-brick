@@ -51,6 +51,7 @@
 #include "master.h"
 #include "routing.h"
 #include "communication.h"
+#include "extensions/extension_i2c.h"
 #include "extensions/chibi/chibi.h"
 #include "extensions/rs485/rs485.h"
 #include "extensions/rs485/rs485_config.h"
@@ -154,6 +155,7 @@ int main() {
 		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));
 
     	master_mode |= MASTER_MODE_MASTER;
+	extension_i2c_clear_eeproms();
 
     	usb_init();
 

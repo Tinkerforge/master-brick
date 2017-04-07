@@ -115,8 +115,6 @@ void master_init(void) {
 		adc_channel_enable(ADC_CAL_HIGH_CHANNEL);
 	}
 
-	extension_i2c_clear_eeproms();
-
 	const int32_t correct_low_sum = (ADC_MAX_VALUE*ADC_CAL_SUM*ADC_CAL_LOW_MULTIPLIER)/ADC_CAL_LOW_DIVISOR;
 	const int32_t correct_high_sum = (ADC_MAX_VALUE*ADC_CAL_SUM*ADC_CAL_HIGH_MULTIPLIER)/ADC_CAL_HIGH_DIVISOR;
 
