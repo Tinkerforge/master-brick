@@ -3,7 +3,7 @@
   (general
     (links 471)
     (no_connects 0)
-    (area 126.469139 74.071939 283.972 165.94328)
+    (area 126.469139 74.071939 283.971682 165.940423)
     (thickness 1.6002)
     (drawings 70)
     (tracks 2789)
@@ -78,7 +78,7 @@
     (pad_to_mask_clearance 0)
     (aux_axis_origin 127.325 74.925)
     (grid_origin 127.325 74.925)
-    (visible_elements FFFF9F7F)
+    (visible_elements FFFF5F7F)
     (pcbplotparams
       (layerselection 0x00030_80000001)
       (usegerberextensions false)
@@ -6309,7 +6309,7 @@
       (net 1 3V3))
     (pad 2 smd rect (at 0.8001 0 270) (size 0.8001 0.8001) (layers Vorderseite F.Paste F.Mask)
       (net 78 "Net-(D2-Pad2)"))
-    (model LED_SMD/D_0603_blue.wrl
+    (model LED_SMD/D_0603_red.wrl
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 90 180 0))
