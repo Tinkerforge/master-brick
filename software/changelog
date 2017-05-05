@@ -214,3 +214,6 @@
 - Increase reaction time by decreasing ACK timeout
 - Increase general WIFI send timeout (through bricklib)
 - Add timeout count API (through bricklib)
+
+TBD 2.4.4 (TBD)
+- Remove support for WIFI password getters
