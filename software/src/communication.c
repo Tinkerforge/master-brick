@@ -580,6 +580,7 @@ void get_wifi_encryption(const ComType com, const GetWifiEncryption *data) {
 	wifi_read_config(((char*)&gwer) + sizeof(MessageHeader),
 	                 sizeof(GetWifiEncryptionReturn) - sizeof(MessageHeader),
 	                 WIFI_ENCRYPTION_POS, WIFI_KEY_POS);
+	memset(gwer.key, '\0', 50);
 
 	send_blocking_with_timeout(&gwer, sizeof(GetWifiEncryptionReturn), com);
 
@@ -796,7 +797,7 @@ void get_long_wifi_key(const ComType com, const GetLongWifiKey *data) {
 
 	glwkr.header        = data->header;
 	glwkr.header.length = sizeof(GetLongWifiKeyReturn);
-	wifi_read_config(glwkr.key, 64, WIFI_LONG_KEY_POS, 0);
+	memset(glwkr.key, '\0', 64);
 
 	send_blocking_with_timeout(&glwkr, sizeof(GetLongWifiKeyReturn), com);
 }
