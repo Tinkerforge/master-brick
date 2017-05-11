@@ -74,6 +74,7 @@
 #define BOARD_ADC_FREQ  6000000 // Frequency of ADC
 #define BOARD_OSC_EXTERNAL      // Use external oscillator
 
+#define BRICK_HAS_CO_MCU_SUPPORT
 
 // UART for console output (printf)
 //#define CONSOLE_USART_USE_UART1
