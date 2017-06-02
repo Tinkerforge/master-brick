@@ -240,13 +240,12 @@ void ethernet_tick(const uint8_t tick_type) {
 
 	if(ethernet_dhcp_server) {
 		dhcp_tick(tick_type);
-		if(ethernet_counter >= 10) {
+		if((ethernet_counter % 10) == 0) {
 			dhcp_check_state(DHCP_SOCKET);
 		}
 	}
 
-	if(ethernet_counter >= 10) {
-		ethernet_counter = 0;
+	if((ethernet_counter % 10) == 0) {
 		for(uint8_t socket = 0; socket < ETHERNET_MAX_SOCKETS; socket++) {
 			uint16_t status = ethernet_low_level_get_status(socket);
 			switch(status) {
@@ -265,7 +264,13 @@ void ethernet_tick(const uint8_t tick_type) {
 				}
 			}
 		}
+
+		if(ethernet_counter == 250) {
+			ethernet_counter = 0;
+			ethernet_low_level_check_config();
+		}
 	}
+
 }
 
 
