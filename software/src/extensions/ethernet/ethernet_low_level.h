@@ -155,6 +155,7 @@ typedef struct {
 void ethernet_low_level_get_default_hostname(char hostname[ETHERNET_HOSTNAME_LENGTH]);
 void ethernet_low_level_reset(void);
 void ethernet_low_level_init(void);
+void ethernet_low_level_check_config(void);
 bool ethernet_low_level_discover_chip_version(void);
 void ethernet_low_level_emergency_disconnect(const uint8_t socket);
 void ethernet_low_level_disconnect(const uint8_t socket);

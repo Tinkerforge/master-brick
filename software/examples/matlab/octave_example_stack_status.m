@@ -5,8 +5,8 @@ function octave_example_stack_status()
     PORT = 4223;
     UID = "XXYYZZ"; % Change XXYYZZ to the UID of your Master Brick
 
-    ipcon = java_new("com.tinkerforge.IPConnection"); % Create IP connection
-    master = java_new("com.tinkerforge.BrickMaster", UID, ipcon); % Create device object
+    ipcon = javaObject("com.tinkerforge.IPConnection"); % Create IP connection
+    master = javaObject("com.tinkerforge.BrickMaster", UID, ipcon); % Create device object
 
     ipcon.connect(HOST, PORT); % Connect to brickd
     % Don't use device before ipcon is connected
