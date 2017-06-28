@@ -220,6 +220,6 @@
 - Add support for co-mcu Bricklets
 
 2017-06-28 2.4.5 (a115de7)
-- Fix incompatibility betwen co-mcu support and LED Strip Bricklet (through bricklib)
+- Fix incompatibility between co-mcu support and LED Strip Bricklet (through bricklib)
 - Add fix for W5500 (Ethernet Extension IC) ESD exposure problems.
 
