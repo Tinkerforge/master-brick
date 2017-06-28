@@ -195,8 +195,8 @@ void ethernet_low_level_init(void) {
 	}
 }
 
-// Check if the configuration is still set correctly. According to WizNET the
-// W5500 can use its configuration in case of exposure to ESD...
+// Check if the configuration is still set correctly. According to WIZnet the
+// W5500 can lose its configuration in case of exposure to ESD...
 // One thing that we can easily check that should never change is the MAC address.
 void ethernet_low_level_check_config(void) {
 	uint8_t mac_address[6];
@@ -208,7 +208,7 @@ void ethernet_low_level_check_config(void) {
 	   (mac_address[3] != ethernet_status.mac_address[3]) ||
 	   (mac_address[4] != ethernet_status.mac_address[4]) ||
 	   (mac_address[5] != ethernet_status.mac_address[5])) {
-		logethw("W5XX has lost the configuration, reinitializing...\n\r");
+		logethw("W5X00 has lost its configuration, reinitializing...\n\r");
 		ethernet_low_level_init();
 	}
 }
