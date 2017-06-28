@@ -52,7 +52,7 @@
 #define BRICK_CAN_BE_MASTER
 
 // ************** DEBUG SETTINGS **************
-#define DEBUG_SPI_STACK 1
+//#define DEBUG_SPI_STACK 1
 //#define DEBUG_I2C_EEPROM 1
 #define DEBUG_STARTUP 1
 #define DEBUG_BRICKLET 1
