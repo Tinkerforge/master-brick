@@ -215,6 +215,11 @@
 - Increase general WIFI send timeout (through bricklib)
 - Add timeout count API (through bricklib)
 
-2017-05-11 2.4.4 (TBD)
+2017-05-11 2.4.4 (5f5a6a0)
 - Remove support for WIFI password getters
 - Add support for co-mcu Bricklets
+
+2017-06-28 2.4.5 (a115de7)
+- Fix incompatibility between co-mcu support and LED Strip Bricklet (through bricklib)
+- Add fix for W5500 (Ethernet Extension IC) ESD exposure problems.
+
