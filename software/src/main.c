@@ -93,86 +93,86 @@ void blinkenlights(const uint8_t length) {
 int main() {
 	Pin twi_stack_pullup_master_pins[] = {PINS_TWI_PULLUP_MASTER};
 	Pin twi_stack_pullup_slave_pins[] = {PINS_TWI_PULLUP_SLAVE};
-    Pin pin_master_detect = PIN_MASTER_DETECT;
-    Pin pin_detect        = PIN_DETECT;
-    PIO_Configure(&pin_detect, 1);
-    PIO_Configure(&pin_master_detect, 1);
+	Pin pin_master_detect = PIN_MASTER_DETECT;
+	Pin pin_detect        = PIN_DETECT;
+	PIO_Configure(&pin_detect, 1);
+	PIO_Configure(&pin_master_detect, 1);
 
-    if(master_get_hardware_version() == 10) {
-    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_10;
-    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_10;
-    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_10;
-        Pin pins_extension[] = {PINS_EXT_10};
-        PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
-    } else if(master_get_hardware_version() == 20) {
-        // Set dummy calibration, to make sure that calibration is not read
-    	// from flash in Master Brick HW Version 2.0
-    	adc_set_calibration(0, 1, 1);
-    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_20;
-    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_20;
-    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_20;
-        Pin pins_extension[] = {PINS_EXT_10};
-        PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
-    } else {
-    	// Set dummy calibration, to make sure that calibration is not read
-    	// from flash in Master Brick HW Version 2.1
-    	adc_set_calibration(0, 1, 1);
-    	brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_21;
-    	brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_21;
-    	brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_21;
-        Pin pins_extension[] = {PINS_EXT_21};
-        PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
-    }
+	if(master_get_hardware_version() == 10) {
+		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_10;
+		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_10;
+		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_10;
+		Pin pins_extension[] = {PINS_EXT_10};
+		PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+	} else if(master_get_hardware_version() == 20) {
+		// Set dummy calibration, to make sure that calibration is not read
+		// from flash in Master Brick HW Version 2.0
+		adc_set_calibration(0, 1, 1);
+		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_20;
+		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_20;
+		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_20;
+		Pin pins_extension[] = {PINS_EXT_10};
+		PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+	} else {
+		// Set dummy calibration, to make sure that calibration is not read
+		// from flash in Master Brick HW Version 2.1
+		adc_set_calibration(0, 1, 1);
+		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_21;
+		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_21;
+		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_21;
+		Pin pins_extension[] = {PINS_EXT_21};
+		PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+	}
 
 	brick_init();
 	wdt_restart();
 
-#ifdef PROFILING
-    profiling_init();
-#endif
+	#ifdef PROFILING
+	profiling_init();
+	#endif
 
-    // Here we have to wait for other potential masters in the stack to set
-    // pin_detect, we can use this time to do some blinkenlights instead
-    // of just nops!
-    blinkenlights(1);
+	// Here we have to wait for other potential masters in the stack to set
+	// pin_detect, we can use this time to do some blinkenlights instead
+	// of just nops!
+	blinkenlights(1);
 
-    led_on(LED_EXT_BLUE_0);
-    led_on(LED_EXT_BLUE_1);
-    led_on(LED_EXT_BLUE_2);
-    led_on(LED_EXT_BLUE_3);
-    master_init();
-    led_off(LED_EXT_BLUE_0);
-    led_off(LED_EXT_BLUE_1);
-    led_off(LED_EXT_BLUE_2);
-    led_off(LED_EXT_BLUE_3);
+	led_on(LED_EXT_BLUE_0);
+	led_on(LED_EXT_BLUE_1);
+	led_on(LED_EXT_BLUE_2);
+	led_on(LED_EXT_BLUE_3);
+	master_init();
+	led_off(LED_EXT_BLUE_0);
+	led_off(LED_EXT_BLUE_1);
+	led_off(LED_EXT_BLUE_2);
+	led_off(LED_EXT_BLUE_3);
 
-    wdt_restart();
+	wdt_restart();
 
-    Pin pin_3v3_enable = PIN_3V3_ENABLE;
-    if(PIO_Get(&pin_master_detect)) {
-    	pin_3v3_enable.type = PIO_OUTPUT_1;
-    	PIO_Configure(&pin_3v3_enable, 1);
+	Pin pin_3v3_enable = PIN_3V3_ENABLE;
+	if(PIO_Get(&pin_master_detect)) {
+		pin_3v3_enable.type = PIO_OUTPUT_1;
+		PIO_Configure(&pin_3v3_enable, 1);
 		PIO_Configure(twi_stack_pullup_master_pins, PIO_LISTSIZE(twi_stack_pullup_master_pins));
 
-    	master_mode |= MASTER_MODE_MASTER;
-	extension_i2c_clear_eeproms();
+		master_mode |= MASTER_MODE_MASTER;
+		extension_i2c_clear_eeproms();
 
-    	usb_init();
+		usb_init();
 
-    	// If we are a Master in the Stack, we have to wait again, so
-    	// other Bricks can enumerate there Bricklets
-    	blinkenlights(5);
-    	logsi("Configuring as Stack-Master\n\r");
+		// If we are a Master in the Stack, we have to wait again, so
+		// other Bricks can enumerate their Bricklets
+		blinkenlights(5);
+		logsi("Configuring as Stack-Master\n\r");
 
-        spi_stack_master_init();
-        wdt_restart();
-    	logsi("SPI Stack for Master initialized\n\r");
+		spi_stack_master_init();
+		wdt_restart();
+		logsi("SPI Stack for Master initialized\n\r");
 
-        routing_table_create_stack();
-        wdt_restart();
-        logsi("Master Routing table created\n\r");
+		routing_table_create_stack();
+		wdt_restart();
+		logsi("Master Routing table created\n\r");
 
-        extension_init();
+		extension_init();
 
 		xTaskCreate(usb_message_loop,
 					(signed char *)"usb_ml",
@@ -200,23 +200,23 @@ int main() {
 						(xTaskHandle *)NULL);
     	}
     } else {
-    	usb_first_connection = false;
-    	pin_3v3_enable.type = PIO_OUTPUT_0;
-    	PIO_Configure(&pin_3v3_enable, 1);
-    	PIO_Configure(twi_stack_pullup_slave_pins,
-    	              PIO_LISTSIZE(twi_stack_pullup_slave_pins));
-    	master_mode |= MASTER_MODE_SLAVE;
-    	logsi("Configuring as Stack-Slave\n\r");
-        spi_stack_slave_init();
-        wdt_restart();
-        logsi("SPI Stack for Slave initialized\n\r");
+		usb_first_connection = false;
+		pin_3v3_enable.type = PIO_OUTPUT_0;
+		PIO_Configure(&pin_3v3_enable, 1);
+		PIO_Configure(twi_stack_pullup_slave_pins,
+					  PIO_LISTSIZE(twi_stack_pullup_slave_pins));
+		master_mode |= MASTER_MODE_SLAVE;
+		logsi("Configuring as Stack-Slave\n\r");
+		spi_stack_slave_init();
+		wdt_restart();
+		logsi("SPI Stack for Slave initialized\n\r");
 
-    	xTaskCreate(spi_stack_slave_message_loop,
-    			    (signed char *)"spi_ml",
-    			    MESSAGE_LOOP_SIZE,
-    			    NULL,
-    			    1,
-    			    (xTaskHandle *)NULL);
+		xTaskCreate(spi_stack_slave_message_loop,
+					(signed char *)"spi_ml",
+					MESSAGE_LOOP_SIZE,
+					NULL,
+					1,
+					(xTaskHandle *)NULL);
     }
 
 
