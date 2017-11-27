@@ -25,7 +25,7 @@
 
 #include "bricklib/bricklet/bricklet_init.h"
 #include "bricklib/com/usb/usb.h"
-#include "bricklib/com/spi/spi_stack/spi_stack_master.h"
+#include "bricklib/com/spi/spi_stack/spi_stack_master_dma.h"
 #include "bricklib/com/spi/spi_stack/spi_stack_common.h"
 #include "bricklib/com/spi/spi_stack/spi_stack_select.h"
 #include "bricklib/drivers/adc/adc.h"
