@@ -29,5 +29,6 @@ uint16_t chibi_send_broadcast(const void *data, const uint16_t length);
 bool chibi_init(void);
 uint16_t chibi_send(const void *data, const uint16_t length, uint32_t *options);
 uint16_t chibi_recv(void *data, const uint16_t length, uint32_t *options);
+bool chibi_add_enumerate_connected_request(void);
 
 #endif

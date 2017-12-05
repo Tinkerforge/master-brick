@@ -27,6 +27,8 @@
 #include "bricklib/drivers/usart/usart.h"
 #include "bricklib/drivers/pio/pio_it.h"
 
+#include "bricklib/com/com_messages.h"
+
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/logging/logging.h"
 
@@ -161,4 +163,18 @@ uint16_t chibi_recv(void *data, const uint16_t length, uint32_t *options) {
 	led_rxtx++;
 
 	return recv_length;
+}
+
+bool chibi_add_enumerate_connected_request(void) {
+	__disable_irq();
+	if(chibi_buffer_size_recv != 0) {
+		__enable_irq();
+		return false;
+	}
+
+	com_make_default_header(chibi_buffer_recv, 0, sizeof(Enumerate), FID_CREATE_ENUMERATE_CONNECTED);
+	chibi_buffer_size_recv = sizeof(Enumerate);
+	__enable_irq();
+
+	return true;
 }
