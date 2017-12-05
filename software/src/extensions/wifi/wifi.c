@@ -699,8 +699,13 @@ void wifi_tick(const uint8_t tick_type) {
 		case WIFI_STATE_ASSOCIATED: {
 			if(wifi_new_cid != -1) {
 //				wifi_command_send(WIFI_COMMAND_ID_AT_SETSOCKOPT_TC);
-				brick_init_enumeration(COM_WIFI);
-				wifi_new_cid = -1;
+				__disable_irq();
+				if(wifi_buffer_size_recv == 0) {
+					com_make_default_header(wifi_buffer_recv, 0, sizeof(Enumerate), FID_CREATE_ENUMERATE_CONNECTED);
+					wifi_buffer_size_recv = sizeof(Enumerate);
+					wifi_new_cid = -1;
+				}
+				__enable_irq();
 			}
 
 			if(!wifi_xoff) {
