@@ -223,3 +223,6 @@
 - Fix incompatibility between co-mcu support and LED Strip Bricklet (through bricklib)
 - Add fix for W5500 (Ethernet Extension IC) ESD exposure problems.
 
+2017-12-TBD 2.4.6 (TBD)
+- Make sure Brick does not restart on suspend/resume
+- Refactor initial enumeration handling (fix double-enumeration bugs)
