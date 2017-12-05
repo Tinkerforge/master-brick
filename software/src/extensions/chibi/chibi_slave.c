@@ -30,12 +30,15 @@
 #include "bricklib/com/com_common.h"
 #include "bricklib/com/com_messages.h"
 
+#include "bricklib/utility/system_timer.h"
+
 #include "bricklib/free_rtos/include/FreeRTOS.h"
 #include "bricklib/free_rtos/include/task.h"
 
 extern uint8_t chibi_type;
 
 uint8_t chibi_first_message = 0;
+uint32_t chibi_first_message_time = 0;
 
 void chibi_slave_init(void) {
 	logchibii("Configuring chibi extension as Slave\n\r");
@@ -51,6 +54,7 @@ void chibi_slave_init(void) {
 				(xTaskHandle *)NULL);
 
 	chibi_first_message = 1;
+	chibi_first_message_time = system_timer_get_ms();
 }
 
 void chibi_slave_message_loop(void *parameters) {
