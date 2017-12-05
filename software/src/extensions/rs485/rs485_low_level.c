@@ -36,6 +36,7 @@
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/usart/usart.h"
+#include "bricklib/utility/system_timer.h"
 
 extern uint8_t rs485_buffer_recv[];
 extern uint8_t rs485_buffer_send[];
@@ -61,6 +62,7 @@ uint8_t rs485_state = RS485_STATE_NONE;
 uint8_t rs485_last_sequence_number = 0;
 
 uint8_t rs485_first_message = 0;
+uint32_t rs485_first_message_time = 0;
 
 extern Pin extension_pins[];
 extern uint8_t RS485_RECV;
@@ -268,6 +270,7 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 			} else {
 				if(rs485_first_message == 0) {
 					rs485_first_message = 1;
+					rs485_first_message_time = system_timer_get_ms();
 				}
 				RS485_WAIT_BEFORE_SEND();
 				rs485_low_level_send(rs485_address, sequence_number, false);

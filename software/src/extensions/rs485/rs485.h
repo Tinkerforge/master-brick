@@ -37,5 +37,6 @@ bool rs485_init(void);
 uint16_t rs485_send_broadcast(const void *data, const uint16_t length);
 uint16_t rs485_send(const void *data, const uint16_t length, uint32_t *options);
 uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options);
+bool rs485_add_enumerate_connected_request(void);
 
 #endif

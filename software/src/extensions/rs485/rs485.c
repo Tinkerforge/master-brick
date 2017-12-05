@@ -65,6 +65,7 @@ RS485Config rs485_config = {
 	1
 };
 
+extern bool master_new_rs485_enumerate;
 extern Pin extension_pins[];
 uint8_t RS485_RECV = RS485_RECV_0;
 
@@ -205,8 +206,21 @@ uint16_t rs485_send(const void *data, const uint16_t length, uint32_t *options) 
 	return send_length;
 }
 
+void rs485_check_enumeration(void) {
+	if(master_new_rs485_enumerate) {
+		if((rs485_type == RS485_TYPE_MASTER) && (rs485_buffer_size_send == 0)) {
+			StackEnumerate se;
+			com_make_default_header(&se, 0, sizeof(StackEnumerate), FID_STACK_ENUMERATE);
+			if(rs485_send_broadcast(&se, sizeof(StackEnumerate)) == sizeof(StackEnumerate)) {
+				master_new_rs485_enumerate = false;
+			}
+		}
+	}
+}
+
 uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options) {
 	if(rs485_buffer_size_recv == 0) {
+		rs485_check_enumeration();
 		return 0;
 	}
 
@@ -227,4 +241,18 @@ uint16_t rs485_recv(void *data, const uint16_t length, uint32_t *options) {
 	rs485_buffer_size_recv -= recv_length;
 
 	return recv_length;
+}
+
+bool rs485_add_enumerate_connected_request(void) {
+	__disable_irq();
+	if(rs485_buffer_size_recv != 0) {
+		__enable_irq();
+		return false;
+	}
+
+	com_make_default_header(rs485_buffer_recv, 0, sizeof(Enumerate), FID_CREATE_ENUMERATE_CONNECTED);
+	rs485_buffer_size_recv = sizeof(Enumerate);
+	__enable_irq();
+
+	return true;
 }
