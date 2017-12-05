@@ -34,9 +34,11 @@
 #include "bricklib/logging/logging.h"
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/utility/init.h"
+#include "bricklib/utility/system_timer.h"
 
 #include "extensions/brickd.h"
 #include "extensions/extension_i2c.h"
+#include "extensions/chibi/chibi.h"
 #include "extensions/chibi/chibi_master.h"
 #include "extensions/chibi/chibi_slave.h"
 #include "extensions/chibi/chibi_low_level.h"
@@ -52,13 +54,13 @@
 
 extern ComInfo com_info;
 uint8_t master_mode = MASTER_MODE_NONE;
+bool master_new_rs485_enumerate = false;
 
 extern ComInfo com_info;
 extern uint8_t rs485_first_message;
+extern uint32_t rs485_first_message_time;
 extern uint8_t chibi_first_message;
-extern uint32_t usb_num_send_tries;
-extern bool usb_first_connection;
-
+extern uint32_t chibi_first_message_time;
 bool chibi_enumerate_ready = false;
 
 MasterCallback master_callback = {
@@ -316,36 +318,29 @@ void master_handle_callbacks(const uint8_t tick_type) {
 
 void tick_task(const uint8_t tick_type) {
 	master_handle_callbacks(tick_type);
-	static uint8_t message_counter = 0;
 	if(tick_type & TICK_TASK_TYPE_MESSAGE) {
-		if(usb_first_connection && !usbd_hal_is_disabled(IN_EP)) {
-			message_counter++;
-			if(message_counter >= 100) {
-				message_counter = 0;
-				// Chances are that USB is not ready yet, we only try 1000 times
-				usb_num_send_tries = 1000;
-				if(brick_init_enumeration(COM_USB)) {
-					usb_first_connection = false;
-					com_info.current = COM_USB;
-				}
-				usb_num_send_tries = NUM_SEND_TRIES;
-			}
-		}
+		// Handle initial RS485 enumeration
 		if(rs485_first_message == 1) {
 			if((com_info.ext_type[0] == COM_TYPE_SLAVE && com_info.ext[0] == COM_RS485) ||
 			   (com_info.ext_type[1] == COM_TYPE_SLAVE && com_info.ext[1] == COM_RS485)) {
-				if(brick_init_enumeration(COM_RS485)) {
-					rs485_first_message = 2;
-					com_info.current = COM_RS485;
+				if(system_timer_is_time_elapsed_ms(rs485_first_message_time, 1000)) {
+					if(rs485_add_enumerate_connected_request()) {
+						rs485_first_message = 2;
+						com_info.current = COM_RS485;
+					}
 				}
 			}
 		}
+
+		// Handle initial Chibi enumeration
 		if(chibi_first_message == 1) {
 			if((com_info.ext_type[0] == COM_TYPE_SLAVE && com_info.ext[0] == COM_CHIBI) ||
 			   (com_info.ext_type[1] == COM_TYPE_SLAVE && com_info.ext[1] == COM_CHIBI)) {
-				if(brick_init_enumeration(COM_CHIBI)) {
-					chibi_first_message = 2;
-					com_info.current = COM_CHIBI;
+				if(system_timer_is_time_elapsed_ms(chibi_first_message_time, 1000)) {
+					if(chibi_add_enumerate_connected_request()) {
+						chibi_first_message = 2;
+						com_info.current = COM_CHIBI;
+					}
 				}
 			}
 		}
@@ -354,6 +349,7 @@ void tick_task(const uint8_t tick_type) {
 	if(com_info.ext[0] == COM_WIFI || com_info.ext[1] == COM_WIFI) {
 		wifi_tick(tick_type);
 	}
+
 	if(com_info.ext[0] == COM_ETHERNET || com_info.ext[1] == COM_ETHERNET) {
 		ethernet_tick(tick_type);
 	}
