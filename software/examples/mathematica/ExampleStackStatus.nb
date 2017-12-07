@@ -1,127 +1,35 @@
-(*CacheID: 234*)
-(* Internal cache information:
-NotebookFileLineBreakTest
-NotebookFileLineBreakTest
-NotebookDataPosition[         0,          0]
-NotebookDataLength[      5050,        126]
-NotebookOptionsPosition[      4624,        105]
-NotebookOutlinePosition[      4956,        120]
-CellTagsIndexPosition[      4913,        117]
-WindowFrame->Normal*)
-
-(* Beginning of Notebook Content *)
 Notebook[{
-Cell[BoxData[{
- RowBox[{"Needs", "[", "\"\<NETLink`\>\"", "]"}], "\[IndentingNewLine]", 
- RowBox[{"LoadNETAssembly", "[", 
-  RowBox[{"\"\<Tinkerforge\>\"", ",", 
-   RowBox[{
-    RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<../../..\>\""}]}], 
-  "]"}]}], "Input",
- CellChangeTimes->{{3.600175052949191*^9, 3.600175066601799*^9}, 
-   3.600175102142559*^9, {3.6001753172765293`*^9, 3.600175317946432*^9}, {
-   3.600500538026902*^9, 3.600500561851948*^9}, {3.600506097634747*^9, 
-   3.600506099012146*^9}, 3.600506136278721*^9, {3.60060805238198*^9, 
-   3.600608117803465*^9}, 3.600685373189396*^9}],
-
-Cell[BoxData[{
- RowBox[{"host", "=", "\"\<localhost\>\""}], "\n", 
- RowBox[{"port", "=", "4223"}], "\n", 
- RowBox[{
-  RowBox[{"uid", "=", "\"\<XXYYZZ\>\""}], 
-  RowBox[{"(*", 
-   RowBox[{"Change", " ", "to", " ", "your", " ", "UID"}], "*)"}], "\n", 
-  "\[IndentingNewLine]", 
-  RowBox[{"(*", 
-   RowBox[{
-   "Create", " ", "IPConnection", " ", "and", " ", "device", " ", "object"}], 
-   "*)"}]}], "\[IndentingNewLine]", 
- RowBox[{"ipcon", "=", 
-  RowBox[{"NETNew", "[", "\"\<Tinkerforge.IPConnection\>\"", "]"}]}], "\n", 
- RowBox[{"master", "=", 
-  RowBox[{"NETNew", "[", 
-   RowBox[{"\"\<Tinkerforge.BrickMaster\>\"", ",", "uid", ",", "ipcon"}], 
-   "]"}]}], "\n", 
- RowBox[{
-  RowBox[{"ipcon", "@", 
-   RowBox[{"Connect", "[", 
-    RowBox[{"host", ",", "port"}], "]"}]}], "\n", "\[IndentingNewLine]", 
-  RowBox[{"(*", 
-   RowBox[{"Get", " ", "current", " ", "stack", " ", "voltage", " ", 
-    RowBox[{"(", 
-     RowBox[{"unit", " ", "is", " ", "mV"}], ")"}]}], 
-   "*)"}]}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"Print", "[", 
-   RowBox[{"\"\<Stack Voltage: \>\"", "<>", 
-    RowBox[{"ToString", "[", 
-     RowBox[{"N", "[", 
-      RowBox[{"Quantity", "[", 
-       RowBox[{
-        RowBox[{"master", "@", 
-         RowBox[{"GetStackVoltage", "[", "]"}]}], ",", "\"\<V/1000\>\""}], 
-       "]"}], "]"}], "]"}]}], "]"}], "\n", "\[IndentingNewLine]", 
-  RowBox[{"(*", 
-   RowBox[{"Get", " ", "current", " ", "stack", " ", "current", " ", 
-    RowBox[{"(", 
-     RowBox[{"unit", " ", "is", " ", "mA"}], ")"}]}], 
-   "*)"}]}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"Print", "[", 
-   RowBox[{"\"\<Stack Current: \>\"", "<>", 
-    RowBox[{"ToString", "[", 
-     RowBox[{"N", "[", 
-      RowBox[{"Quantity", "[", 
-       RowBox[{
-        RowBox[{"master", "@", 
-         RowBox[{"GetStackCurrent", "[", "]"}]}], ",", "\"\<A/1000\>\""}], 
-       "]"}], "]"}], "]"}]}], "]"}], "\n", "\[IndentingNewLine]", 
-  RowBox[{"(*", 
-   RowBox[{"Clean", " ", "up"}], "*)"}]}], "\[IndentingNewLine]", 
- RowBox[{"ipcon", "@", 
-  RowBox[{"Disconnect", "[", "]"}]}], "\n", 
- RowBox[{"ReleaseNETObject", "[", "master", "]"}], "\n", 
- RowBox[{"ReleaseNETObject", "[", "ipcon", "]"}]}], "Input",
- CellChangeTimes->{{3.600075175574196*^9, 3.600075177574486*^9}, {
-   3.600075518821967*^9, 3.60007554243471*^9}, {3.600075580562348*^9, 
-   3.600075669308506*^9}, {3.600075705822371*^9, 3.600075921974015*^9}, {
-   3.6000760067507343`*^9, 3.600076009622583*^9}, {3.600077792659996*^9, 
-   3.600077795613958*^9}, {3.600077854705127*^9, 3.600077855342334*^9}, {
-   3.600090981053762*^9, 3.6000909897413397`*^9}, {3.600091048393783*^9, 
-   3.600091071325759*^9}, {3.6000911068928633`*^9, 3.6000911072763557`*^9}, {
-   3.600091413237206*^9, 3.600091428847453*^9}, {3.600091480127982*^9, 
-   3.60009150669311*^9}, {3.6000915673213387`*^9, 3.6000915678002653`*^9}, {
-   3.600092307925643*^9, 3.600092314241997*^9}, {3.600149020784099*^9, 
-   3.6001491107582273`*^9}, {3.600149174456699*^9, 3.6001491869018793`*^9}, {
-   3.600161252329417*^9, 3.600161270517737*^9}, {3.6001751050299597`*^9, 
-   3.6001752269913054`*^9}, {3.600175283111157*^9, 3.60017529631222*^9}, {
-   3.600500425825809*^9, 3.6005004326356916`*^9}, {3.6005005658827868`*^9, 
-   3.60050056667803*^9}, {3.600506021813815*^9, 3.6005060779666643`*^9}, {
-   3.600506152278829*^9, 3.6005061727773933`*^9}, {3.600607963780426*^9, 
-   3.6006080340220013`*^9}, {3.600608128817329*^9, 3.600608130481505*^9}, {
-   3.60060817038931*^9, 3.600608171010838*^9}, {3.60060891170606*^9, 
-   3.600608950204666*^9}, {3.600771028179517*^9, 3.600771085505877*^9}, 
-   3.6520968947584963`*^9}]
-},
-WindowSize->{1521, 867},
-WindowMargins->{{332, 65}, {52, Automatic}},
-FrontEndVersion->"9.0 for Linux x86 (64-bit) (November 20, 2012)",
-StyleDefinitions->"Default.nb"
-]
-(* End of Notebook Content *)
-
-(* Internal cache information *)
-(*CellTagsOutline
-CellTagsIndex->{}
-*)
-(*CellTagsIndex
-CellTagsIndex->{}
-*)
-(*NotebookFileOutline
-Notebook[{
-Cell[400, 13, 602, 11, 55, "Input"],
-Cell[1005, 26, 3615, 77, 429, "Input"]
-}
-]
-*)
-
+ Cell[
+  BoxData[{
+   RowBox[{"Needs", "[", "\"\<NETLink`\>\"", "]"}],
+   RowBox[{"LoadNETAssembly", "[", RowBox[{"\"\<Tinkerforge\>\"", ",", RowBox[{RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<../../..\>\""}]}], "]"}]
+  }], "Input"
+ ],
+ Cell[
+  BoxData[{
+   RowBox[{"host", "=", "\"\<localhost\>\""}],
+   RowBox[{"port", "=", "4223"}],
+   RowBox[{"uid", "=", "\"\<XXYYZZ\>\"", RowBox[{"(*", "Change XXYYZZ to the UID of your Master Brick", "*)"}]}],
+   RowBox[{"
+"}],
+   RowBox[{"(*", "Create IPConnection and device object", "*)"}],
+   RowBox[{"ipcon", "=", RowBox[{"NETNew", "[", "\"\<Tinkerforge.IPConnection\>\"", "]"}]}],
+   RowBox[{"master", "=", RowBox[{"NETNew", "[", RowBox[{"\"\<Tinkerforge.BrickMaster\>\"", ",", "uid", ",", "ipcon"}], "]"}]}],
+   RowBox[{"ipcon", "@", RowBox[{"Connect", "[", RowBox[{"host", ",", "port"}], "]"}]}],
+   RowBox[{"
+"}],
+   RowBox[{"(*", "Get current stack voltage (unit is mV)", "*)"}],
+   RowBox[{"Print", "[", RowBox[{"\"\<Stack Voltage: \>\"", "<>", RowBox[{"ToString", "[", RowBox[{"N", "[", RowBox[{"Quantity", "[", RowBox[{RowBox[{"master", "@", RowBox[{"GetStackVoltage", "[", "]"}]}], ",", "\"\<V/1000\>\""}], "]"}], "]"}], "]"}]}], "]"}],
+   RowBox[{"
+"}],
+   RowBox[{"(*", "Get current stack current (unit is mA)", "*)"}],
+   RowBox[{"Print", "[", RowBox[{"\"\<Stack Current: \>\"", "<>", RowBox[{"ToString", "[", RowBox[{"N", "[", RowBox[{"Quantity", "[", RowBox[{RowBox[{"master", "@", RowBox[{"GetStackCurrent", "[", "]"}]}], ",", "\"\<A/1000\>\""}], "]"}], "]"}], "]"}]}], "]"}],
+   RowBox[{"
+"}],
+   RowBox[{"(*", "Clean up", "*)"}],
+   RowBox[{"ipcon", "@", RowBox[{"Disconnect", "[", "]"}]}],
+   RowBox[{"ReleaseNETObject", "[", "master", "]"}],
+   RowBox[{"ReleaseNETObject", "[", "ipcon", "]"}]
+  }], "Input"
+ ]
+}]
