@@ -36,7 +36,14 @@
 #include "bricklib/utility/util_definitions.h"
 #include "bricklib/drivers/pio/pio.h"
 #include "bricklib/drivers/usart/usart.h"
+#include "bricklib/drivers/tc/tc.h"
 #include "bricklib/utility/system_timer.h"
+
+
+#define RS485_TC_CHANNEL_NUM 0
+#define RS485_TC_CHANNEL (TC0->TC_CHANNEL[RS485_TC_CHANNEL_NUM])
+#define RS485_COUNTER RS485_TC_CHANNEL.TC_RC
+
 
 extern uint8_t rs485_buffer_recv[];
 extern uint8_t rs485_buffer_send[];
@@ -103,6 +110,42 @@ static const uint32_t crc_lookup[] = {
 	0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
+uint8_t rs485_low_level_irq_address = 0;
+uint8_t rs485_low_level_irq_sequence_number = 0;
+uint8_t rs485_low_level_irq_nodata = false;
+
+// Baudrate: 500000 -> t=25us
+// Baudrate: 250000 -> t=50us
+// -> t_us = 12500000/baudrate
+void TC0_IrqHandler(void) {
+	// acknowledge interrupt
+	tc_channel_stop(&RS485_TC_CHANNEL);
+	tc_channel_interrupt_ack(&RS485_TC_CHANNEL);
+
+	rs485_low_level_send(rs485_low_level_irq_address, rs485_low_level_irq_sequence_number, rs485_low_level_irq_nodata);
+}
+
+void rs485_low_level_start_tc(uint32_t baudrate) {
+	RS485_COUNTER = (12500000/2) / baudrate;
+	tc_channel_start(&RS485_TC_CHANNEL);
+}
+
+void rs485_low_level_init(void) {
+    // Enable peripheral clock for TC
+    PMC->PMC_PCER0 = 1 << ID_TC0;
+
+    // Configure and enable TC interrupts
+	NVIC_DisableIRQ(TC0_IRQn);
+	NVIC_ClearPendingIRQ(TC0_IRQn);
+	NVIC_SetPriority(TC0_IRQn, 0);
+	NVIC_EnableIRQ(TC0_IRQn);
+
+	// CLOCK4 = MCK/128 == 2us per tick
+	tc_channel_init(&RS485_TC_CHANNEL, TC_CMR_TCCLKS_TIMER_CLOCK4 | TC_CMR_CPCTRG);
+
+    // Interrupt in compare
+    tc_channel_interrupt_set(&RS485_TC_CHANNEL, TC_IER_CPCS);
+}
 
 void rs485_low_level_send(const uint8_t address, const uint8_t sequence_number, const bool nodata) {
 	rs485_low_level_buffer_send[0] = address;
@@ -251,15 +294,20 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 		// If sequence number not the same, it is polling
 		if(sequence_number != rs485_last_sequence_number) {
 			if(rs485_type == RS485_TYPE_MASTER) {
-				RS485_WAIT_BEFORE_SEND();
-				rs485_low_level_send(rs485_address, sequence_number + 1, true);
+				rs485_low_level_irq_address = rs485_address;
+				rs485_low_level_irq_sequence_number = sequence_number + 1;
+				rs485_low_level_irq_nodata = true;
+				rs485_low_level_start_tc(rs485_config.speed);
 			} else {
 				if(rs485_first_message == 0) {
 					rs485_first_message = 1;
 					rs485_first_message_time = system_timer_get_ms();
 				}
-				RS485_WAIT_BEFORE_SEND();
-				rs485_low_level_send(rs485_address, sequence_number, false);
+
+				rs485_low_level_irq_address = rs485_address;
+				rs485_low_level_irq_sequence_number = sequence_number;
+				rs485_low_level_irq_nodata = false;
+				rs485_low_level_start_tc(rs485_config.speed);
 			}
 		// Sequence number is the same, so the message is an ack
 		} else {
@@ -285,8 +333,10 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 				if(rs485_type == RS485_TYPE_MASTER) {
 					rs485_low_level_set_mode_send_from_task();
 				} else {
-					RS485_WAIT_BEFORE_SEND();
-					rs485_low_level_send(rs485_address, sequence_number, false);
+					rs485_low_level_irq_address = rs485_address;
+					rs485_low_level_irq_sequence_number = sequence_number;
+					rs485_low_level_irq_nodata = false;
+					rs485_low_level_start_tc(rs485_config.speed);
 				}
 			}
 		}
@@ -336,8 +386,10 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 
 			// The master always sends an ack without data, otherwise
 			// other rs485 participants might not have their turn
-			RS485_WAIT_BEFORE_SEND();
-			rs485_low_level_send(rs485_address, sequence_number, true);
+			rs485_low_level_irq_address = rs485_address;
+			rs485_low_level_irq_sequence_number = sequence_number;
+			rs485_low_level_irq_nodata = true;
+			rs485_low_level_start_tc(rs485_config.speed);
 		} else {
 			// If the sequence number is the same, it means that an ack was not
 			// received. We already handled this message
@@ -350,8 +402,10 @@ void rs485_low_level_handle_message(const uint8_t *data) {
 
 			// The slave can send ack with or without data, with old
 			// sequence number
-			RS485_WAIT_BEFORE_SEND();
-			rs485_low_level_send(rs485_address, sequence_number, false);
+			rs485_low_level_irq_address = rs485_address;
+			rs485_low_level_irq_sequence_number = sequence_number;
+			rs485_low_level_irq_nodata = false;
+			rs485_low_level_start_tc(rs485_config.speed);
 		}
 	// If the recv buffer is full we force a timeout
 	} else {

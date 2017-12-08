@@ -38,6 +38,7 @@
 #include "extensions/extension_i2c.h"
 #include "extensions/rs485/rs485_slave.h"
 #include "extensions/rs485/rs485_master.h"
+#include "extensions/rs485/rs485_low_level.h"
 
 extern uint32_t led_rxtx;
 extern ComInfo com_info;
@@ -118,6 +119,9 @@ void rs485_init_masterslave(const uint8_t extension) {
 		com_info.ext_type[extension] = COM_TYPE_SLAVE;
 		rs485_slave_init();
 	}
+
+	// Configure timer/counter
+	rs485_low_level_init();
 }
 
 bool rs485_init(void) {
@@ -144,6 +148,7 @@ bool rs485_init(void) {
     USART_Configure(USART_RS485, mode, rs485_config.speed, BOARD_MCK);
     USART1->US_IDR = 0xFFFFFFFF;
     NVIC_EnableIRQ(IRQ_RS485);
+    NVIC_SetPriority(IRQ_RS485, 1);
 
     USART_SetReceiverEnabled(USART_RS485, 1);
     USART_SetTransmitterEnabled(USART_RS485, 1);

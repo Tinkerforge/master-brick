@@ -49,20 +49,6 @@
 #define RS485_BUFFER_WAIT_FOR_ACK 1
 #define RS485_BUFFER_NO_DATA 2
 
-#define RS485_WAIT_BEFORE_SEND() \
-	do { \
-		uint32_t i = 4*BOARD_MCK/rs485_config.speed; \
-		__ASM volatile ( \
-			"PUSH {R0}\n" \
-			"MOV R0, %0\n" \
-			"1:\n" \
-			"SUBS R0, #1\n" \
-			"BNE.N 1b\n" \
-			"POP {R0}\n" \
-			:: "r" (i) \
-		); \
-	} while(0)
-
 void rs485_low_level_begin_read(void);
 void rs485_low_level_set_mode_receive(void);
 void rs485_low_level_set_mode_send(void);
@@ -80,5 +66,6 @@ uint16_t rs485_low_level_crc16(const uint8_t *data, const uint8_t length);
 void rs485_low_level_read_buffer(void *buffer, const uint32_t size);
 void rs485_low_level_resync(void);
 void rs485_low_level_insert_uid(void* data);
+void rs485_low_level_init(void);
 
 #endif
