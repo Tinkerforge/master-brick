@@ -314,7 +314,6 @@ void wifi_data_next_handle_wait_for_async_read_msg(char ndata) {
 				if(cid != -1) {
 					wifi_new_cid = cid;
 					wifi_data_cid_present[cid] = true;
-					led_on(LED_EXT_BLUE_3);
 				}
 
 				wifi_data_expecting_new_cid = -1;
@@ -391,7 +390,6 @@ void wifi_data_next_handle_wait_for_data(char ndata) {
 		if(wifi_buffer_size_counter == length) {
 			if(!wifi_data_cid_present[wifi_data_current_cid]) {
 				wifi_data_cid_present[wifi_data_current_cid] = true;
-				led_on(LED_EXT_BLUE_3);
 			}
 
 			if(brickd_check_auth((MessageHeader*)wifi_buffer_recv, wifi_data_current_cid)) {
