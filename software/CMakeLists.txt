@@ -76,7 +76,6 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib/utility/system_timer.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/com_messages.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_eeprom/i2c_eeprom_common.c"
-	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_eeprom/i2c_eeprom_slave.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/i2c/i2c_eeprom/i2c_eeprom_master.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/none/none.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/com/com.c"
