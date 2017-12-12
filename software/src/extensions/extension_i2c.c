@@ -30,12 +30,6 @@
 
 Pin extension_select[] = {PIN_EXT_0_SELECT, PIN_EXT_1_SELECT};
 
-Twid twid1 = {TWI_STACK, NULL};
-
-void TWI1_IrqHandler(void) {
-    TWID_Handler(&twid1);
-}
-
 void extension_i2c_init(void) {
 	const Pin twi_pins[] = {PINS_TWI_STACK};
 
