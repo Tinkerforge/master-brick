@@ -224,5 +224,9 @@
 - Add fix for W5500 (Ethernet Extension IC) ESD exposure problems.
 
 2017-12-13: 2.4.6 (f7657a2)
-- Make sure Brick does not restart on suspend/resume
-- Refactor initial enumeration handling (fix double-enumeration bugs)
+- Make sure Brick does not restart on suspend/resume anymore
+- Refactor initial enumeration handling for USB/SPI/RS485/Chibi
+- Fix double-enumeration bug
+- Improve co-mcu Bricklet reset handling
+- Improve RS485 state machine (Use hardware timer instead of busy waiting)
+- Improve I2C communication (Use DMA in synchronous case)
