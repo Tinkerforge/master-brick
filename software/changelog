@@ -230,3 +230,6 @@
 - Improve co-mcu Bricklet reset handling
 - Improve RS485 state machine (Use hardware timer instead of busy waiting)
 - Improve I2C communication (Use DMA in synchronous case)
+
+2018-01-11: 2.4.7 (TBD)
+- Fix message duplication bug (through bricklib)
