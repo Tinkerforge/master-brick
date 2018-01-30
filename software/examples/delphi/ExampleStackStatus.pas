@@ -36,11 +36,11 @@ begin
   ipcon.Connect(HOST, PORT);
   { Don't use device before ipcon is connected }
 
-  { Get current stack voltage (unit is mV) }
+  { Get current stack voltage }
   stackVoltage := master.GetStackVoltage;
   WriteLn(Format('Stack Voltage: %f V', [stackVoltage/1000.0]));
 
-  { Get current stack current (unit is mA) }
+  { Get current stack current }
   stackCurrent := master.GetStackCurrent;
   WriteLn(Format('Stack Current: %f A', [stackCurrent/1000.0]));
 

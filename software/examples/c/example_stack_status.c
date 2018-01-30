@@ -23,7 +23,7 @@ int main(void) {
 	}
 	// Don't use device before ipcon is connected
 
-	// Get current stack voltage (unit is mV)
+	// Get current stack voltage
 	uint16_t stack_voltage;
 	if(master_get_stack_voltage(&master, &stack_voltage) < 0) {
 		fprintf(stderr, "Could not get stack voltage, probably timeout\n");
@@ -32,7 +32,7 @@ int main(void) {
 
 	printf("Stack Voltage: %f V\n", stack_voltage/1000.0);
 
-	// Get current stack current (unit is mA)
+	// Get current stack current
 	uint16_t stack_current;
 	if(master_get_stack_current(&master, &stack_current) < 0) {
 		fprintf(stderr, "Could not get stack current, probably timeout\n");

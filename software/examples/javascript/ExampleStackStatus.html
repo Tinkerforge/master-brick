@@ -41,7 +41,7 @@
 
                 ipcon.on(Tinkerforge.IPConnection.CALLBACK_CONNECTED,
                     function (connectReason) {
-                        // Get current stack voltage (unit is mV)
+                        // Get current stack voltage
                         master.getStackVoltage(
                             function (stackVoltage) {
                                 textArea.value += 'Stack Voltage: ' + stackVoltage/1000.0 + ' V\n';
@@ -51,7 +51,7 @@
                             }
                         );
 
-                        // Get current stack current (unit is mA)
+                        // Get current stack current
                         master.getStackCurrent(
                             function (stackCurrent) {
                                 textArea.value += 'Stack Current: ' + stackCurrent/1000.0 + ' A\n';

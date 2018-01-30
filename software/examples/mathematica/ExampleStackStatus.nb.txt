@@ -10,10 +10,10 @@ ipcon=NETNew["Tinkerforge.IPConnection"]
 master=NETNew["Tinkerforge.BrickMaster",uid,ipcon]
 ipcon@Connect[host,port]
 
-(*Get current stack voltage (unit is mV)*)
+(*Get current stack voltage*)
 Print["Stack Voltage: "<>ToString[N[Quantity[master@GetStackVoltage[],"V/1000"]]]]
 
-(*Get current stack current (unit is mA)*)
+(*Get current stack current*)
 Print["Stack Current: "<>ToString[N[Quantity[master@GetStackCurrent[],"A/1000"]]]]
 
 (*Clean up*)

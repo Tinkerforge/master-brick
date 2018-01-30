@@ -15,11 +15,11 @@ if __name__ == "__main__":
     ipcon.connect(HOST, PORT) # Connect to brickd
     # Don't use device before ipcon is connected
 
-    # Get current stack voltage (unit is mV)
+    # Get current stack voltage
     stack_voltage = master.get_stack_voltage()
     print("Stack Voltage: " + str(stack_voltage/1000.0) + " V")
 
-    # Get current stack current (unit is mA)
+    # Get current stack current
     stack_current = master.get_stack_current()
     print("Stack Current: " + str(stack_current/1000.0) + " A")
 

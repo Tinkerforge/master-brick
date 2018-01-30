@@ -18,11 +18,11 @@ Notebook[{
    RowBox[{"ipcon", "@", RowBox[{"Connect", "[", RowBox[{"host", ",", "port"}], "]"}]}],
    RowBox[{"
 "}],
-   RowBox[{"(*", "Get current stack voltage (unit is mV)", "*)"}],
+   RowBox[{"(*", "Get current stack voltage", "*)"}],
    RowBox[{"Print", "[", RowBox[{"\"\<Stack Voltage: \>\"", "<>", RowBox[{"ToString", "[", RowBox[{"N", "[", RowBox[{"Quantity", "[", RowBox[{RowBox[{"master", "@", RowBox[{"GetStackVoltage", "[", "]"}]}], ",", "\"\<V/1000\>\""}], "]"}], "]"}], "]"}]}], "]"}],
    RowBox[{"
 "}],
-   RowBox[{"(*", "Get current stack current (unit is mA)", "*)"}],
+   RowBox[{"(*", "Get current stack current", "*)"}],
    RowBox[{"Print", "[", RowBox[{"\"\<Stack Current: \>\"", "<>", RowBox[{"ToString", "[", RowBox[{"N", "[", RowBox[{"Quantity", "[", RowBox[{RowBox[{"master", "@", RowBox[{"GetStackCurrent", "[", "]"}]}], ",", "\"\<A/1000\>\""}], "]"}], "]"}], "]"}]}], "]"}],
    RowBox[{"
 "}],

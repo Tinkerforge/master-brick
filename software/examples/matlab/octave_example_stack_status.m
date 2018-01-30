@@ -11,11 +11,11 @@ function octave_example_stack_status()
     ipcon.connect(HOST, PORT); % Connect to brickd
     % Don't use device before ipcon is connected
 
-    % Get current stack voltage (unit is mV)
+    % Get current stack voltage
     stackVoltage = master.getStackVoltage();
     fprintf("Stack Voltage: %g V\n", stackVoltage/1000.0);
 
-    % Get current stack current (unit is mA)
+    % Get current stack current
     stackCurrent = master.getStackCurrent();
     fprintf("Stack Current: %g A\n", stackCurrent/1000.0);
 

@@ -17,11 +17,11 @@ public class ExampleStackStatus {
 		ipcon.connect(HOST, PORT); // Connect to brickd
 		// Don't use device before ipcon is connected
 
-		// Get current stack voltage (unit is mV)
+		// Get current stack voltage
 		int stackVoltage = master.getStackVoltage(); // Can throw com.tinkerforge.TimeoutException
 		System.out.println("Stack Voltage: " + stackVoltage/1000.0 + " V");
 
-		// Get current stack current (unit is mA)
+		// Get current stack current
 		int stackCurrent = master.getStackCurrent(); // Can throw com.tinkerforge.TimeoutException
 		System.out.println("Stack Current: " + stackCurrent/1000.0 + " A");
 

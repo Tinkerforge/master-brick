@@ -3,8 +3,8 @@
 
 uid=XXYYZZ # Change XXYYZZ to the UID of your Master Brick
 
-# Get current stack voltage (unit is mV)
+# Get current stack voltage
 tinkerforge call master-brick $uid get-stack-voltage
 
-# Get current stack current (unit is mA)
+# Get current stack current
 tinkerforge call master-brick $uid get-stack-current

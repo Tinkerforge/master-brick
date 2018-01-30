@@ -13,11 +13,11 @@ Module ExampleStackStatus
         ipcon.Connect(HOST, PORT) ' Connect to brickd
         ' Don't use device before ipcon is connected
 
-        ' Get current stack voltage (unit is mV)
+        ' Get current stack voltage
         Dim stackVoltage As Integer = master.GetStackVoltage()
         Console.WriteLine("Stack Voltage: " + (stackVoltage/1000.0).ToString() + " V")
 
-        ' Get current stack current (unit is mA)
+        ' Get current stack current
         Dim stackCurrent As Integer = master.GetStackCurrent()
         Console.WriteLine("Stack Current: " + (stackCurrent/1000.0).ToString() + " A")
 

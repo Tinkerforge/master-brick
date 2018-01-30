@@ -15,11 +15,11 @@ class Example
 		ipcon.Connect(HOST, PORT); // Connect to brickd
 		// Don't use device before ipcon is connected
 
-		// Get current stack voltage (unit is mV)
+		// Get current stack voltage
 		int stackVoltage = master.GetStackVoltage();
 		Console.WriteLine("Stack Voltage: " + stackVoltage/1000.0 + " V");
 
-		// Get current stack current (unit is mA)
+		// Get current stack current
 		int stackCurrent = master.GetStackCurrent();
 		Console.WriteLine("Stack Current: " + stackCurrent/1000.0 + " A");
 

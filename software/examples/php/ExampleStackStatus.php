@@ -16,11 +16,11 @@ $master = new BrickMaster(UID, $ipcon); // Create device object
 $ipcon->connect(HOST, PORT); // Connect to brickd
 // Don't use device before ipcon is connected
 
-// Get current stack voltage (unit is mV)
+// Get current stack voltage
 $stack_voltage = $master->getStackVoltage();
 echo "Stack Voltage: " . $stack_voltage/1000.0 . " V\n";
 
-// Get current stack current (unit is mA)
+// Get current stack current
 $stack_current = $master->getStackCurrent();
 echo "Stack Current: " . $stack_current/1000.0 . " A\n";
 
