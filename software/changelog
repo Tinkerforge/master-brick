@@ -162,7 +162,7 @@
 - Increase Ethernet reset holding time from 2µs to 10µs to ensure proper bootup
 
 2013-06-10: 2.1.2 (8699e40)
-- Call ethernet reset function 2 times to make sure it works always
+- Call Ethernet reset function 2 times to make sure it works always
 
 2014-04-04: 2.2.0 (51d9e2a)
 - Add support for Websockets for Ethernet Extension
@@ -207,29 +207,29 @@
 
 2017-01-23: 2.4.2 (b71c151)
 - Fix socket listen/establish race condition (Ethernet Extension)
-- Add support for WIFI2 mesh networking functions
+- Add support for WIFI Extension 2.0 mesh networking functions
 
-2017-02-24 2.4.3 (e9886be)
-- Fix bug in double buffer rx peak
+2017-02-24: 2.4.3 (e9886be)
+- Fix bug in double buffer RX peak
 - Increase reaction time by decreasing ACK timeout
 - Increase general WIFI send timeout (through bricklib)
 - Add timeout count API (through bricklib)
 
-2017-05-11 2.4.4 (5f5a6a0)
+2017-05-11: 2.4.4 (5f5a6a0)
 - Remove support for WIFI password getters
 - Add support for co-mcu Bricklets
 
-2017-06-28 2.4.5 (a115de7)
+2017-06-28: 2.4.5 (a115de7)
 - Fix incompatibility between co-mcu support and LED Strip Bricklet (through bricklib)
-- Add fix for W5500 (Ethernet Extension IC) ESD exposure problems.
+- Add fix for W5500 (Ethernet Extension IC) ESD exposure problems
 
 2017-12-13: 2.4.6 (f7657a2)
 - Make sure Brick does not restart on suspend/resume anymore
 - Refactor initial enumeration handling for USB/SPI/RS485/Chibi
 - Fix double-enumeration bug
 - Improve co-mcu Bricklet reset handling
-- Improve RS485 state machine (Use hardware timer instead of busy waiting)
-- Improve I2C communication (Use DMA in synchronous case)
+- Improve RS485 state machine (use hardware timer instead of busy waiting)
+- Improve I2C communication (use DMA in synchronous case)
 
 2018-01-11: 2.4.7 (e39d0bf)
 - Fix message duplication bug (through bricklib)
