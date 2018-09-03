@@ -217,17 +217,17 @@
 
 2017-05-11: 2.4.4 (5f5a6a0)
 - Remove support for WIFI password getters
-- Add support for co-mcu Bricklets
+- Add support for Co-MCU Bricklets
 
 2017-06-28: 2.4.5 (a115de7)
-- Fix incompatibility between co-mcu support and LED Strip Bricklet (through bricklib)
+- Fix incompatibility between Co-MCU support and LED Strip Bricklet (through bricklib)
 - Add fix for W5500 (Ethernet Extension IC) ESD exposure problems
 
 2017-12-13: 2.4.6 (f7657a2)
 - Make sure Brick does not restart on suspend/resume anymore
 - Refactor initial enumeration handling for USB/SPI/RS485/Chibi
 - Fix double-enumeration bug
-- Improve co-mcu Bricklet reset handling
+- Improve Co-MCU Bricklet reset handling
 - Improve RS485 state machine (use hardware timer instead of busy waiting)
 - Improve I2C communication (use DMA in synchronous case)
 
@@ -235,7 +235,7 @@
 - Fix message duplication bug (through bricklib)
 
 2018-04-27: 2.4.8 (ed72e61)
-- Fix potential deadlock between usb stack and comcu enumeration (through bricklib)
+- Fix potential deadlock between USB stack and Co-MCU enumeration (through bricklib)
 
 2018-07-31: 2.4.9 (c0f8ead)
 - Add support for Isolator Bricklet (through bricklib)
