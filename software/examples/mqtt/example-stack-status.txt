@@ -1,5 +1,3 @@
-
-
 # Change XXYYZZ to the UID of your Master Brick
 
 setup:
