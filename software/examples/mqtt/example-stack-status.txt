@@ -1,0 +1,11 @@
+
+
+# Change XXYYZZ to the UID of your Master Brick
+
+setup:
+	# Get current stack voltage
+	subscribe to tinkerforge/response/master/XXYYZZ/get_stack_voltage
+	publish '' to tinkerforge/request/master_brick/XXYYZZ/get_stack_voltage 
+	# Get current stack current
+	subscribe to tinkerforge/response/master/XXYYZZ/get_stack_current
+	publish '' to tinkerforge/request/master_brick/XXYYZZ/get_stack_current 
