@@ -23,5 +23,5 @@ if __name__ == "__main__":
     stack_current = master.get_stack_current()
     print("Stack Current: " + str(stack_current/1000.0) + " A")
 
-    raw_input("Press key to exit\n") # Use input() in Python 3
+    input("Press key to exit\n") # Use raw_input() in Python 2
     ipcon.disconnect()
