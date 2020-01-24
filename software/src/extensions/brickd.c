@@ -165,7 +165,7 @@ void brickd_disconnect_by_com_and_cid(const ComType com, int8_t cid) {
 }
 
 void brickd_set_authentication_seed(const uint32_t seed) {
-	logethi("Using seed %u\n\r", seed);
+	logethi("Using seed %lu\n\r", seed);
 	brickd_authentication_nonce = seed;
 }
 
