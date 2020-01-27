@@ -21,9 +21,9 @@
 
 #include "wifi_data.h"
 
-#include "wifi_low_level.h"
-#include "wifi_ringbuffer.h"
-#include "wifi_command.h"
+#include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "bricklib/com/com_messages.h"
 #include "bricklib/utility/led.h"
@@ -32,9 +32,9 @@
 
 #include "extensions/brickd.h"
 
-#include <math.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include "wifi_low_level.h"
+#include "wifi_ringbuffer.h"
+#include "wifi_command.h"
 
 //#define WIFI_DEBUG_PRINT_DATA
 
