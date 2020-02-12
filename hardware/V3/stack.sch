@@ -9,7 +9,7 @@ Date "2020-02-07"
 Rev "3.0"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
-Comment2 "Copyright (©) 2019, T.Schneidermann <tim@tinkerforge.com>"
+Comment2 "Copyright (©) 2020, T.Schneidermann <tim@tinkerforge.com>"
 Comment3 ""
 Comment4 ""
 $EndDescr

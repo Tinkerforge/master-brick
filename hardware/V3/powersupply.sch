@@ -9,7 +9,7 @@ Date "2020-02-07"
 Rev "3.0"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
-Comment2 "Copyright (©) 2019, T.Schneidermann <tim@tinkerforge.com>"
+Comment2 "Copyright (©) 2020, T.Schneidermann <tim@tinkerforge.com>"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -167,17 +167,6 @@ F 1 "GND" H 9600 5980 30  0001 C CNN
 F 2 "" H 9600 6050 60  0001 C CNN
 F 3 "" H 9600 6050 60  0001 C CNN
 	1    9600 6050
-	1    0    0    -1  
-$EndComp
-$Comp
-L tinkerforge:RT9701XB U13
-U 1 1 5062F01C
-P 9200 4800
-F 0 "U13" H 9050 5000 60  0000 C CNN
-F 1 "RT9701XB" H 9200 4450 60  0000 C CNN
-F 2 "SOT23-5" H 9200 4800 60  0001 C CNN
-F 3 "" H 9200 4800 60  0001 C CNN
-	1    9200 4800
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1104,10 +1093,24 @@ Wire Wire Line
 Wire Wire Line
 	5000 2700 4750 2700
 Wire Wire Line
-	9600 4800 9600 4900
-Wire Wire Line
 	4500 5100 4750 5100
 Wire Wire Line
 	8600 4800 8850 4800
 Connection ~ 8500 2700
+$Comp
+L tinkerforge:STMPS2171STR U13
+U 1 1 5E5AE724
+P 9200 4900
+F 0 "U13" H 9000 5200 50  0000 C CNN
+F 1 "STMPS2171STR" H 9200 4600 31  0000 C CNN
+F 2 "kicad-libraries:SOT23-5L" H 9050 4750 50  0001 C CNN
+F 3 "" H 9050 4750 50  0001 C CNN
+	1    9200 4900
+	1    0    0    -1  
+$EndComp
+NoConn ~ 8850 4900
+Wire Wire Line
+	9550 4800 9600 4800
+Wire Wire Line
+	9550 5000 9600 5000
 $EndSCHEMATC
