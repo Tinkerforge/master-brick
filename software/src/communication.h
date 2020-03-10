@@ -142,8 +142,8 @@
 #define FID_GET_WIFI2_MESH_AP_STATUS 110
 #define FID_SET_BRICKLET_XMC_FLASH_CONFIG 111
 #define FID_SET_BRICKLET_XMC_FLASH_DATA 112
-#define FID_SET_BRICKLET_ENABLE 113
-#define FID_GET_BRICKLET_ENABLE 114
+#define FID_SET_BRICKLETS_ENABLED 113
+#define FID_GET_BRICKLETS_ENABLED 114
 
 #define COM_MESSAGE_USER_LAST_FID 114
 
@@ -260,8 +260,8 @@
 	{FID_GET_WIFI2_MESH_AP_STATUS, (message_handler_func_t)com_forward_message}, \
 	{FID_SET_BRICKLET_XMC_FLASH_CONFIG, (message_handler_func_t)set_bricklet_xmc_flash_config}, \
 	{FID_SET_BRICKLET_XMC_FLASH_DATA, (message_handler_func_t)set_bricklet_xmc_flash_data}, \
-	{FID_SET_BRICKLET_ENABLE, (message_handler_func_t)set_bricklet_enable}, \
-	{FID_GET_BRICKLET_ENABLE, (message_handler_func_t)get_bricklet_enable}, \
+	{FID_SET_BRICKLETS_ENABLED, (message_handler_func_t)set_bricklets_enabled}, \
+	{FID_GET_BRICKLETS_ENABLED, (message_handler_func_t)get_bricklets_enabled}, \
 
 typedef struct {
 	MessageHeader header;
@@ -956,16 +956,16 @@ typedef struct {
 typedef struct {
 	MessageHeader header;
 	bool enable;
-} __attribute__((__packed__)) SetBrickletEnable;
+} __attribute__((__packed__)) SetBrickletsEnabled;
 
 typedef struct {
 	MessageHeader header;
-} __attribute__((__packed__)) GetBrickletEnable;
+} __attribute__((__packed__)) GetBrickletsEnabled;
 
 typedef struct {
 	MessageHeader header;
 	bool enabled;
-} __attribute__((__packed__)) GetBrickletEnableReturn;
+} __attribute__((__packed__)) GetBrickletsEnabledReturn;
 
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
@@ -1044,7 +1044,7 @@ void write_wifi2_serial_port(const ComType com, const WriteWifi2SerialPort *data
 void read_wifi2_serial_port(const ComType com, const ReadWifi2SerialPort *data);
 void set_bricklet_xmc_flash_config(const ComType com, const SetBrickletXMCFlashConfig *data);
 void set_bricklet_xmc_flash_data(const ComType com, const SetBrickletXMCFlashData *data);
-void set_bricklet_enable(const ComType com, const SetBrickletEnable *data);
-void get_bricklet_enable(const ComType com, const GetBrickletEnable *data);
+void set_bricklets_enabled(const ComType com, const SetBrickletsEnabled *data);
+void get_bricklets_enabled(const ComType com, const GetBrickletsEnabled *data);
 
 #endif

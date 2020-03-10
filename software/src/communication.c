@@ -1252,7 +1252,7 @@ void set_bricklet_xmc_flash_data(const ComType com, const SetBrickletXMCFlashDat
 	send_blocking_with_timeout(&sbxfdr, sizeof(SetBrickletXMCFlashDataReturn), com);
 }
 
-void set_bricklet_enable(const ComType com, const SetBrickletEnable *data) {
+void set_bricklets_enabled(const ComType com, const SetBrickletsEnabled *data) {
 	Pin pin_bricklet_enable = PIN_BRICKLET_ENABLE;
 	if(data->enable) {
 		PIO_Set(&pin_bricklet_enable);
@@ -1263,13 +1263,13 @@ void set_bricklet_enable(const ComType com, const SetBrickletEnable *data) {
 	com_return_setter(com, data);
 }
 
-void get_bricklet_enable(const ComType com, const GetBrickletEnable *data) {
-	GetBrickletEnableReturn gber;
+void get_bricklets_enabled(const ComType com, const GetBrickletsEnabled *data) {
+	GetBrickletsEnabledReturn gber;
 
 	Pin pin_bricklet_enable = PIN_BRICKLET_ENABLE;
 	gber.header             = data->header;
-	gber.header.length      = sizeof(GetBrickletEnableReturn);
+	gber.header.length      = sizeof(GetBrickletsEnabledReturn);
 	gber.enabled            = PIO_Get(&pin_bricklet_enable);
 
-	send_blocking_with_timeout(&gber, sizeof(GetBrickletEnableReturn), com);
+	send_blocking_with_timeout(&gber, sizeof(GetBrickletsEnabledReturn), com);
 }
