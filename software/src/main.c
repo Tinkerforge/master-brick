@@ -66,6 +66,7 @@
 extern ComInfo com_info;
 extern uint8_t master_mode;
 extern bool usb_first_connection;
+extern bool brick_only_supports_7p;
 
 uint8_t brick_hardware_version[3];
 
@@ -98,13 +99,14 @@ int main() {
 	PIO_Configure(&pin_detect, 1);
 	PIO_Configure(&pin_master_detect, 1);
 
-	if(master_get_hardware_version() == 10) {
+	const uint8_t version = master_get_hardware_version();
+	if(version == 10) {
 		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_10;
 		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_10;
 		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_10;
 		Pin pins_extension[] = {PINS_EXT_10};
 		PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
-	} else if(master_get_hardware_version() == 20) {
+	} else if(version == 20) {
 		// Set dummy calibration, to make sure that calibration is not read
 		// from flash in Master Brick HW Version 2.0
 		adc_set_calibration(0, 1, 1);
@@ -113,7 +115,7 @@ int main() {
 		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_20;
 		Pin pins_extension[] = {PINS_EXT_10};
 		PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
-	} else {
+	} else if(version == 21) {
 		// Set dummy calibration, to make sure that calibration is not read
 		// from flash in Master Brick HW Version 2.1
 		adc_set_calibration(0, 1, 1);
@@ -122,6 +124,17 @@ int main() {
 		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_21;
 		Pin pins_extension[] = {PINS_EXT_21};
 		PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
+	} else {
+		// Set dummy calibration, to make sure that calibration is not read
+		// from flash in Master Brick HW Version 3.0
+		adc_set_calibration(0, 1, 1);
+		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_30;
+		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_30;
+		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_30;
+		Pin pins_v30[] = {PINS_EXT_21, PIN_BRICKLET_ENABLE};
+		PIO_Configure(pins_v30, PIO_LISTSIZE(pins_v30));
+
+		brick_only_supports_7p = true;
 	}
 
 	brick_init();

@@ -159,8 +159,12 @@ void master_init(void) {
 }
 
 uint8_t master_get_hardware_version(void) {
-	Pin detect[] = {PIN_MASTER20_DETECT, PIN_MASTER21_DETECT};
+	Pin detect[] = {PIN_MASTER20_DETECT, PIN_MASTER21_DETECT, PIN_MASTER30_DETECT};
 	PIO_Configure(detect, PIO_LISTSIZE(detect));
+
+	if((!PIO_Get(&detect[0])) && (!PIO_Get(&detect[1])) && (!PIO_Get(&detect[2]))) {
+		return 30;
+	}
 
 	if(PIO_Get(&detect[0])) {
 		return 10;
