@@ -246,3 +246,6 @@
   - Fix Bricklet port miss-identification
   - Increase SPI stack timeout (for RED Brick)
   - Fix bugs in set/get_spitfp_* functions
+
+2020-03-10: 2.5.0 (TBD)
+- Add support for Master Brick hardware verison 3.0

@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2015 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2015, 2020 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.c: Implementation of Master-Brick specific messages
  *
@@ -25,6 +25,7 @@
 
 #include "bricklib/drivers/adc/adc.h"
 #include "bricklib/com/com_common.h"
+#include "bricklib/bricklet/bricklet_xmc.h"
 #include "extensions/chibi/chibi_config.h"
 #include "extensions/chibi/chibi_low_level.h"
 #include "extensions/rs485/rs485_config.h"
@@ -63,6 +64,8 @@ extern uint16_t wifi_ringbuffer_low_watermark;
 extern MasterCallback master_callback;
 
 extern EthernetStatus ethernet_status;
+
+extern bool brick_only_supports_7p;
 
 void get_stack_voltage(const ComType com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
@@ -1226,4 +1229,47 @@ void read_wifi2_serial_port(const ComType com, const ReadWifi2SerialPort *data) 
 	rw2spr.result        = wifi2_bootloader_read(rw2spr.data, data->length);
 
 	send_blocking_with_timeout(&rw2spr, sizeof(ReadWifi2SerialPortReturn), com);
+}
+
+void set_bricklet_xmc_flash_config(const ComType com, const SetBrickletXMCFlashConfig *data) {
+	SetBrickletXMCFlashConfigReturn sbxfcr;
+
+	sbxfcr.header        = data->header;
+	sbxfcr.header.length = sizeof(SetBrickletXMCFlashConfigReturn);
+	sbxfcr.return_value  = bricklet_xmc_flash_config(data->config, data->parameter1, data->parameter2, data->data);
+
+
+	send_blocking_with_timeout(&sbxfcr, sizeof(SetBrickletXMCFlashConfigReturn), com);
+}
+
+void set_bricklet_xmc_flash_data(const ComType com, const SetBrickletXMCFlashData *data) {
+	SetBrickletXMCFlashDataReturn sbxfdr;
+
+	sbxfdr.header        = data->header;
+	sbxfdr.header.length = sizeof(SetBrickletXMCFlashDataReturn);
+	sbxfdr.return_value  = bricklet_xmc_flash_data(data->data);
+
+	send_blocking_with_timeout(&sbxfdr, sizeof(SetBrickletXMCFlashDataReturn), com);
+}
+
+void set_bricklets_enabled(const ComType com, const SetBrickletsEnabled *data) {
+	Pin pin_bricklet_enable = PIN_BRICKLET_ENABLE;
+	if(data->enable) {
+		PIO_Set(&pin_bricklet_enable);
+	} else {
+		PIO_Clear(&pin_bricklet_enable);
+	}
+
+	com_return_setter(com, data);
+}
+
+void get_bricklets_enabled(const ComType com, const GetBrickletsEnabled *data) {
+	GetBrickletsEnabledReturn gber;
+
+	Pin pin_bricklet_enable = PIN_BRICKLET_ENABLE;
+	gber.header             = data->header;
+	gber.header.length      = sizeof(GetBrickletsEnabledReturn);
+	gber.enabled            = PIO_Get(&pin_bricklet_enable);
+
+	send_blocking_with_timeout(&gber, sizeof(GetBrickletsEnabledReturn), com);
 }

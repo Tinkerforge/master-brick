@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2015 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2015, 2020 Olaf Lüke <olaf@tinkerforge.com>
  *
  * communication.h: Implementation of Master-Brick specific messages
  *
@@ -140,8 +140,12 @@
 #define FID_GET_WIFI2_MESH_COMMON_STATUS 108
 #define FID_GET_WIFI2_MESH_CLIENT_STATUS 109
 #define FID_GET_WIFI2_MESH_AP_STATUS 110
+#define FID_SET_BRICKLET_XMC_FLASH_CONFIG 111
+#define FID_SET_BRICKLET_XMC_FLASH_DATA 112
+#define FID_SET_BRICKLETS_ENABLED 113
+#define FID_GET_BRICKLETS_ENABLED 114
 
-#define COM_MESSAGE_USER_LAST_FID 110
+#define COM_MESSAGE_USER_LAST_FID 114
 
 #define COM_MESSAGES_USER \
 	{FID_GET_STACK_VOLTAGE, (message_handler_func_t)get_stack_voltage}, \
@@ -254,6 +258,10 @@
 	{FID_GET_WIFI2_MESH_COMMON_STATUS, (message_handler_func_t)com_forward_message}, \
 	{FID_GET_WIFI2_MESH_CLIENT_STATUS, (message_handler_func_t)com_forward_message}, \
 	{FID_GET_WIFI2_MESH_AP_STATUS, (message_handler_func_t)com_forward_message}, \
+	{FID_SET_BRICKLET_XMC_FLASH_CONFIG, (message_handler_func_t)set_bricklet_xmc_flash_config}, \
+	{FID_SET_BRICKLET_XMC_FLASH_DATA, (message_handler_func_t)set_bricklet_xmc_flash_data}, \
+	{FID_SET_BRICKLETS_ENABLED, (message_handler_func_t)set_bricklets_enabled}, \
+	{FID_GET_BRICKLETS_ENABLED, (message_handler_func_t)get_bricklets_enabled}, \
 
 typedef struct {
 	MessageHeader header;
@@ -921,6 +929,44 @@ typedef struct {
 	uint8_t result;
 } __attribute__((__packed__)) ReadWifi2SerialPortReturn;
 
+typedef struct {
+	MessageHeader header;
+	uint32_t config;
+	uint32_t parameter1;
+	uint32_t parameter2;
+	uint8_t data[52];
+} __attribute__((__packed__)) SetBrickletXMCFlashConfig;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t return_value;
+	uint8_t return_data[60];
+} __attribute__((__packed__)) SetBrickletXMCFlashConfigReturn;
+
+typedef struct {
+	MessageHeader header;
+	uint8_t data[64];
+} __attribute__((__packed__)) SetBrickletXMCFlashData;
+
+typedef struct {
+	MessageHeader header;
+	uint32_t return_value;
+} __attribute__((__packed__)) SetBrickletXMCFlashDataReturn;
+
+typedef struct {
+	MessageHeader header;
+	bool enable;
+} __attribute__((__packed__)) SetBrickletsEnabled;
+
+typedef struct {
+	MessageHeader header;
+} __attribute__((__packed__)) GetBrickletsEnabled;
+
+typedef struct {
+	MessageHeader header;
+	bool enabled;
+} __attribute__((__packed__)) GetBrickletsEnabledReturn;
+
 void get_stack_voltage(const ComType com, const GetStackVoltage *data);
 void get_stack_current(const ComType com, const GetStackCurrent *data);
 void set_extension_type(const ComType com, const SetExtensionType *data);
@@ -996,5 +1042,9 @@ void is_wifi2_present(const ComType com, const IsWifi2Present *data);
 void start_wifi2_bootloader(const ComType com, const StartWifi2Bootloader *data);
 void write_wifi2_serial_port(const ComType com, const WriteWifi2SerialPort *data);
 void read_wifi2_serial_port(const ComType com, const ReadWifi2SerialPort *data);
+void set_bricklet_xmc_flash_config(const ComType com, const SetBrickletXMCFlashConfig *data);
+void set_bricklet_xmc_flash_data(const ComType com, const SetBrickletXMCFlashData *data);
+void set_bricklets_enabled(const ComType com, const SetBrickletsEnabled *data);
+void get_bricklets_enabled(const ComType com, const GetBrickletsEnabled *data);
 
 #endif

@@ -87,6 +87,7 @@ SET(SOURCES
 	"${PROJECT_SOURCE_DIR}/src/bricklib/bricklet/bricklet_communication.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/bricklet/bricklet_init.c"
 	"${PROJECT_SOURCE_DIR}/src/bricklib/bricklet/bricklet_co_mcu.c"
+	"${PROJECT_SOURCE_DIR}/src/bricklib/bricklet/bricklet_xmc.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/extension_init.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/extension_i2c.c"
 	"${PROJECT_SOURCE_DIR}/src/extensions/brickd.c"
