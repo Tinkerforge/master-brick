@@ -14,17 +14,6 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L tinkerforge:GND #PWR053
-U 1 1 4D23019C
-P 10200 1850
-F 0 "#PWR053" H 10200 1850 30  0001 C CNN
-F 1 "GND" H 10200 1780 30  0001 C CNN
-F 2 "" H 10200 1850 60  0001 C CNN
-F 3 "" H 10200 1850 60  0001 C CNN
-	1    10200 1850
-	1    0    0    -1  
-$EndComp
-$Comp
 L tinkerforge:+5V #PWR054
 U 1 1 4D230198
 P 1550 3650
@@ -65,7 +54,6 @@ Wire Wire Line
 	10200 1850 10800 1850
 Wire Wire Line
 	10200 1200 10200 1850
-Connection ~ 10200 1850
 $Comp
 L tinkerforge:TPS22975 U3
 U 1 1 5E610ACD
@@ -88,13 +76,13 @@ F 3 "" H 4550 4250 60  0000 C CNN
 	1    4550 4250
 	1    0    0    -1  
 $EndComp
-Text GLabel 5950 3450 2    50   Output ~ 0
+Text GLabel 6700 3450 2    50   Output ~ 0
 3,3VBricklet
 Wire Wire Line
 	5850 4050 5550 4050
 Text GLabel 8200 1300 0    50   Input ~ 0
 3,3VBricklet
-Text GLabel 3750 3350 0    50   Output ~ 0
+Text GLabel 2900 3050 0    50   Output ~ 0
 5VBricklet
 Wire Wire Line
 	2950 3950 3100 3950
@@ -319,8 +307,6 @@ Connection ~ 3300 4500
 Wire Wire Line
 	3300 4500 3150 4500
 Wire Wire Line
-	5850 3450 5950 3450
-Wire Wire Line
 	5850 3450 5850 3750
 $Comp
 L tinkerforge:Cs C43
@@ -386,17 +372,6 @@ Wire Wire Line
 Connection ~ 1350 4150
 Wire Wire Line
 	1350 4150 2100 4150
-$Comp
-L tinkerforge:GND #PWR0119
-U 1 1 5E77D6F8
-P 10200 3150
-F 0 "#PWR0119" H 10200 3150 30  0001 C CNN
-F 1 "GND" H 10200 3080 30  0001 C CNN
-F 2 "" H 10200 3150 60  0001 C CNN
-F 3 "" H 10200 3150 60  0001 C CNN
-	1    10200 3150
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	10450 2500 10200 2500
 $Comp
@@ -414,7 +389,6 @@ Wire Wire Line
 	10200 3150 10800 3150
 Wire Wire Line
 	10200 2500 10200 3150
-Connection ~ 10200 3150
 Text GLabel 8200 2600 0    50   Input ~ 0
 3,3VBricklet
 Text GLabel 8200 2400 0    50   Input ~ 0
@@ -509,17 +483,6 @@ Text Notes 9500 3400 0    31   ~ 0
 W2A45A221KAT2A
 Wire Wire Line
 	8200 2400 10450 2400
-$Comp
-L tinkerforge:GND #PWR0121
-U 1 1 5E785FA7
-P 10200 4450
-F 0 "#PWR0121" H 10200 4450 30  0001 C CNN
-F 1 "GND" H 10200 4380 30  0001 C CNN
-F 2 "" H 10200 4450 60  0001 C CNN
-F 3 "" H 10200 4450 60  0001 C CNN
-	1    10200 4450
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	10450 3800 10200 3800
 $Comp
@@ -537,7 +500,6 @@ Wire Wire Line
 	10200 4450 10800 4450
 Wire Wire Line
 	10200 3800 10200 4450
-Connection ~ 10200 4450
 Text GLabel 8200 3900 0    50   Input ~ 0
 3,3VBricklet
 Text GLabel 8200 3700 0    50   Input ~ 0
@@ -617,17 +579,6 @@ Wire Wire Line
 	9250 4800 9300 4800
 Text Notes 9500 4700 0    31   ~ 0
 W2A45A221KAT2A
-$Comp
-L tinkerforge:GND #PWR0123
-U 1 1 5E78FFEB
-P 10200 5750
-F 0 "#PWR0123" H 10200 5750 30  0001 C CNN
-F 1 "GND" H 10200 5680 30  0001 C CNN
-F 2 "" H 10200 5750 60  0001 C CNN
-F 3 "" H 10200 5750 60  0001 C CNN
-	1    10200 5750
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	10450 5100 10200 5100
 $Comp
@@ -645,7 +596,6 @@ Wire Wire Line
 	10200 5750 10800 5750
 Wire Wire Line
 	10200 5100 10200 5750
-Connection ~ 10200 5750
 Text GLabel 8200 5200 0    50   Input ~ 0
 3,3VBricklet
 Text GLabel 8200 5000 0    50   Input ~ 0
@@ -844,10 +794,6 @@ F 3 "" H 4550 3550 60  0001 C CNN
 	1    4550 3550
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	3750 3350 3850 3350
-Wire Wire Line
-	3850 3350 3850 3750
 $Comp
 L tinkerforge:CONN_01X01 P8
 U 1 1 5E700970
@@ -876,4 +822,242 @@ $EndComp
 Connection ~ 5850 3750
 Wire Wire Line
 	5850 3750 5850 4050
+$Comp
+L tinkerforge:Cs C50
+U 1 1 5E7F935A
+P 6100 3700
+F 0 "C50" H 5950 3750 31  0000 L CNN
+F 1 "TBD" H 5950 3650 31  0000 L CNN
+F 2 "kicad-libraries:C0603F" H 6100 3700 60  0001 C CNN
+F 3 "" H 6100 3700 60  0000 C CNN
+	1    6100 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L tinkerforge:Cs C51
+U 1 1 5E7F997A
+P 6500 3700
+F 0 "C51" H 6350 3750 31  0000 L CNN
+F 1 "TBD" H 6350 3650 31  0000 L CNN
+F 2 "kicad-libraries:C0603F" H 6500 3700 60  0001 C CNN
+F 3 "" H 6500 3700 60  0000 C CNN
+	1    6500 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L tinkerforge:INDUCTs L4
+U 1 1 5E7FD23C
+P 6300 3450
+F 0 "L4" V 6250 3450 31  0000 C CNN
+F 1 "FB" V 6350 3450 31  0000 C CNN
+F 2 "kicad-libraries:R0603F" H 6300 3450 60  0001 C CNN
+F 3 "" H 6300 3450 60  0000 C CNN
+	1    6300 3450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5850 3450 6100 3450
+Wire Wire Line
+	6100 3450 6100 3600
+Connection ~ 6100 3450
+Wire Wire Line
+	6100 3450 6200 3450
+Wire Wire Line
+	6400 3450 6500 3450
+Wire Wire Line
+	6500 3450 6500 3600
+Connection ~ 6500 3450
+Wire Wire Line
+	6500 3450 6700 3450
+Wire Wire Line
+	6100 3800 6100 3900
+Wire Wire Line
+	6500 3950 6500 3900
+$Comp
+L tinkerforge:GND #PWR034
+U 1 1 5E82ACD3
+P 6100 3950
+F 0 "#PWR034" H 6100 3950 30  0001 C CNN
+F 1 "GND" H 6100 3880 30  0001 C CNN
+F 2 "" H 6100 3950 60  0001 C CNN
+F 3 "" H 6100 3950 60  0001 C CNN
+	1    6100 3950
+	1    0    0    -1  
+$EndComp
+$Comp
+L tinkerforge:INDUCTs L3
+U 1 1 5E82E80D
+P 3250 3050
+F 0 "L3" V 3104 3050 31  0000 C CNN
+F 1 "FB" V 3166 3050 31  0000 C CNN
+F 2 "kicad-libraries:R0603F" H 3250 3050 60  0001 C CNN
+F 3 "" H 3250 3050 60  0000 C CNN
+	1    3250 3050
+	0    1    1    0   
+$EndComp
+$Comp
+L tinkerforge:Cs C48
+U 1 1 5E82ED4C
+P 3050 3250
+F 0 "C48" H 2900 3300 31  0000 L CNN
+F 1 "TBD" H 2900 3200 31  0000 L CNN
+F 2 "kicad-libraries:C0603F" H 3050 3250 60  0001 C CNN
+F 3 "" H 3050 3250 60  0000 C CNN
+	1    3050 3250
+	-1   0    0    1   
+$EndComp
+$Comp
+L tinkerforge:Cs C49
+U 1 1 5E82F4D7
+P 3450 3250
+F 0 "C49" H 3300 3300 31  0000 L CNN
+F 1 "TBD" H 3300 3200 31  0000 L CNN
+F 2 "kicad-libraries:C0603F" H 3450 3250 60  0001 C CNN
+F 3 "" H 3450 3250 60  0000 C CNN
+	1    3450 3250
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3850 3050 3450 3050
+Wire Wire Line
+	3850 3050 3850 3750
+Wire Wire Line
+	3050 3050 3050 3150
+Wire Wire Line
+	2900 3050 3050 3050
+Connection ~ 3050 3050
+Wire Wire Line
+	3050 3050 3150 3050
+Wire Wire Line
+	3450 3150 3450 3050
+Connection ~ 3450 3050
+Wire Wire Line
+	3450 3050 3350 3050
+Wire Wire Line
+	3050 3350 3050 3400
+Wire Wire Line
+	3450 3450 3450 3400
+$Comp
+L tinkerforge:GND #PWR033
+U 1 1 5E85FF58
+P 3450 3450
+F 0 "#PWR033" H 3450 3450 30  0001 C CNN
+F 1 "GND" H 3450 3380 30  0001 C CNN
+F 2 "" H 3450 3450 60  0001 C CNN
+F 3 "" H 3450 3450 60  0001 C CNN
+	1    3450 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L tinkerforge:GNDD1 #PWR0119
+U 1 1 5E78C069
+P 3050 3450
+F 0 "#PWR0119" H 3050 3200 50  0001 C CNN
+F 1 "GNDD1" H 3055 3277 50  0000 C CNN
+F 2 "" H 3050 3450 50  0000 C CNN
+F 3 "" H 3050 3450 50  0000 C CNN
+	1    3050 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L tinkerforge:INDUCTs L5
+U 1 1 5E78C7AB
+P 3250 3400
+F 0 "L5" V 3200 3400 31  0000 C CNN
+F 1 "FB" V 3300 3400 31  0000 C CNN
+F 2 "kicad-libraries:R0603F" H 3250 3400 60  0001 C CNN
+F 3 "" H 3250 3400 60  0000 C CNN
+	1    3250 3400
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3050 3400 3150 3400
+Connection ~ 3050 3400
+Wire Wire Line
+	3050 3400 3050 3450
+Wire Wire Line
+	3350 3400 3450 3400
+Connection ~ 3450 3400
+Wire Wire Line
+	3450 3400 3450 3350
+Wire Wire Line
+	6100 3900 6200 3900
+Connection ~ 6100 3900
+Wire Wire Line
+	6100 3900 6100 3950
+Wire Wire Line
+	6400 3900 6500 3900
+Connection ~ 6500 3900
+Wire Wire Line
+	6500 3900 6500 3800
+$Comp
+L tinkerforge:GNDD1 #PWR0121
+U 1 1 5E7BD3F3
+P 6500 3950
+F 0 "#PWR0121" H 6500 3700 50  0001 C CNN
+F 1 "GNDD1" H 6505 3777 50  0000 C CNN
+F 2 "" H 6500 3950 50  0000 C CNN
+F 3 "" H 6500 3950 50  0000 C CNN
+	1    6500 3950
+	1    0    0    -1  
+$EndComp
+$Comp
+L tinkerforge:INDUCTs L6
+U 1 1 5E7BEC4B
+P 6300 3900
+F 0 "L6" V 6250 3900 31  0000 C CNN
+F 1 "FB" V 6350 3900 31  0000 C CNN
+F 2 "kicad-libraries:R0603F" H 6300 3900 60  0001 C CNN
+F 3 "" H 6300 3900 60  0000 C CNN
+	1    6300 3900
+	0    1    1    0   
+$EndComp
+$Comp
+L tinkerforge:GNDD1 #PWR0123
+U 1 1 5E7C01C8
+P 10200 1850
+F 0 "#PWR0123" H 10200 1600 50  0001 C CNN
+F 1 "GNDD1" H 10205 1677 50  0000 C CNN
+F 2 "" H 10200 1850 50  0000 C CNN
+F 3 "" H 10200 1850 50  0000 C CNN
+	1    10200 1850
+	1    0    0    -1  
+$EndComp
+Connection ~ 10200 1850
+$Comp
+L tinkerforge:GNDD1 #PWR0125
+U 1 1 5E7C20FA
+P 10200 3150
+F 0 "#PWR0125" H 10200 2900 50  0001 C CNN
+F 1 "GNDD1" H 10205 2977 50  0000 C CNN
+F 2 "" H 10200 3150 50  0000 C CNN
+F 3 "" H 10200 3150 50  0000 C CNN
+	1    10200 3150
+	1    0    0    -1  
+$EndComp
+Connection ~ 10200 3150
+$Comp
+L tinkerforge:GNDD1 #PWR0126
+U 1 1 5E7C626A
+P 10200 4450
+F 0 "#PWR0126" H 10200 4200 50  0001 C CNN
+F 1 "GNDD1" H 10205 4277 50  0000 C CNN
+F 2 "" H 10200 4450 50  0000 C CNN
+F 3 "" H 10200 4450 50  0000 C CNN
+	1    10200 4450
+	1    0    0    -1  
+$EndComp
+Connection ~ 10200 4450
+$Comp
+L tinkerforge:GNDD1 #PWR0127
+U 1 1 5E7C90B8
+P 10200 5750
+F 0 "#PWR0127" H 10200 5500 50  0001 C CNN
+F 1 "GNDD1" H 10205 5577 50  0000 C CNN
+F 2 "" H 10200 5750 50  0000 C CNN
+F 3 "" H 10200 5750 50  0000 C CNN
+	1    10200 5750
+	1    0    0    -1  
+$EndComp
+Connection ~ 10200 5750
 $EndSCHEMATC

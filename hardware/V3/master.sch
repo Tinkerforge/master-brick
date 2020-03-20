@@ -1557,4 +1557,50 @@ Wire Wire Line
 Connection ~ 5750 6000
 Wire Wire Line
 	6200 6100 6350 6100
+$Comp
+L tinkerforge:Cs C47
+U 1 1 5E7C6D61
+P 5200 5550
+F 0 "C47" V 5100 5550 31  0000 C CNN
+F 1 "TBD" V 5300 5550 31  0000 C CNN
+F 2 "kicad-libraries:C0603F" H 5200 5550 60  0001 C CNN
+F 3 "" H 5200 5550 60  0000 C CNN
+	1    5200 5550
+	0    1    1    0   
+$EndComp
+$Comp
+L tinkerforge:Cs C46
+U 1 1 5E7C90E5
+P 5200 5050
+F 0 "C46" V 5100 5050 31  0000 C CNN
+F 1 "TBD" V 5300 5050 31  0000 C CNN
+F 2 "kicad-libraries:C0603F" H 5200 5050 60  0001 C CNN
+F 3 "" H 5200 5050 60  0000 C CNN
+	1    5200 5050
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5100 5550 4800 5550
+Connection ~ 4800 5550
+Wire Wire Line
+	4800 5050 5100 5050
+Connection ~ 4800 5050
+Wire Wire Line
+	5300 5050 5450 5050
+Wire Wire Line
+	5450 5050 5450 5550
+Wire Wire Line
+	5450 5550 5300 5550
+$Comp
+L tinkerforge:GND #PWR032
+U 1 1 5E7F4B45
+P 5450 5550
+F 0 "#PWR032" H 5450 5550 30  0001 C CNN
+F 1 "GND" H 5450 5480 30  0001 C CNN
+F 2 "" H 5450 5550 60  0001 C CNN
+F 3 "" H 5450 5550 60  0001 C CNN
+	1    5450 5550
+	1    0    0    -1  
+$EndComp
+Connection ~ 5450 5550
 $EndSCHEMATC
