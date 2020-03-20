@@ -55,6 +55,7 @@
 #define BRICK_DEVICE_IDENTIFIER 13
 #define BRICK_CAN_BE_MASTER
 #define BRICK_ONLY_SUPPORTS_7P
+#define BRICK_CAN_FLASH_BOOTLOADER
 
 // ************** DEBUG SETTINGS **************
 //#define DEBUG_SPI_STACK 1
