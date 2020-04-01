@@ -65,8 +65,6 @@ extern MasterCallback master_callback;
 
 extern EthernetStatus ethernet_status;
 
-extern bool brick_only_supports_7p;
-
 void get_stack_voltage(const ComType com, const GetStackVoltage *data) {
 	GetStackVoltageReturn gsvr;
 
