@@ -61,8 +61,6 @@ Wire Wire Line
 Wire Wire Line
 	6300 5000 5350 5000
 Wire Wire Line
-	5350 4800 6750 4800
-Wire Wire Line
 	6550 4600 5350 4600
 Wire Wire Line
 	2950 2150 2400 2150
@@ -397,7 +395,7 @@ F 3 "" H 4150 5300 60  0001 C CNN
 $EndComp
 Text GLabel 1450 3100 0    60   Input ~ 0
 STACK-EX-1-GP02
-Text GLabel 6750 4800 2    60   Input ~ 0
+Text GLabel 7350 4800 2    60   Input ~ 0
 STACK-SPI-SELECT
 Text GLabel 1500 2050 0    60   Output ~ 0
 STACK-SYNC/JTAG-TCK
@@ -518,7 +516,7 @@ U 1 1 4C458E1C
 P 10150 3550
 F 0 "FB4" V 10250 3550 60  0000 C CNN
 F 1 "FB" V 10050 3550 60  0000 C CNN
-F 2 "C0603" H 10150 3550 60  0001 C CNN
+F 2 "kicad-libraries:R0603F" H 10150 3550 60  0001 C CNN
 F 3 "" H 10150 3550 60  0001 C CNN
 	1    10150 3550
 	0    1    1    0   
@@ -997,4 +995,19 @@ Wire Wire Line
 Connection ~ 8950 4100
 Wire Wire Line
 	8950 4100 8400 4100
+$Comp
+L tinkerforge:R R301
+U 1 1 5E983540
+P 6950 4800
+F 0 "R301" V 6850 4800 50  0000 C CNN
+F 1 "82" V 6950 4800 50  0000 C CNN
+F 2 "kicad-libraries:R0402E" V 6826 4800 60  0001 C CNN
+F 3 "" H 6950 4800 60  0000 C CNN
+	1    6950 4800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7350 4800 7200 4800
+Wire Wire Line
+	6700 4800 5350 4800
 $EndSCHEMATC
