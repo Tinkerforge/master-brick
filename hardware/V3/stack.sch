@@ -871,7 +871,7 @@ NoConn ~ 1550 1100
 Wire Wire Line
 	10600 3900 10600 4100
 Wire Wire Line
-	10600 4100 8400 4100
+	10600 4100 8950 4100
 Connection ~ 8400 4100
 Wire Wire Line
 	8400 4100 8400 5700
@@ -988,4 +988,13 @@ Wire Wire Line
 Connection ~ 2650 2600
 Wire Wire Line
 	2650 2600 2650 5600
+Text GLabel 8900 4200 0    50   Input ~ 0
+PGND
+Wire Wire Line
+	8950 4100 8950 4200
+Wire Wire Line
+	8950 4200 8900 4200
+Connection ~ 8950 4100
+Wire Wire Line
+	8950 4100 8400 4100
 $EndSCHEMATC
