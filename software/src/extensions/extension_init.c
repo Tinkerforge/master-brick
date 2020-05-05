@@ -133,7 +133,19 @@ void extension_set_type(const uint8_t extension, uint32_t type) {
 void extension_init(void) {
 	logexti("Start extension initialization\n\r");
     
-    if(master_get_hardware_version() > 20) {
+    if(master_get_hardware_version() >= 30) {
+		Pin extension_pins_30[8] = {
+			PIN_EXT_0_SELECT_30,
+			PIN_EXT_0_GP_0_21,
+			PIN_EXT_0_GP_1,
+			PIN_EXT_0_GP_2_30,
+			PIN_EXT_1_SELECT_30,
+			PIN_EXT_1_GP_0_30,
+			PIN_EXT_1_GP_1_30,
+			PIN_EXT_1_GP_2_30
+		};
+		memcpy(&extension_pins[0], &extension_pins_30, sizeof(Pin)*8);
+	} else if(master_get_hardware_version() > 20) {
         //fix gp0 pin for hw 2.1
 		Pin pin_ext_0_gp_0_21 = PIN_EXT_0_GP_0_21;
 		memcpy(&extension_pins[1], &pin_ext_0_gp_0_21, sizeof(Pin));

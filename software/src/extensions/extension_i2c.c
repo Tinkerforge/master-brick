@@ -28,10 +28,20 @@
 #include "bricklib/drivers/twi/twi.h"
 #include "bricklib/drivers/twi/twid.h"
 
+#include <string.h>
+
 Pin extension_select[] = {PIN_EXT_0_SELECT, PIN_EXT_1_SELECT};
 
 void extension_i2c_init(void) {
 	const Pin twi_pins[] = {PINS_TWI_STACK};
+
+	if(master_get_hardware_version() >= 30) {
+		Pin extension_select_30[2] = {
+			PIN_EXT_0_SELECT_30,
+			PIN_EXT_1_SELECT_30,
+		};
+		memcpy(&extension_select[0], &extension_select_30[0], sizeof(Pin)*2);
+	}
 
 	// Configure TWI pins
 	PIO_Configure(twi_pins, PIO_LISTSIZE(twi_pins));

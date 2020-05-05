@@ -69,6 +69,7 @@ extern bool usb_first_connection;
 extern bool brick_only_supports_7p;
 
 uint8_t brick_hardware_version[3];
+extern BrickletSettings bs[BRICKLET_NUM];
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
 	logf("Stack Overflow: %s\n\r", pcTaskName);
@@ -131,8 +132,14 @@ int main() {
 		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_30;
 		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_30;
 		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_30;
-		Pin pins_v30[] = {PINS_EXT_21, PIN_BRICKLET_ENABLE};
+		Pin pins_v30[] = {PINS_EXT_30, PIN_BRICKLET_ENABLE};
 		PIO_Configure(pins_v30, PIO_LISTSIZE(pins_v30));
+
+		// Overwrite Bricklet pins that are initialized in bricklib
+		Pin pin_d_1_ad_30 = BRICKLET_D_PIN_1_AD_30;
+		Pin pin_d_2_da_30 = BRICKLET_D_PIN_2_DA_30;
+		memcpy(&bs[3].pin1_ad, &pin_d_1_ad_30, sizeof(Pin));
+		memcpy(&bs[3].pin2_da, &pin_d_2_da_30, sizeof(Pin));
 
 		brick_only_supports_7p = true;
 	}
