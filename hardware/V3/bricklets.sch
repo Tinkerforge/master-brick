@@ -131,13 +131,13 @@ Wire Wire Line
 $Comp
 L tinkerforge:C_PACK4 CP1
 U 1 1 5E6D618A
-P 9100 1950
-F 0 "CP1" V 9054 2378 50  0000 L CNN
-F 1 "220pF" V 9145 2378 50  0000 L CNN
-F 2 "kicad-libraries:4X0402" H 9100 1950 50  0001 C CNN
-F 3 "" H 9100 1950 50  0000 C CNN
-	1    9100 1950
-	0    1    1    0   
+P 9500 1950
+F 0 "CP1" V 9454 2378 50  0000 L CNN
+F 1 "220pF" V 9545 2378 50  0000 L CNN
+F 2 "kicad-libraries:4X0402" H 9500 1950 50  0001 C CNN
+F 3 "" H 9500 1950 50  0000 C CNN
+	1    9500 1950
+	0    -1   1    0   
 $EndComp
 NoConn ~ 9150 1750
 Wire Wire Line
@@ -297,8 +297,6 @@ Wire Wire Line
 Connection ~ 3500 4500
 Connection ~ 3850 4050
 Wire Wire Line
-	3850 4050 4100 4050
-Wire Wire Line
 	4550 4450 4550 4500
 Wire Wire Line
 	4550 4500 3750 4500
@@ -306,8 +304,6 @@ Connection ~ 3750 4500
 Connection ~ 3300 4500
 Wire Wire Line
 	3300 4500 3150 4500
-Wire Wire Line
-	5850 3450 5850 3750
 $Comp
 L tinkerforge:Cs C43
 U 1 1 5E73E11E
@@ -333,8 +329,6 @@ $EndComp
 Wire Wire Line
 	5200 4150 5200 4050
 Connection ~ 5200 4050
-Wire Wire Line
-	5200 4050 5000 4050
 Wire Wire Line
 	5200 4050 5550 4050
 Wire Wire Line
@@ -423,13 +417,13 @@ Wire Wire Line
 $Comp
 L tinkerforge:C_PACK4 CP2
 U 1 1 5E77D71C
-P 9100 3250
-F 0 "CP2" V 9054 3678 50  0000 L CNN
-F 1 "220pF" V 9145 3678 50  0000 L CNN
-F 2 "kicad-libraries:4X0402" H 9100 3250 50  0001 C CNN
-F 3 "" H 9100 3250 50  0000 C CNN
-	1    9100 3250
-	0    1    1    0   
+P 9500 3250
+F 0 "CP2" V 9454 3678 50  0000 L CNN
+F 1 "220pF" V 9545 3678 50  0000 L CNN
+F 2 "kicad-libraries:4X0402" H 9500 3250 50  0001 C CNN
+F 3 "" H 9500 3250 50  0000 C CNN
+	1    9500 3250
+	0    -1   1    0   
 $EndComp
 NoConn ~ 9150 3050
 Wire Wire Line
@@ -523,13 +517,13 @@ Wire Wire Line
 $Comp
 L tinkerforge:C_PACK4 CP3
 U 1 1 5E785FCB
-P 9100 4550
-F 0 "CP3" V 9054 4978 50  0000 L CNN
-F 1 "220pF" V 9145 4978 50  0000 L CNN
-F 2 "kicad-libraries:4X0402" H 9100 4550 50  0001 C CNN
-F 3 "" H 9100 4550 50  0000 C CNN
-	1    9100 4550
-	0    1    1    0   
+P 9500 4550
+F 0 "CP3" V 9454 4978 50  0000 L CNN
+F 1 "220pF" V 9545 4978 50  0000 L CNN
+F 2 "kicad-libraries:4X0402" H 9500 4550 50  0001 C CNN
+F 3 "" H 9500 4550 50  0000 C CNN
+	1    9500 4550
+	0    -1   1    0   
 $EndComp
 NoConn ~ 9150 4350
 Wire Wire Line
@@ -619,13 +613,13 @@ Wire Wire Line
 $Comp
 L tinkerforge:C_PACK4 CP4
 U 1 1 5E79000F
-P 9100 5850
-F 0 "CP4" V 9054 6278 50  0000 L CNN
-F 1 "220pF" V 9145 6278 50  0000 L CNN
-F 2 "kicad-libraries:4X0402" H 9100 5850 50  0001 C CNN
-F 3 "" H 9100 5850 50  0000 C CNN
-	1    9100 5850
-	0    1    1    0   
+P 9500 5850
+F 0 "CP4" V 9454 6278 50  0000 L CNN
+F 1 "220pF" V 9545 6278 50  0000 L CNN
+F 2 "kicad-libraries:4X0402" H 9500 5850 50  0001 C CNN
+F 3 "" H 9500 5850 50  0000 C CNN
+	1    9500 5850
+	0    -1   1    0   
 $EndComp
 NoConn ~ 9150 5650
 Wire Wire Line
@@ -759,70 +753,6 @@ F 3 "" H 8600 3950 50  0000 C CNN
 	1    0    0    1   
 $EndComp
 $Comp
-L tinkerforge:LD1117 U5
-U 1 1 5E4FF577
-P 4550 3350
-F 0 "U5" H 4350 3850 60  0000 C CNN
-F 1 "AP7333-33SRG" H 4550 3650 31  0000 C CNN
-F 2 "kicad-libraries:SOT23-3" H 4550 3350 60  0001 C CNN
-F 3 "" H 4550 3350 60  0000 C CNN
-	1    4550 3350
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4100 4050 4100 3150
-Wire Wire Line
-	4100 3150 4150 3150
-Connection ~ 4100 4050
-Wire Wire Line
-	4100 4050 4150 4050
-Wire Wire Line
-	4950 3150 5000 3150
-Wire Wire Line
-	5000 3150 5000 4050
-Connection ~ 5000 4050
-Wire Wire Line
-	5000 4050 4950 4050
-$Comp
-L tinkerforge:GND #PWR031
-U 1 1 5E512572
-P 4550 3550
-F 0 "#PWR031" H 4550 3550 30  0001 C CNN
-F 1 "GND" H 4550 3480 30  0001 C CNN
-F 2 "" H 4550 3550 60  0001 C CNN
-F 3 "" H 4550 3550 60  0001 C CNN
-	1    4550 3550
-	1    0    0    -1  
-$EndComp
-$Comp
-L tinkerforge:CONN_01X01 P8
-U 1 1 5E700970
-P 3650 3750
-F 0 "P8" H 3567 3525 50  0000 C CNN
-F 1 "Bricklet 5V" H 3700 3650 50  0000 C CNN
-F 2 "kicad-libraries:TSTPT" H 3650 3750 50  0001 C CNN
-F 3 "" H 3650 3750 50  0000 C CNN
-	1    3650 3750
-	-1   0    0    1   
-$EndComp
-Connection ~ 3850 3750
-Wire Wire Line
-	3850 3750 3850 4050
-$Comp
-L tinkerforge:CONN_01X01 P9
-U 1 1 5E7077BD
-P 5650 3750
-F 0 "P9" H 5567 3525 50  0000 C CNN
-F 1 "Bricklet 3,3V" H 5700 3650 50  0000 C CNN
-F 2 "kicad-libraries:TSTPT" H 5650 3750 50  0001 C CNN
-F 3 "" H 5650 3750 50  0000 C CNN
-	1    5650 3750
-	-1   0    0    1   
-$EndComp
-Connection ~ 5850 3750
-Wire Wire Line
-	5850 3750 5850 4050
-$Comp
 L tinkerforge:Cs C50
 U 1 1 5E7F935A
 P 6100 3700
@@ -919,8 +849,6 @@ F 3 "" H 3450 3250 60  0000 C CNN
 $EndComp
 Wire Wire Line
 	3850 3050 3450 3050
-Wire Wire Line
-	3850 3050 3850 3750
 Wire Wire Line
 	3050 3050 3050 3150
 Wire Wire Line
@@ -1060,4 +988,12 @@ F 3 "" H 10200 5750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Connection ~ 10200 5750
+Wire Wire Line
+	3850 4050 4150 4050
+Wire Wire Line
+	4950 4050 5200 4050
+Wire Wire Line
+	3850 3050 3850 4050
+Wire Wire Line
+	5850 3450 5850 4050
 $EndSCHEMATC
