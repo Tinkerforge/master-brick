@@ -112,7 +112,7 @@ void master_init(void) {
 	adc_channel_enable(USB_VOLTAGE_CHANNEL);
 	adc_channel_enable(STACK_VOLTAGE_CHANNEL);
 	adc_channel_enable(STACK_CURRENT_CHANNEL);
-	if(version > 10) {
+	if((version > 10) && (version < 30)) {
 		adc_channel_enable(ADC_CAL_LOW_CHANNEL);
 		adc_channel_enable(ADC_CAL_HIGH_CHANNEL);
 	}
@@ -120,7 +120,7 @@ void master_init(void) {
 	const int32_t correct_low_sum = (ADC_MAX_VALUE*ADC_CAL_SUM*ADC_CAL_LOW_MULTIPLIER)/ADC_CAL_LOW_DIVISOR;
 	const int32_t correct_high_sum = (ADC_MAX_VALUE*ADC_CAL_SUM*ADC_CAL_HIGH_MULTIPLIER)/ADC_CAL_HIGH_DIVISOR;
 
-	if(version > 10) {
+	if((version > 10) && (version < 30)) {
 		uint32_t measured_low_sum = 0;
 		uint32_t measured_high_sum = 0;
 		for(uint8_t i = 0; i < ADC_CAL_SUM*10; i++) {
@@ -142,7 +142,6 @@ void master_init(void) {
 		adc_channel_disable(ADC_CAL_LOW_CHANNEL);
 		adc_channel_disable(ADC_CAL_HIGH_CHANNEL);
 	}
-
 
 	// Make random number from temperature
 	uint32_t seed = 0;
