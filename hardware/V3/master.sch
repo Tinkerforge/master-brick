@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 4
 Title ""
-Date "2020-02-07"
-Rev "3.0"
+Date "2020-08-25"
+Rev "3.1"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
 Comment2 "Copyright (©) 2020, T.Schneidermann <tim@tinkerforge.com>"
@@ -1059,8 +1059,6 @@ Wire Wire Line
 Wire Wire Line
 	4800 5550 4800 5700
 Wire Wire Line
-	4800 5700 5750 5700
-Wire Wire Line
 	5250 5800 6350 5800
 Wire Wire Line
 	5300 5900 6350 5900
@@ -1069,7 +1067,7 @@ L tinkerforge:Rs R5
 U 1 1 5EA2FA33
 P 6100 6000
 F 0 "R5" V 6050 6000 31  0000 C CNN
-F 1 "56k" V 6100 6000 31  0000 C CNN
+F 1 "5k1" V 6100 6000 31  0000 C CNN
 F 2 "kicad-libraries:R0603F" H 6100 6000 60  0001 C CNN
 F 3 "" H 6100 6000 60  0000 C CNN
 	1    6100 6000
@@ -1078,16 +1076,11 @@ $EndComp
 Wire Wire Line
 	6000 6000 5750 6000
 Wire Wire Line
-	5750 6000 5750 5700
-Connection ~ 5750 5700
-Wire Wire Line
-	5750 5700 6350 5700
-Wire Wire Line
 	6200 6000 6350 6000
 Wire Wire Line
 	5550 6200 5550 6350
 Wire Wire Line
-	5550 6200 6350 6200
+	5550 6200 5750 6200
 Text GLabel 3000 850  2    60   Output ~ 0
 Bricklet_Enable
 Wire Wire Line
@@ -1138,7 +1131,7 @@ L tinkerforge:Rs R18
 U 1 1 5E6B3F8B
 P 6100 6100
 F 0 "R18" V 6050 6100 31  0000 C CNN
-F 1 "56k" V 6100 6100 31  0000 C CNN
+F 1 "5k1" V 6100 6100 31  0000 C CNN
 F 2 "kicad-libraries:R0603F" H 6100 6100 60  0001 C CNN
 F 3 "" H 6100 6100 60  0000 C CNN
 	1    6100 6100
@@ -1148,7 +1141,6 @@ Wire Wire Line
 	5750 6000 5750 6100
 Wire Wire Line
 	5750 6100 6000 6100
-Connection ~ 5750 6000
 Wire Wire Line
 	6200 6100 6350 6100
 $Comp
@@ -1309,4 +1301,12 @@ Wire Wire Line
 	6250 6800 6250 6900
 Wire Wire Line
 	6350 6300 6250 6300
+Wire Wire Line
+	4800 5700 6350 5700
+Wire Wire Line
+	5750 6100 5750 6200
+Connection ~ 5750 6100
+Connection ~ 5750 6200
+Wire Wire Line
+	5750 6200 6350 6200
 $EndSCHEMATC

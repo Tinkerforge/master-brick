@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 4 4
 Title ""
-Date "2020-02-07"
-Rev "3.0"
+Date "2020-08-25"
+Rev "3.1"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
 Comment2 "Copyright (©) 2020, T.Schneidermann <tim@tinkerforge.com>"
