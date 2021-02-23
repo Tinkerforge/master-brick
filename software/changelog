@@ -247,5 +247,5 @@
   - Increase SPI stack timeout (for RED Brick)
   - Fix bugs in set/get_spitfp_* functions
 
-2020-03-10: 2.5.0 (TBD)
+2021-02-23: 2.5.0 (7157f25)
 - Add support for Master Brick hardware verison 3.0
