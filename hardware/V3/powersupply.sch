@@ -1144,4 +1144,5 @@ Wire Wire Line
 Connection ~ 7900 2800
 Wire Wire Line
 	7900 2800 7900 2700
+Connection ~ 9900 4800
 $EndSCHEMATC
