@@ -4,12 +4,12 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 4 4
-Title ""
-Date "2020-08-25"
-Rev "3.1"
+Title "Master Brick"
+Date "2021-11-05"
+Rev "3.2"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
-Comment2 "Copyright (©) 2020, T.Schneidermann <tim@tinkerforge.com>"
+Comment2 "Copyright (©) 2021, B. Nordmeyer <bastian@tinkerforge.com>"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -273,7 +273,7 @@ L tinkerforge:AT91SAM3SXC U1
 U 4 1 4D22D010
 P 3350 1950
 F 0 "U1" H 3400 2000 60  0000 C CNN
-F 1 "SAM???" H 3950 2000 60  0000 C CNN
+F 1 "SAM4S4CA" H 3950 2000 60  0000 C CNN
 F 2 "LQFP100" H 3350 1950 60  0001 C CNN
 F 3 "" H 3350 1950 60  0001 C CNN
 	4    3350 1950

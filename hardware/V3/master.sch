@@ -4,12 +4,12 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 4
-Title ""
-Date "2020-08-25"
-Rev "3.1"
+Title "Master Brick"
+Date "2021-11-05"
+Rev "3.2"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
-Comment2 "Copyright (©) 2020, T.Schneidermann <tim@tinkerforge.com>"
+Comment2 "Copyright (©) 2021, B. Nordmeyer <bastian@tinkerforge.com>"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -454,7 +454,7 @@ Text GLabel 2900 5350 2    60   Input ~ 0
 XIN
 Text GLabel 2900 5250 2    60   Output ~ 0
 XOUT
-Text GLabel 3200 6250 2    60   Input ~ 0
+Text GLabel 3150 5950 2    60   Input ~ 0
 STACK-RESET
 Text GLabel 3000 3150 2    60   Output ~ 0
 STACK-SER2-RTS
@@ -887,9 +887,6 @@ Wire Wire Line
 	1950 2450 3000 2450
 Wire Wire Line
 	1750 5250 2900 5250
-Connection ~ 3050 6250
-Wire Wire Line
-	3200 6250 3050 6250
 Wire Wire Line
 	1950 3150 3000 3150
 Wire Wire Line
@@ -910,8 +907,6 @@ Wire Wire Line
 	5650 5450 5650 5400
 Wire Wire Line
 	3050 6550 3300 6550
-Wire Wire Line
-	3050 5950 3050 6250
 Wire Wire Line
 	1750 5950 3050 5950
 Wire Wire Line
@@ -1041,8 +1036,6 @@ Wire Wire Line
 	10400 2600 10400 2900
 Wire Wire Line
 	10250 3550 10250 3850
-Wire Wire Line
-	3050 6250 3050 6550
 Wire Wire Line
 	10850 3550 10850 3850
 Wire Wire Line
@@ -1312,4 +1305,67 @@ Wire Wire Line
 NoConn ~ 1950 3850
 NoConn ~ 1750 5850
 NoConn ~ 7800 3800
+$Comp
+L tinkerforge:R R101
+U 1 1 61866983
+P 3900 6100
+F 0 "R101" V 3800 6100 50  0000 C CNN
+F 1 "100k" V 3900 6100 50  0000 C CNN
+F 2 "kicad-libraries:R0603F" H 3900 6100 60  0001 C CNN
+F 3 "" H 3900 6100 60  0001 C CNN
+	1    3900 6100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L tinkerforge:3V3 #PWR0130
+U 1 1 61868B97
+P 4250 6100
+F 0 "#PWR0130" H 4250 6200 40  0001 C CNN
+F 1 "3V3" H 4250 6225 40  0000 C CNN
+F 2 "" H 4250 6100 60  0001 C CNN
+F 3 "" H 4250 6100 60  0001 C CNN
+	1    4250 6100
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	4150 6100 4250 6100
+Wire Wire Line
+	3050 6100 3650 6100
+Wire Wire Line
+	3050 5950 3050 6100
+Connection ~ 3050 6100
+Wire Wire Line
+	3050 6100 3050 6300
+Wire Wire Line
+	3050 5950 3150 5950
+Connection ~ 3050 5950
+$Comp
+L tinkerforge:Cs C101
+U 1 1 618C0E02
+P 3250 6300
+F 0 "C101" V 3150 6300 31  0000 C CNN
+F 1 "4.7nF" V 3350 6300 31  0000 C CNN
+F 2 "kicad-libraries:C0603F" H 3250 6300 60  0001 C CNN
+F 3 "" H 3250 6300 60  0000 C CNN
+	1    3250 6300
+	0    1    1    0   
+$EndComp
+$Comp
+L tinkerforge:GND #PWR0131
+U 1 1 618C2A8F
+P 3450 6300
+F 0 "#PWR0131" H 3450 6300 30  0001 C CNN
+F 1 "GND" H 3450 6230 30  0001 C CNN
+F 2 "" H 3450 6300 60  0001 C CNN
+F 3 "" H 3450 6300 60  0001 C CNN
+	1    3450 6300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 6300 3450 6300
+Wire Wire Line
+	3150 6300 3050 6300
+Connection ~ 3050 6300
+Wire Wire Line
+	3050 6300 3050 6550
 $EndSCHEMATC

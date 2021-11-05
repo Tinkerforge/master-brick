@@ -4,12 +4,12 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 3 4
-Title ""
-Date "2020-08-25"
-Rev "3.1"
+Title "Master Brick"
+Date "2021-11-05"
+Rev "3.2"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
-Comment2 "Copyright (©) 2020, T.Schneidermann <tim@tinkerforge.com>"
+Comment2 "Copyright (©) 2021, B. Nordmeyer <bastian@tinkerforge.com>"
 Comment3 ""
 Comment4 ""
 $EndDescr
