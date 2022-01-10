@@ -1,36 +1,5 @@
-EESchema Schematic File Version 2
-LIBS:tinkerforge
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:master-cache
-EELAYER 25 0
+EESchema Schematic File Version 4
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -45,7 +14,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L VPP #PWR073
+L tinkerforge:VPP #PWR073
 U 1 1 5062EA9B
 P 10800 4150
 F 0 "#PWR073" H 10800 4350 40  0001 C CNN
@@ -408,7 +377,7 @@ Wire Wire Line
 Wire Wire Line
 	6950 3300 6750 3300
 $Comp
-L GND #PWR074
+L tinkerforge:GND #PWR074
 U 1 1 4EF1D5FA
 P 11100 6500
 F 0 "#PWR074" H 11100 6500 30  0001 C CNN
@@ -419,7 +388,7 @@ F 3 "" H 11100 6500 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R15
+L tinkerforge:R R15
 U 1 1 4EF1D5E6
 P 11100 6200
 F 0 "R15" V 11180 6200 50  0000 C CNN
@@ -434,7 +403,7 @@ NoConn ~ 6950 3500
 NoConn ~ 7350 3400
 NoConn ~ 7350 3500
 $Comp
-L R_PACK4 RP8
+L tinkerforge:R_PACK4 RP8
 U 1 1 4D9D8B80
 P 7150 3650
 F 0 "RP8" H 7150 4100 40  0000 C CNN
@@ -445,7 +414,7 @@ F 3 "" H 7150 3650 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R14
+L tinkerforge:R R14
 U 1 1 4D0BA1A4
 P 2000 1850
 F 0 "R14" V 2080 1850 50  0000 C CNN
@@ -464,7 +433,7 @@ STACK-EX-0-GP02
 Text GLabel 1900 2750 0    60   Input ~ 0
 STACK-EX-1-GP00
 $Comp
-L GND #PWR075
+L tinkerforge:GND #PWR075
 U 1 1 4CC860F2
 P 4400 6450
 F 0 "#PWR075" H 4400 6450 30  0001 C CNN
@@ -475,7 +444,7 @@ F 3 "" H 4400 6450 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR076
+L tinkerforge:GND #PWR076
 U 1 1 4CC860E5
 P 4400 3450
 F 0 "#PWR076" H 4400 3450 30  0001 C CNN
@@ -486,7 +455,7 @@ F 3 "" H 4400 3450 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR077
+L tinkerforge:GND #PWR077
 U 1 1 4CC860D5
 P 9700 6300
 F 0 "#PWR077" H 9700 6300 30  0001 C CNN
@@ -497,7 +466,7 @@ F 3 "" H 9700 6300 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR078
+L tinkerforge:GND #PWR078
 U 1 1 4CC860D1
 P 9700 3250
 F 0 "#PWR078" H 9700 3250 30  0001 C CNN
@@ -512,7 +481,7 @@ STACK-MASTER-DETECT
 Text GLabel 6900 2950 2    60   Input ~ 0
 STACK-SER2-RTS
 $Comp
-L STACK-DOWN-1 J7
+L tinkerforge:STACK-DOWN-1 J7
 U 1 1 4C46D30D
 P 4400 5300
 F 0 "J7" H 3550 6150 60  0000 C CNN
@@ -535,7 +504,7 @@ STACK-VOLTAGE
 Text GLabel 8150 5950 0    60   Output ~ 0
 STACK-CURRENT
 $Comp
-L STACK-UP-2 J8
+L tinkerforge:STACK-UP-2 J8
 U 1 1 4C46D315
 P 9700 2200
 F 0 "J8" H 8850 3050 60  0000 C CNN
@@ -546,7 +515,7 @@ F 3 "" H 9700 2200 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L STACK-DOWN-2 J9
+L tinkerforge:STACK-DOWN-2 J9
 U 1 1 4C46D31B
 P 9700 5250
 F 0 "J9" H 8850 6100 60  0000 C CNN
@@ -605,7 +574,7 @@ STACK-SPI-MOSI
 Text GLabel 1900 1550 0    60   Input ~ 0
 STACK-SPI-MISO
 $Comp
-L GND #PWR079
+L tinkerforge:GND #PWR079
 U 1 1 4C46D480
 P 9200 3750
 F 0 "#PWR079" H 9200 3750 30  0001 C CNN
@@ -618,7 +587,7 @@ $EndComp
 Text GLabel 10150 3800 2    60   Output ~ 0
 VSTACK
 $Comp
-L STACK-UP-1 J6
+L tinkerforge:STACK-UP-1 J6
 U 1 1 4C46D305
 P 4400 2250
 F 0 "J6" H 3550 3100 60  0000 C CNN
@@ -629,7 +598,7 @@ F 3 "" H 4400 2250 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L FILTER FB3
+L tinkerforge:FILTER FB3
 U 1 1 4C458E31
 P 8850 3550
 F 0 "FB3" H 8850 3700 60  0000 C CNN
@@ -640,7 +609,7 @@ F 3 "" H 8850 3550 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L FILTER FB4
+L tinkerforge:FILTER FB4
 U 1 1 4C458E1C
 P 10500 3550
 F 0 "FB4" H 10500 3700 60  0000 C CNN
