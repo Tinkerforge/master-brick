@@ -36,11 +36,11 @@ void extension_i2c_init(void) {
 	const Pin twi_pins[] = {PINS_TWI_STACK};
 
 	if(master_get_hardware_version() >= 30) {
-		Pin extension_select_30[2] = {
-			PIN_EXT_0_SELECT_30,
-			PIN_EXT_1_SELECT_30,
+		Pin extension_select_31[2] = {
+			PIN_EXT_0_SELECT_31,
+			PIN_EXT_1_SELECT_31,
 		};
-		memcpy(&extension_select[0], &extension_select_30[0], sizeof(Pin)*2);
+		memcpy(&extension_select[0], &extension_select_31[0], sizeof(Pin)*2);
 	}
 
 	// Configure TWI pins
