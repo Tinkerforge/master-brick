@@ -5,11 +5,11 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 3 4
 Title "Master Brick"
-Date "2021-11-05"
+Date "2022-01-11"
 Rev "3.2"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
-Comment2 "Copyright (©) 2021, B. Nordmeyer <bastian@tinkerforge.com>"
+Comment2 "Copyright (©) 2022, B. Nordmeyer <bastian@tinkerforge.com>"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -380,7 +380,7 @@ F 3 "" H 9700 3250 60  0001 C CNN
 $EndComp
 Text GLabel 1650 5000 0    60   Output ~ 0
 STACK-MASTER-DETECT
-Text GLabel 7300 3300 2    60   Input ~ 0
+Text GLabel 7300 3100 2    60   Input ~ 0
 STACK-SER2-RTS
 $Comp
 L tinkerforge:STACK-DOWN-1 J7
@@ -429,7 +429,7 @@ F 3 "" H 9700 5250 60  0001 C CNN
 $EndComp
 Text GLabel 7300 3200 2    60   Input ~ 0
 STACK-SER2-TXD
-Text GLabel 7300 3100 2    60   Input ~ 0
+Text GLabel 7300 3300 2    60   Input ~ 0
 STACK-SER2-RXD
 Text GLabel 1250 1850 0    60   Output ~ 0
 STACK-RESET
@@ -456,9 +456,9 @@ STACK-SELECT-01
 Text GLabel 7300 1750 2    60   Input ~ 0
 STACK-SELECT-00
 Text GLabel 1450 2700 0    60   Input ~ 0
-STACK-EX-0-GP01
-Text GLabel 1450 2600 0    60   Input ~ 0
 STACK-EX-0-GP00
+Text GLabel 1450 2600 0    60   Input ~ 0
+STACK-EX-0-GP01
 Text GLabel 1450 2350 0    60   Input ~ 0
 STACK-SER-SCK
 Text GLabel 1450 2250 0    60   Input ~ 0

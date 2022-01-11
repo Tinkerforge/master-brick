@@ -5,11 +5,11 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 4
 Title "Master Brick"
-Date "2021-11-05"
+Date "2022-01-11"
 Rev "3.2"
 Comp "Tinkerforge GmbH"
 Comment1 "Licensed under CERN OHL v.1.1"
-Comment2 "Copyright (©) 2021, B. Nordmeyer <bastian@tinkerforge.com>"
+Comment2 "Copyright (©) 2022, B. Nordmeyer <bastian@tinkerforge.com>"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -165,7 +165,7 @@ $EndComp
 Text GLabel 3000 2350 2    60   Output ~ 0
 3V3-EN
 Text Notes 550  7700 0    40   ~ 0
-Copyright Tinkerforge GmbH 2021.\nThis documentation describes Open Hardware and is licensed under the\nCERN OHL v. 1.1.\nYou may redistribute and modify this documentation under the terms of the\nCERN OHL v.1.1. (http://ohwr.org/cernohl). This documentation is distributed\nWITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF\nMERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A\nPARTICULAR PURPOSE. Please see the CERN OHL v.1.1 for applicable\nconditions\n
+Copyright Tinkerforge GmbH 2022.\nThis documentation describes Open Hardware and is licensed under the\nCERN OHL v. 1.1.\nYou may redistribute and modify this documentation under the terms of the\nCERN OHL v.1.1. (http://ohwr.org/cernohl). This documentation is distributed\nWITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF\nMERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A\nPARTICULAR PURPOSE. Please see the CERN OHL v.1.1 for applicable\nconditions\n
 NoConn ~ 9450 2700
 NoConn ~ 9450 2800
 NoConn ~ 9850 2700
@@ -207,7 +207,6 @@ Text GLabel 8200 2500 2    60   Output ~ 0
 SCL-PULLUP
 Text GLabel 3000 750  2    60   Output ~ 0
 SDA-PULLUP
-NoConn ~ 1950 3050
 NoConn ~ 1950 2250
 Text GLabel 8200 3500 2    60   Output ~ 0
 LED4
@@ -528,9 +527,9 @@ STACK-SER2-TXD
 Text GLabel 3000 2850 2    60   Output ~ 0
 STACK-SER2-RXD
 Text GLabel 3000 1750 2    60   Output ~ 0
-STACK-EX-0-GP01
-Text GLabel 3000 1550 2    60   Output ~ 0
 STACK-EX-0-GP00
+Text GLabel 3000 1550 2    60   Output ~ 0
+STACK-EX-0-GP01
 Text GLabel 3000 950  2    60   Output ~ 0
 STACK-SER-SCK
 Text GLabel 3000 1350 2    60   Output ~ 0
@@ -1094,7 +1093,7 @@ Wire Wire Line
 Wire Wire Line
 	8450 2200 8450 2050
 Text Notes 8700 2150 0    60   ~ 0
-Detect Master 3.0
+Detect Master 3.1
 Wire Wire Line
 	8450 2050 8650 2050
 Wire Wire Line
@@ -1368,4 +1367,19 @@ Wire Wire Line
 Connection ~ 3050 6300
 Wire Wire Line
 	3050 6300 3050 6550
+Text Notes 2900 3100 0    60   ~ 0
+Detect Master 3.2
+$Comp
+L tinkerforge:GND #PWR0132
+U 1 1 61E1D92E
+P 2250 3050
+F 0 "#PWR0132" H 2250 3050 30  0001 C CNN
+F 1 "GND" H 2250 2980 30  0001 C CNN
+F 2 "" H 2250 3050 60  0001 C CNN
+F 3 "" H 2250 3050 60  0001 C CNN
+	1    2250 3050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1950 3050 2250 3050
 $EndSCHEMATC
