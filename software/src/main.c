@@ -129,17 +129,17 @@ int main() {
 		// Set dummy calibration, to make sure that calibration is not read
 		// from flash in Master Brick HW Version 3.0
 		adc_set_calibration(0, 1, 1);
-		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_30;
-		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_30;
-		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_30;
-		Pin pins_v30[] = {PINS_EXT_30, PIN_BRICKLET_ENABLE};
-		PIO_Configure(pins_v30, PIO_LISTSIZE(pins_v30));
+		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_31;
+		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_31;
+		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_31;
+		Pin pins_v31[] = {PINS_EXT_31, PIN_BRICKLET_ENABLE};
+		PIO_Configure(pins_v31, PIO_LISTSIZE(pins_v31));
 
 		// Overwrite Bricklet pins that are initialized in bricklib
-		Pin pin_d_1_ad_30 = BRICKLET_D_PIN_1_AD_30;
-		Pin pin_d_2_da_30 = BRICKLET_D_PIN_2_DA_30;
-		memcpy(&bs[3].pin1_ad, &pin_d_1_ad_30, sizeof(Pin));
-		memcpy(&bs[3].pin2_da, &pin_d_2_da_30, sizeof(Pin));
+		Pin pin_d_1_ad_31 = BRICKLET_D_PIN_1_AD_31;
+		Pin pin_d_2_da_31 = BRICKLET_D_PIN_2_DA_31;
+		memcpy(&bs[3].pin1_ad, &pin_d_1_ad_31, sizeof(Pin));
+		memcpy(&bs[3].pin2_da, &pin_d_2_da_31, sizeof(Pin));
 
 		brick_only_supports_7p = true;
 	}
