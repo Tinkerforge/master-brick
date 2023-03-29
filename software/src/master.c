@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2015 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2015, 2023 Olaf Lüke <olaf@tinkerforge.com>
  *
  * master.c: Master specific functions
  *
@@ -158,8 +158,12 @@ void master_init(void) {
 }
 
 uint8_t master_get_hardware_version(void) {
-	Pin detect[] = {PIN_MASTER20_DETECT, PIN_MASTER21_DETECT, PIN_MASTER31_DETECT};
+	Pin detect[] = {PIN_MASTER20_DETECT, PIN_MASTER21_DETECT, PIN_MASTER31_DETECT, PIN_MASTER32_DETECT};
 	PIO_Configure(detect, PIO_LISTSIZE(detect));
+
+	if((!PIO_Get(&detect[0])) && (!PIO_Get(&detect[1])) && (!PIO_Get(&detect[2])) && (!PIO_Get(&detect[3]))) {
+		return 32;
+	}
 
 	if((!PIO_Get(&detect[0])) && (!PIO_Get(&detect[1])) && (!PIO_Get(&detect[2]))) {
 		return 31;

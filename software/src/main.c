@@ -1,5 +1,5 @@
 /* master-brick
- * Copyright (C) 2010-2013 Olaf Lüke <olaf@tinkerforge.com>
+ * Copyright (C) 2010-2013, 2023 Olaf Lüke <olaf@tinkerforge.com>
  *
  * main.c: Master-Brick startup code
  *
@@ -127,11 +127,17 @@ int main() {
 		PIO_Configure(pins_extension, PIO_LISTSIZE(pins_extension));
 	} else {
 		// Set dummy calibration, to make sure that calibration is not read
-		// from flash in Master Brick HW Version 3.0
+		// from flash in Master Brick HW Version >=3.0
 		adc_set_calibration(0, 1, 1);
-		brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_31;
-		brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_31;
-		brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_31;
+		if(version == 31) {
+			brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_31;
+			brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_31;
+			brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_31;
+		} else {
+			brick_hardware_version[0] = BRICK_HARDWARE_VERSION_MAJOR_32;
+			brick_hardware_version[1] = BRICK_HARDWARE_VERSION_MINOR_32;
+			brick_hardware_version[2] = BRICK_HARDWARE_VERSION_REVISION_32;
+		}
 		Pin pins_v31[] = {PINS_EXT_31, PIN_BRICKLET_ENABLE};
 		PIO_Configure(pins_v31, PIO_LISTSIZE(pins_v31));
 
