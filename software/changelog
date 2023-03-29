@@ -255,5 +255,5 @@
 - Fix mixup with extension pins
 - Make chip temperature compatible with both sam3s and sam4s (through bricklib)
 
-2023-03-29: 2.5.2 (TBD)
+2023-03-29: 2.5.2 (0beafd0)
 - Add support for Master Brick 3.2 (will now show as hardware verison 3.2 in Brick Viewer)
